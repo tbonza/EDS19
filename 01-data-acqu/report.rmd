@@ -1,0 +1,7 @@
+---
+title: "A1: Data Acquisition"
+author: Tyler Brown
+output: pdf_document
+---
+
+ok go
