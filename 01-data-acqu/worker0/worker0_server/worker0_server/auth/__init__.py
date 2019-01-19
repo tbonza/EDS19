@@ -1,5 +1,10 @@
 from flask import Blueprint
 
-auth = Blueprint('auth', __name__)
+from .oauth_provider import default_provider
 
-from worker0_server.auth import views
+auth = Blueprint('auth', __name__)
+oauth = default_provider(auth)
+
+from . import views
+
+

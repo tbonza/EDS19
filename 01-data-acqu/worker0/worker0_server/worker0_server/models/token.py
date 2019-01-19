@@ -1,4 +1,9 @@
 """ Related to OAuth 2.0 """
+from datetime import datetime, timedelta
+
+from sqlalchemy.orm import relationship
+
+from . import db
 
 class Token(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -1,5 +1,8 @@
 """ Related to OAuthLib 2.0 """
 
+from . import db
+from .user import User
+
 class Client(db.Model):
     # id = db.Column(db.Integer, primary_key=True)
     # human readable name

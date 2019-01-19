@@ -1,5 +1,7 @@
 """ Related to OAuth 2.0 """
 
+from . import db
+
 class Grant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(
