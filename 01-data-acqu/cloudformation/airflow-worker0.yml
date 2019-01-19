@@ -1,4 +1,0 @@
-AWSTemplateFormatVersion: '2010-09-09'
-
-Description: Airflow Worker0 Configuration, used for GitHub data
-
