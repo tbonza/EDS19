@@ -1,0 +1,20 @@
+---
+title: "A1: Data Acquisition"
+author: Tyler Brown
+output: pdf_document
+---
+
+# AWS
+
+Definitely not doing this project on my laptop. Using AWS and
+the Cloud Formation templates
+
+# Scheduler
+
+Apache Airflow
+
+
+# Worker
+
+Using Flask to create `worker0` to handle data collection, and 
+extraction. 
