@@ -14,6 +14,7 @@ manager = Manager(app)
 
 @manager.command
 def list_routes():
+    """ List all available application routes. """
     output = []
     for rule in app.url_map.iter_rules():
 

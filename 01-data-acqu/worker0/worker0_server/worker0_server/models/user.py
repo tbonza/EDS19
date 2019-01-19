@@ -2,7 +2,7 @@
 
 from sqlalchemy.orm import relationship
 
-from . import db
+from worker0_server.db import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

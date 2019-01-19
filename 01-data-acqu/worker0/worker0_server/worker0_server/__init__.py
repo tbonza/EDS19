@@ -4,7 +4,7 @@ from flask_sslify import SSLify
 from config import config
 
 from worker0_server.main import main as main_blueprint
-#from worker0_server.auth import auth as auth_blueprint
+from worker0_server.auth import auth as auth_blueprint
 #from worker0_server.api import api as api_blueprint
 
 
@@ -21,7 +21,7 @@ def create_app(config_name):
         sslify = SSLify(app)
 
     app.register_blueprint(main_blueprint)
-    #app.register_blueprint(auth_blueprint, url_prefix='/auth')
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
     #app.register_blueprint(api_blueprint, url_prefix='/api/v1')
 
     return app

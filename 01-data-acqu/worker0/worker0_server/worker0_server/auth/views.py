@@ -2,7 +2,7 @@
 
 from flask import g, render_template, request, jsonify
 
-from ..models import User
+#from ..models import User
 from . import auth
 
 @auth.before_request

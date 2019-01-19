@@ -5,10 +5,10 @@ from flask_oauthlib.provider import OAuth2Provider
 from flask_oauthlib.contrib.oauth2 import bind_sqlalchemy
 from flask_oauthlib.contrib.oauth2 import bind_cache_grant
 
-from .models.user import User
-from .models.client import Client
-from .models.grant import Grant
-from .models.token import Token
+from ..models.user import User
+from .client import Client
+from .grant import Grant
+from .token import Token
 
 from . import auth
 
