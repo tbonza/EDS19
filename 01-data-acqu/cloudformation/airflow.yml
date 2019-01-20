@@ -330,11 +330,10 @@ Resources:
     Properties:
       Size: '1500'
       Encrypted: 'false'
-      AvailabilityZone: !FindInMap 
-        - RegionMap
-        - !Ref 'AWS::Region'
-        - AMI
-      DeletionPolicy: Snapshot
+      AvailabilityZone:
+        - !GetAtt
+          - EC2Instance
+          - AvailabilityZone
     Metadata:
       'AWS::CloudFormation::Designer':
         id: def97781-cc1a-4c3a-acc5-a1f3f29938e6
