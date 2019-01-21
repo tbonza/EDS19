@@ -31,7 +31,7 @@ def clone_repos(repos: list, dirpath: str) -> bool:
         
         if not os.path.exists(rpath):
 
-            logger.info("Started clone{}".format(repo_name))
+            logger.info("Started clone '{}'".format(repo_name))
             res = subprocess.run(["git", "clone", repo_path, rpath],
                                  capture_output = True)
 
@@ -56,31 +56,21 @@ def update_repos(repos: list, dirpath: str) -> bool:
 
     for repo_name in repos:
 
-        res = subprocess.run(["cd", dirpath + repo_name],
-                             capture_output=True)
+        repo = repo_name.split("/")[-1]
+        dpath = dirpath + repo
 
-        if res.returncode == 0:
+        s1 = subprocess.run(["git", "fetch"], cwd=dpath)
+        if s1.returncode == 0:
 
-            res2 = subprocess.run(c1, capture_output=True)
+            s2 = subprocess.run(["git", "merge", "origin/master"], cwd=dpath)
 
-            if res2.returncode == 0:
-
-                res3 = subprocess.run(c2, capture_output=True)
-
-                if res3.returncode == 0:
-
-                    logger.info("Successfully updated '{}'".format(repo_name))
-
-                else:
-                    logger.error("Unable to merge upstream '{}'".\
-                                 format(repo_name))
+            if s2.returncode == 0:
+                logger.info("SUCCESS - updated '{}'".format(repo_name))
 
             else:
-
-                logger.error("Unable to fetch '{}'".format(repo_name))
-
+                logger.error("Unable to merge upstream: {}".\
+                             format(repo_name))
         else:
-
-            logger.error("Cannot change to directory: {}".\
-                         format(dirpath + repo_name))
+            logger.error("Unable to fetch '{}'".format(repo_name))
+            
     return True
