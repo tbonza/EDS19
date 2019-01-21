@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='okra',
-    version='0.1dev',
+    version='0.2dev',
     packages=['okra',],
     license='MIT',
     long_description=open('README.md').read(),
