@@ -21,6 +21,21 @@ def read_repos(fpath: str) -> list:
         logger.error("File not found: {}".format(fpath))
         return []
 
+def clone_repo(repo_name: str, dirpath: str) -> bool:
+    """ Clone GitHub repo. """
+    repo_path = "https://github.com/{}.git".format(repo_name)
+    rpath = dirpath + repo_name.split("/")[-1]
+
+    res = subprocess.run(["git", "clone", repo_path, rpath],
+                         capture_output = True)
+
+    if res.returncode == 0 and os.path.exists(rpath):
+        return True
+    else:
+        return False
+
+
+
 def clone_repos(repos: list, dirpath: str) -> bool:
     """ Clone repos if they do not already exist. """
     
