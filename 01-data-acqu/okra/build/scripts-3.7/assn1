@@ -1,0 +1,29 @@
+#!/Users/tylerbrown/miniconda3/envs/ds6050/bin/python
+
+import argparse
+import logging
+
+from okra.logging_utils import enable_log
+from okra.repo_mgmt import read_repos, clone_repos
+
+logger = logging.getLogger(__name__)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("repo_list",
+                    help="file path to list of GitHub repos")
+parser.add_argument("directory_path",
+                    help="file path to directory storing git repos")
+parser.add_argument("logname",
+                    help="name of log file")
+
+args = parser.parse_args()
+
+def repo_clone_main(fpath="repos.list", dirpath="/dev/sdf/"):
+    repos = read_repos(fpath)
+    clone_repos(repos, dirpath)
+    
+enable_log(args.logname)
+logger.info("Started process")
+repo_clone_main(args.repo_list, args.directory_path)
+logger.info("Completed process")
+    
