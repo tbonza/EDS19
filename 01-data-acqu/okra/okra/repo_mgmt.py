@@ -51,7 +51,36 @@ def update_repos(repos: list, dirpath: str) -> bool:
     """ Drop into each repo and update code with new commits. """
 
     # cd into directory
-    c1 = "git fetch"
-    c2 = "git merge origin/master"
+    c1 = ["git", "fetch"]
+    c2 = ["git", "merge", "origin/master"]
 
+    for repo_name in repos:
+
+        res = subprocess.run(["cd", dirpath + repo_name],
+                             capture_output=True)
+
+        if res.returncode == 0:
+
+            res2 = subprocess.run(c1, capture_output=True)
+
+            if res2.returncode == 0:
+
+                res3 = subprocess.run(c2, capture_output=True)
+
+                if res3.returncode == 0:
+
+                    logger.info("Successfully updated '{}'".format(repo_name))
+
+                else:
+                    logger.error("Unable to merge upstream '{}'".\
+                                 format(repo_name))
+
+            else:
+
+                logger.error("Unable to fetch '{}'".format(repo_name))
+
+        else:
+
+            logger.error("Cannot change to directory: {}".\
+                         format(dirpath + repo_name))
     return True
