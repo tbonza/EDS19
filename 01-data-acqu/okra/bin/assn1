@@ -36,6 +36,7 @@ elif args.action == "update":
 
 elif args.action == "extract_data":
     logger.info("STARTED extracting data from git repos")
+    extract_data_main(args.repo_list, args.directory_path)
     logger.info("FINISHED extracting data from git repos")
 
 else:

@@ -9,6 +9,7 @@ import logging
 import os
 import subprocess
 
+from okra.repo_mgmt import read_repos
 from okra.protobuf.assn1_pb2 import Commit, Message, File
 
 logger = logging.getLogger(__name__)
@@ -138,61 +139,107 @@ def parse_files(rpath: str):
     file path
     """
     c1 = ["git", "log",
-          '--pretty=format:"^|^%n%H"',
+          '--pretty=^|^%n%H',
           '--numstat']
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
         logger.info("SUCCESS -- extracted files_csv info")
-        return res.stdout
+        rows = res.stdout.decode('utf-8', 'ignore').split("^|^")
 
+        for row_num, row in enumerate(rows):
+
+            grp = row.splitlines()
+
+            if len(grp) >= 3:
+                
+                hash_val = grp[1]
+
+                for i in range(3, len(grp)):
+
+                    possible_file = grp[i].split()
+
+                    if len(possible_file) == 3:
+                    
+                        finfo = File()
+                        
+                        finfo.hash_val = hash_val
+                        finfo.file_path = possible_file[-1]
+
+                        yield finfo
+
+            else:
+                if len(grp) != 2:
+                    logger.error("Issue with row {}, repo '{}'".\
+                                 format(row_num, rpath))
     else:
         logger.error("FAIL -- unable to extract files_csv")
-        return ""
 
-def write_bulk_csv(fpath: str, dirpath: str, repos:list, write_line,
-                   delim=",", quotechar='"'):
-    """ Write a bulk csv file.
+def write_line_files(parsed_files):
+    """ Generate a line for each git filepath message. """
 
-    This is honestly going to get corrupted no matter what
-    so I'm just doing this because the assignment requests 
-    it.
+    for file_item in parsed_files:
 
-    :param fpath: file path to csv output file
-    :param dirpath: directory path containing git repos
-    :param repos: list of repo names
-    :param write_line: function, used to write line for 
-        a specific row type.
-    :return: writes csv file to disk
-    :rtype: None
-    """
-    row_count = 0
-    try:
-        logger.info("STARTED writing csv file: {}".format(fpath))
-        with open(fpath, "w") as outfile:
-            writer = csv.writer(outfile, delimiter=delim,
-                                quotechar=quotechar,
-                                quoting=csv.QUOTE_MINIMAL)
-            
-            for row in write_line(repos, dirpath):
+        row = [
+            file_item.hash_val,
+            file_item.file_path,
+        ]
 
-                try:
-                    writer.writerow(row)
-
-                except Exception as exc:
-                    logger.exception(exc)
-
-                if row_count % 10000 == 0:
-                    logger.info("Wrote {} rows to {}".\
-                                format(row_count, fpath))
-
-                row_count += 1
-
-        logger.info("Wrote {} rows to {}".format(row_count, fpath))
-        logger.info("FINISHED writing csv file: {}".format(fpath))
-
-    except Exception as exc:
-        logger.exception(exc)
+        yield row
 
 def extract_data_main(fpath: str, dirpath: str):
-    pass
+    """ Extract data as requested in Assignment 1. """
+    logger.info("STARTED data extraction")
+    
+    commits = "commits.csv"
+    messages = "messages.csv"
+    files = "files.csv"
+    
+    outfiles = [{"parse"     : parse_commits,
+                 "line"      : write_line_commits,
+                 "file_name" : commits},
+                {"parse"     : parse_messages,
+                 "line"      : write_line_messages,
+                 "file_name" : messages},
+                {"parse"     : parse_files,
+                 "line"      : write_line_files,
+                 "file_name" : files}]
+
+    repos = read_repos(fpath)
+    logger.info("Extracting data for {} git repos".format(len(repos)))
+
+    outs = {
+        commits : open(dirpath + commits, "w"),
+        messages: open(dirpath + messages, "w"),
+        files: open(dirpath + files, "w"),
+    }
+
+    repo_count = 0
+    for repo_name in repos:
+
+        rpath = dirpath + repo_name.split("/")[-1]
+
+        logger.info("Extracting data in repo '{}'".format(rpath))
+
+        for out_item in outfiles:
+
+            lines = out_item["line"](out_item["parse"](rpath))
+
+            logger.info("Adding to file '{}'".format(out_item["file_name"]))
+
+            writer = csv.writer(outs[out_item["file_name"]],
+                                delimiter=",",
+                                quotechar='"',
+                                quoting=csv.QUOTE_MINIMAL)
+
+            for line in lines:
+
+                writer.writerow(line)
+
+    for key in outs.keys():
+
+        outs[key].close()
+
+    logger.info("Closed files")
+    logger.info("FINISHED data extraction")
+

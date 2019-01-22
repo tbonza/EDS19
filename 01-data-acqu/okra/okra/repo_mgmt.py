@@ -119,5 +119,3 @@ def repo_update_main(fpath: str, dirpath: str):
     logger.info("Finished updating {} GitHub repositories".\
                 format(total_repos))
 
-
-
