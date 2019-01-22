@@ -85,3 +85,6 @@ def parse_files_csv():
 
 def parse_assn1_data():
     pass
+
+def extract_data_main(fpath: str, dirpath: str):
+    pass

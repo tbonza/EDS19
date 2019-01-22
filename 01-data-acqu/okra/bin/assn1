@@ -4,21 +4,10 @@ import argparse
 import logging
 
 from okra.logging_utils import enable_log
-from okra.repo_mgmt import read_repos, clone_repos, update_repos
+from okra.repo_mgmt import repo_clone_main, repo_update_main
+from okra.assn1_data import extract_data_main
 
 logger = logging.getLogger(__name__)
-
-def repo_clone_main(fpath: str, dirpath: str):
-    repos = read_repos(fpath)
-    clone_repos(repos, dirpath)
-
-def repo_update_main(fpath: str, dirpath: str):
-    repos = read_repos(fpath)
-    update_repos(repos, dirpath)
-
-def extract_data_main(fpath: str, dirpath: str):
-    repos = read_repos(fpath)
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("action",
