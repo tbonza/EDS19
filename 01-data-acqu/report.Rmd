@@ -3,18 +3,46 @@ title: "A1: Data Acquisition"
 author: Tyler Brown
 output: pdf_document
 ---
-
-# AWS
-
-Definitely not doing this project on my laptop. Using AWS and
-the Cloud Formation templates
-
-# Scheduler
-
-Apache Airflow
+```{r, include=FALSE}
+library(tibble)
+library(knitr)
+```
 
 
-# Worker
 
-Using Flask to create `worker0` to handle data collection, and 
-extraction. 
+# Architecture
+
+# Performance
+
+## Run Time
+
+```{r, echo=FALSE}
+runtime <- tibble(
+	`Process` = c("Get repos", "Update repos", "Extract data"),
+	`Log Start Time` = c("2019-01-21 02:54:16", "2019-01-22 03:08:06",
+	"2019-01-22 07:31:02"),
+	`Log End Time` = c("2019-01-21 04:40:18", "2019-01-22 03:11:34",
+	"2019-01-22 09:36:33"),
+	`Hours Estimate` = c(1.5, 0.05, 2.0)
+)
+kable(runtime, caption="Run Times by Process")
+```
+
+Get repos
+
+
+
+
+
+## Disk Space
+
+
+```{r, echo=FALSE}
+disk <- tibble(
+`Name` = c("commits.csv", "files.csv", "messages.csv", "/repos/"),
+`Disk usage` = c("881M", "1.9G", "1.3G", "98G")
+)
+kable(disk, caption="Disk Usage by Name")
+```
+
+
