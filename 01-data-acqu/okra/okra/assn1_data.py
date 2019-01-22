@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_commits(rpath: str):
-    """ 
+    """ Yields a protocol buffer of git commit information.
 
     commits.csv collects basic information about 
     commits and contains the following columns:
@@ -55,8 +55,6 @@ def parse_commits(rpath: str):
                 yield commit
 
             else:
-                print(len(items))
-                print(items)
                 logger.error("Issue with row {}, repo '{}'".\
                              format(row_num, rpath))            
     else:
@@ -78,8 +76,8 @@ def write_line_commits(parsed_commits):
         yield row
 
 def parse_messages(rpath: str):
-    """
-
+    """ Yields a protocol buffer of a git commit message.
+    
     messages.csv collects commit messages and their 
     subject as follows:
 
@@ -93,11 +91,40 @@ def parse_messages(rpath: str):
 
     if res.returncode == 0:
         logger.info("SUCCESS -- extracted messages_csv info")
-        return res.stdout
 
+        rows = res.stdout.splitlines()
+
+        for row_num, row in enumerate(rows):
+
+            items = row.decode('utf-8', 'ignore').split("^|^")
+
+            if len(items) == 3:
+
+                message = Message()
+
+                message.hash_val = items[0]
+                message.subject = items[1]
+                message.message_body = items[2]
+
+                yield message
+                
+            else:
+                logger.error("Issue with row {}, repo '{}'".\
+                             format(row_num, rpath))
     else:
         logger.error("FAIL -- unable to extract messages_csv")
-        return ""
+
+def write_line_messages(parsed_messages):
+    """ Generate a line for each git commit message. """
+
+    for message in parsed_messages:
+
+        row = [
+            message.hash_val,
+            message.subject,
+            message.message_body,
+        ]
+        yield row
 
 def parse_files(rpath: str):
     """
