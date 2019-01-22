@@ -1,6 +1,8 @@
 """ GitHub Repo Managment
 
-Related to downloading and updating GitHub repos. 
+Related to downloading and updating GitHub repos. See
+the 'assn1' script in bin/assn1 to handle get and update
+features.
 """
 import logging
 import os
