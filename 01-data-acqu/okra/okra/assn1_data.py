@@ -86,17 +86,17 @@ def parse_messages(rpath: str):
     message
     """
     c1 = ["git", "log",
-          "--pretty=%H^|^%s^|^%b"]
+          "--pretty=^^!^^%H^|^%s^|^%b"]
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
         logger.info("SUCCESS -- extracted messages_csv info")
 
-        rows = res.stdout.splitlines()
+        rows = res.stdout.decode('utf-8', 'ignore').split("^^!^^")
 
         for row_num, row in enumerate(rows):
 
-            items = row.decode('utf-8', 'ignore').split("^|^")
+            items = row.split("^|^")
 
             if len(items) == 3:
 
