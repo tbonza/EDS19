@@ -31,7 +31,7 @@ def clone_repo(repo_name: str, dirpath: str) -> bool:
     res = subprocess.run(["git", "clone", repo_path, rpath],
                          capture_output=True)
 
-    if res.returncode == 0 and os.path.exists(rpath):
+    if os.path.exists(rpath):
         return True
     else:
         return False
