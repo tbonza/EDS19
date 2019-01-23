@@ -23,15 +23,33 @@ def read_repos(fpath: str) -> list:
         logger.error("File not found: {}".format(fpath))
         return []
 
+def create_parent_dir(repo_name: str, dirpath: str) -> bool:
+    """ Create parent directory before cloning repo.
+
+    https://github.com/tbonza/EDS19/issues/8
+    """
+    parent_dir = repo_name.split("/")[0]
+    ppath = dirpath + parent_dir
+    
+    if os.path.exists(ppath):
+        return True
+
+    res = subprocess.run(["mkdir", ppath], capture_output=True)
+
+    if res.returncode == 0 and os.path.exists(ppath):
+        return True
+    else:
+        return False
+
 def clone_repo(repo_name: str, dirpath: str) -> bool:
     """ Clone GitHub repo. """
     repo_path = "https://github.com/{}.git".format(repo_name)
-    rpath = dirpath + repo_name.split("/")[-1]
+    rpath = dirpath + repo_name
 
     res = subprocess.run(["git", "clone", repo_path, rpath],
                          capture_output=True)
 
-    if os.path.exists(rpath):
+    if res.returncode == 0 and os.path.exists(rpath):
         return True
     else:
         return False
@@ -39,7 +57,7 @@ def clone_repo(repo_name: str, dirpath: str) -> bool:
 def update_repo(repo_name: str, dirpath: str) -> bool:
     """ Update repo with new code. """
     c1 = ["git", "fetch"]
-    rpath = dirpath + repo_name.split("/")[-1]
+    rpath = dirpath + repo_name
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
@@ -57,7 +75,7 @@ def repo_clone_main(fpath: str, dirpath: str):
     while repo_count < total_repos:
 
         repo_name = repos[repo_count]
-        rpath = dirpath + repo_name.split("/")[-1]
+        rpath = dirpath + repo_name
 
         logger.info("Cloning '{}', attempt {}".\
                     format(repo_name, tries))
@@ -68,8 +86,9 @@ def repo_clone_main(fpath: str, dirpath: str):
             repo_count += 1
 
         else:
+            yes_parent = create_parent_dir(repo_name, dirpath)
             attempt = clone_repo(repos[repo_count], dirpath)
-            if attempt:
+            if attempt and yes_parent:
                 logger.info("Successful clone: {}".format(repos[repo_count]))
                 repo_count += 1                
             else:
@@ -97,7 +116,7 @@ def repo_update_main(fpath: str, dirpath: str):
     while repo_count < total_repos:
 
         repo_name = repos[repo_count]
-        rpath = dirpath + repo_name.split("/")[-1]
+        rpath = dirpath + repo_name
 
         logger.info("Updating '{}', attempt {}".\
                     format(repo_name, tries))

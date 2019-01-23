@@ -5,6 +5,21 @@
   tasks:
   - name: test connection
     ping:
-  - name: install miniconda
-    ping:
+
+  - name: download miniconda
+    get_url:
+      url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+      dest: /home/ec2-user/Miniconda3-latest-Linux-x86_64.sh
+
+  - name: copy latest okra package to server
+    copy:
+      src: ../01-data-acqu/okra/dist/okra-0.5.dev0.tar.gz
+      dest: /home/ec2-user/okra-0.5.dev0.tar.gz
+
+  - name: copy repo list to server
+    copy:
+      src: ../01-data-acqu/repos.list
+      dest: /home/ec2-user/repos.list
+
+      
       
