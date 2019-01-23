@@ -11,6 +11,11 @@
       url: https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
       dest: /home/ec2-user/Miniconda3-latest-Linux-x86_64.sh
 
+  - name: install the latest version of git
+    yum:
+      name: git
+      state: latest
+
   - name: copy latest okra package to server
     copy:
       src: ../01-data-acqu/okra/dist/okra-0.5.dev0.tar.gz
