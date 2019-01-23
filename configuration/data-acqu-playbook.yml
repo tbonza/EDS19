@@ -18,8 +18,8 @@
 
   - name: copy latest okra package to server
     copy:
-      src: ../01-data-acqu/okra/dist/okra-0.5.dev0.tar.gz
-      dest: /home/ec2-user/okra-0.5.dev0.tar.gz
+      src: ../01-data-acqu/okra/dist/okra-0.5.dev1.tar.gz
+      dest: /home/ec2-user/okra-0.5.dev1.tar.gz
 
   - name: copy repo list to server
     copy:

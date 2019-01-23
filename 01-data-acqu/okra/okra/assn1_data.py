@@ -217,7 +217,7 @@ def extract_data_main(fpath: str, dirpath: str):
     repo_count = 0
     for repo_name in repos:
 
-        rpath = dirpath + repo_name.split("/")[-1]
+        rpath = dirpath + repo_name
 
         logger.info("Extracting data in repo '{}'".format(rpath))
 
