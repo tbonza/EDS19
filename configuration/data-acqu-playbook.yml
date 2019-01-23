@@ -1,0 +1,10 @@
+---
+- hosts: batchservers
+  remote_user: ec2-user
+  
+  tasks:
+  - name: test connection
+    ping:
+  - name: install miniconda
+    ping:
+      
