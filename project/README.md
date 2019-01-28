@@ -3,13 +3,9 @@
 This application is responsible for checking the security of 
 dependencies used in software development.
 
-## UI
-
-User interface allows you to login to view a data dashboard. 
-
-## Next:
-
-* **Token Authentication**
+GitHub already provides [security alerts for vulnerable dependencies](https://help.github.com/articles/about-security-alerts-for-vulnerable-dependencies/). 
+SAU will have to replicate this feature and extend it to provide
+compelling value.
 
 
 ## References
