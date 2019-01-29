@@ -1,4 +1,9 @@
 *~
 __pycache__
 db.sqlite3
-target3
+target
+logs
+airflow*
+unittests.cfg
+.DS_Store
+.vscode
