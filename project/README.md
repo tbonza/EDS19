@@ -7,6 +7,18 @@ GitHub already provides [security alerts for vulnerable dependencies](https://he
 SAU will have to replicate this feature and extend it to provide
 compelling value.
 
+## Gameplan
+
+1. Authorization server
+1. User Interface server
+1. Resource server
+1. Admin server
+1. Replicate GitHub security alert feature (needs to be done by midterm time)
+1. Extend GitHub security alert feature
+
+If I can't replicate the GitHub feature by midterm time then I'll
+have to ditch this approach and write a research paper.
+
 
 ## References
 
