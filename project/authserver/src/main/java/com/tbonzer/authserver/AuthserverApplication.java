@@ -57,8 +57,12 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
     @Order(-20)
     protected static class LoginConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean()
+	    throws Exception {
+	    return super.authenticationManagerBean();
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -75,7 +79,7 @@ public class AuthserverApplication extends WebMvcConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth)
 	    throws Exception {
-	    auth.parentAuthenticationManager(authenticationManager);
+	    auth.parentAuthenticationManager(authenticationManagerBean());
 	}
     }
 
