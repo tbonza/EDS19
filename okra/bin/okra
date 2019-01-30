@@ -18,8 +18,9 @@ if args.logfile:
     enable_log(args.logfile)
 
 if args.playbook:
-    enable_
+    logger.info("STARTED okra process")
     print("found it")
+    logger.info("FINISHED okra process")
 
 else:
     parser.print_help()
