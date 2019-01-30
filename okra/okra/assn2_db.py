@@ -14,6 +14,45 @@ def config_assn2_schema():
     """ Configure the database schema for assignment 2 """
     metadata = MetaData()
 
+    commit_meta = Table('commit_meta', metadata,
+                       Column('id', Integer, primary_key=True),
+                       Column('owner_name', String),
+                       Column('project_name', String),
+                       Column('commit_hash', String),
+    )
+
+    commit_author = Table('commit_author', metadata,
+                          Column('id', Integer, primary_key=True),
+                          Column('commit_hash', String), # foreign key
+                          Column('author_name', String),
+                          Column('author_email', String),
+                          Column('author_datetime', DateTime),
+    )
+
+    commit_contribs = Table('commit_contribs', metadata,
+                            Column('id', Integer, primary_key=True),
+                            Column('commit_hash', String), # foreign key
+                            Column('contrib_name', String),
+                            Column('contrib_email', String),
+                            Column('contrib_datetime', DateTime),
+    )
+
+    commit_file = Table('commit_file', metadata,
+                        Column('id', Integer, primary_key=True),
+                        Column('commit_hash', String), # foreign key
+                        Column('modified_file', String),
+                        Column('modified_add_lines', Integer),
+                        Column('modified_subtract_lines', Integer),
+    )
+
+    commit_info = Table('commit_info', metadata,
+                        Column('id', Integer, primary_key=True),
+                        Column('commit_hash', String), # foreign key
+                        Column('subject', String),
+                        Column('message', String),
+    )
+
+    reference = """
     master = Table('master', metadata,
                    Column('id', Integer, primary_key=True),
                    Column('owner_name', String),
@@ -31,7 +70,7 @@ def config_assn2_schema():
                    Column('commit_modified_file', String),
                    Column('commit_modified_add_lines', Integer),
                    Column('commit_modified_subtract_lines', Integer),
-    )              
+    )"""            
     return metadata
 
 def metadata_tosql(metadata, db_url: str):
