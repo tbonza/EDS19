@@ -22,4 +22,13 @@ in `DS 6050 Assignment 1 <http://janvitek.org/events/NEU/6050/a1.html>`_.
 .. automodule:: okra.assn1_data
    :members:
 
+Assignment 2 Database Schemata
+------------------------------
+
+Utilities for creating and implementing the
+database schemata requested in
+`DS 6050 Assignment 2 <http://janvitek.org/events/NEU/6050/a2.html>`_.
+
+.. automodule:: okra.assn2_db
+   :members:
 
