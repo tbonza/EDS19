@@ -1,0 +1,19 @@
+---
+- hosts: local
+
+  tasks:
+    - name: Select predefined schema for Assignment 2
+      schema: {okra.assn2_db.config_assn2_schema}
+
+    - name: Output SQL script of database schema
+      dest: schema.sqlite
+      transform:
+        args: tasks.schema
+        function: {okra.assn2_db.write_sql_schema}
+
+    - name: Output ERM Diagram as PNG Image
+      dest: assn2_erm_diagram.png
+      transform:
+        args: tasks.schema
+        function: {okra.assn2_db.erm_diagram}
+

@@ -6,6 +6,7 @@ http://janvitek.org/events/NEU/6050/a2.html
 import io
 from contextlib import redirect_stdout
 
+from eralchemy import render_er
 from sqlalchemy import create_engine
 from sqlalchemy import (Table, Column, Integer, String, MetaData,
                         ForeignKey, DateTime)
@@ -15,65 +16,59 @@ def config_assn2_schema():
     metadata = MetaData()
 
     commit_meta = Table('commit_meta', metadata,
-                       Column('id', Integer, primary_key=True),
-                       Column('owner_name', String),
-                       Column('project_name', String),
-                       Column('commit_hash', String),
+                       Column('id', Integer, primary_key=True, nullable=False),
+                       Column('owner_name', String, nullable=False),
+                       Column('project_name', String, nullable=False),
+                       Column('commit_hash', String,
+                              ForeignKey("commit_info.commit_hash"),
+                              ForeignKey("commit_author.commit_hash"),
+                              ForeignKey("commit_contribs.commit_hash"),
+                              ForeignKey("commit_file.commit_hash"),
+                              nullable=False, index=True, unique=True),
     )
 
     commit_author = Table('commit_author', metadata,
                           Column('id', Integer, primary_key=True),
-                          Column('commit_hash', String), # foreign key
-                          Column('author_name', String),
-                          Column('author_email', String),
-                          Column('author_datetime', DateTime),
+                          Column('commit_hash', String, nullable=False,
+                                 index=True, unique=True),
+                          Column('author_name', String, nullable=False,
+                                 index=True),
+                          Column('author_email', String, nullable=True),
+                          Column('author_datetime', DateTime, nullable=False),
     )
 
     commit_contribs = Table('commit_contribs', metadata,
                             Column('id', Integer, primary_key=True),
-                            Column('commit_hash', String), # foreign key
-                            Column('contrib_name', String),
-                            Column('contrib_email', String),
-                            Column('contrib_datetime', DateTime),
+                            Column('commit_hash', String, nullable=False,
+                                   index=True, unique=True),
+                            Column('contrib_name', String, nullable=False,
+                                   index=True),
+                            Column('contrib_email', String, nullable=True),
+                            Column('contrib_datetime', DateTime,
+                                   nullable=False),
     )
 
     commit_file = Table('commit_file', metadata,
                         Column('id', Integer, primary_key=True),
-                        Column('commit_hash', String), # foreign key
-                        Column('modified_file', String),
-                        Column('modified_add_lines', Integer),
-                        Column('modified_subtract_lines', Integer),
+                        Column('commit_hash', String, nullable=False,
+                               index=True, unique=True),
+                        Column('modified_file', String, nullable=False),
+                        Column('modified_add_lines', Integer, nullable=False),
+                        Column('modified_subtract_lines', Integer,
+                               nullable=False),
     )
 
     commit_info = Table('commit_info', metadata,
                         Column('id', Integer, primary_key=True),
-                        Column('commit_hash', String), # foreign key
-                        Column('subject', String),
-                        Column('message', String),
+                        Column('commit_hash', String, nullable=False,
+                               index=True, unique=True),
+                        Column('subject', String, nullable=False),
+                        Column('message', String, nullable=False),
     )
 
-    reference = """
-    master = Table('master', metadata,
-                   Column('id', Integer, primary_key=True),
-                   Column('owner_name', String),
-                   Column('project_name', String),
-                   Column('commit_hash', String),
-                   Column('parent_commit_hash', String),
-                   Column('commit_author_name', String),
-                   Column('commit_author_email', String),
-                   Column('commit_commiter_name', String),
-                   Column('commit_commiter_email', String),
-                   Column('commit_author_datetime', DateTime),
-                   Column('commit_commiter_datetime', DateTime),
-                   Column('commit_subject', String),
-                   Column('commit_message', String),
-                   Column('commit_modified_file', String),
-                   Column('commit_modified_add_lines', Integer),
-                   Column('commit_modified_subtract_lines', Integer),
-    )"""            
     return metadata
 
-def metadata_tosql(metadata, db_url: str):
+def metadata_tosql(metadata: MetaData, db_url: str):
     """ Convert Database metadata into SQL statements. 
     
     Generate SQL for any database supported by SQLAlchemy.
@@ -98,4 +93,13 @@ def metadata_tosql(metadata, db_url: str):
     out = f.getvalue()
     return out
 
+def erm_diagram(metadata: MetaData, fpath: str):
+    """ Output an Entity-Relationship-Model (ERM).
+
+    :param metadata: sqlalchemy.MetaData() for a specified schema
+    :param fpath: file path to output image
+    :return: Writes a png image of the ERM
+    :rtype: None
+    """
+    render_er(metadata, fpath)
     

@@ -4,6 +4,8 @@ Tools for working with GitHub data. It's helpful to have these tools
 in a Python package because GitHub data requires moving across directory
 structures. 
 
+We're going to use the ansible approach.
+
 ## Install
 
 ```shell

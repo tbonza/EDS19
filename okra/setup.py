@@ -9,6 +9,7 @@ setup(
     install_requires=[
         'protobuf==3.6.1',
         'sqlalchemy==1.2.17',
+        'eralchemy==1.2.10',
     ],
     scripts=['bin/okra'],
     setup_requires=['pytest-runner'],
