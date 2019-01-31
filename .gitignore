@@ -3,6 +3,7 @@ __pycache__
 db.sqlite3
 target
 logs
+*.log
 airflow*
 unittests.cfg
 .DS_Store
