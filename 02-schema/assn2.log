@@ -1,0 +1,13 @@
+2019-01-30 21:49:35,919 INFO STARTED okra process
+2019-01-30 21:49:35,922 INFO TASK IDENTIFIED: assn2
+2019-01-30 21:49:35,922 INFO INITIALIZED task_id: assn2
+2019-01-30 21:49:35,922 INFO Task args:
+    schema_dest: schema.sqlite,
+    diagram_dest: assn2_erm_diagram.png,
+    db_url: sqlite:///:memory
+    
+2019-01-30 21:49:35,933 INFO Retrieved metadata
+2019-01-30 21:49:35,933 INFO Generating SQL
+2019-01-30 21:49:35,940 INFO Generating diagram
+2019-01-30 21:49:36,028 INFO COMPLETED task_id: assn2
+2019-01-30 21:49:36,029 INFO FINISHED okra process
