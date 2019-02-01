@@ -7,6 +7,13 @@ GitHub already provides [security alerts for vulnerable dependencies](https://he
 SAU will have to replicate this feature and extend it to provide
 compelling value.
 
+# Current Task
+
+[Spring Boot2 and OAuth2](https://github.com/spring-guides/tut-spring-boot-oauth2)
+
+A lot of breaking changes popped up in Spring Boot 2. Tracking 
+those down to get a working Auth Server.
+
 ## Gameplan
 
 1. Authorization server
