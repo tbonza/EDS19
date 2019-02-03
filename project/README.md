@@ -1,27 +1,25 @@
 # Security Analysis Utility (SAU)
 
-This application is responsible for checking the security of 
-dependencies used in software development.
 
-GitHub already provides [security alerts for vulnerable dependencies](https://help.github.com/articles/about-security-alerts-for-vulnerable-dependencies/). 
-SAU will have to replicate this feature and extend it to provide
-compelling value.
+After wandering around in the desert for 40 days,
+it turns out that the Spring Framework doesn't currently
+support an OAuth2 Authorization Server.
 
-# Current Task
+* [29.3.3 Authorization Server](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#_authorization_server)
 
-[Spring Boot2 and OAuth2](https://github.com/spring-guides/tut-spring-boot-oauth2)
+It links you to 
 
-A lot of breaking changes popped up in Spring Boot 2. Tracking 
-those down to get a working Auth Server.
+* [6.8 OAuth 2.0 Resource Server](https://docs.spring.io/spring-security/site/docs/current/reference/htmlsingle/#oauth2client)
+* [OAuth2 Boot](https://docs.spring.io/spring-security-oauth2-boot/docs/2.2.x-SNAPSHOT/reference/html5/)
 
-## Gameplan
+These projects are either deprecated or do not contain an
+authorization server whatsoever. Previous implementations 
+of the Authorization Server no longer build successfully. 
 
-1. Authorization server
-1. User Interface server
-1. Resource server
-1. Admin server
-1. Replicate GitHub security alert feature (needs to be done by midterm time)
-1. Extend GitHub security alert feature
+The lack of support for an authorization server means I'll have
+to really think about a Plan B.
+
+
 
 If I can't replicate the GitHub feature by midterm time then I'll
 have to ditch this approach and write a research paper.
