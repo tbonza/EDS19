@@ -1,0 +1,16 @@
+---
+title: "Paper presentation: An in-depth study of the promises and perils of mining GitHub"
+author: Tyler Brown
+output: beamer_presentation
+---
+
+What are bad things that can happen when studying github?
+
+# What can this paper do for you?
+
+* Identify pain points when studying github
+* Reduce threats to the validity of your study
+
+# Summary of the paper
+
+Generate several easy to understand figures
