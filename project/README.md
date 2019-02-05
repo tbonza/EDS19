@@ -1,5 +1,11 @@
 # Security Analysis Utility (SAU)
 
+## New Plan
+
+Replicate the GitHub security feature using RMarkdown. Possibly 
+extend the feature using a decision tree.
+
+## Old Plan
 
 After wandering around in the desert for 40 days,
 it turns out that the Spring Framework doesn't currently
