@@ -53,6 +53,10 @@ engineering research?
   - *Avoid:* Do not rely just on the types of files within
 	the repositories, also review descriptions and README
 	files to ensure the projects fit the research needs
+
+```{r, echo=FALSE, out.width = "200px"}
+knitr::include_graphics("imgs/table2_revamp.png")
+```
 	
 # On the Users Involved with Projects
 
@@ -65,6 +69,10 @@ engineering research?
   - *Avoid:* Stay away from projects that have a high number of
 	committers who are not registered GitHub users and projects
 	with descriptions that explicitly state they are mirrors.
+	
+```{r, echo=FALSE, out.width = "200px"}
+knitr::include_graphics("imgs/table3_revamp.png")
+```
 	
 # On Pull Requests
 
