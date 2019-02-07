@@ -3,6 +3,11 @@ title: "Paper presentation: An in-depth study of the promises and perils of mini
 author: Tyler Brown
 output: beamer_presentation
 ---
+```{r, include=FALSE}
+library(ggplot2)
+library(tibble)
+library(knitr)
+```
 
 What are the promises and perils of mining GitHub for software 
 engineering research?
@@ -17,13 +22,16 @@ engineering research?
 
 # Summary of the paper
 
-TODO: Add summary
+* Provides 13 perils to avoid when analyzing GitHub repositories
+* Reviews Mining Software Repositories (MSR) 2014 Papers for 
+  susceptibility to these perils
 
-# Terminology
-
-TODO: add terminology 
-* Project - 
-* one other one
+* Peril discovery process:
+  1. *Quantitative analysis of project metadata.* Used GHTorrent
+     dataset.
+  1. *Manual analysis of a 434-project sample.* Random manual sample
+	 of 434 projects from the 3 million projects in the GHTorrent
+	 dataset.
 
 # Repositories are Part of Projects
 
@@ -105,22 +113,30 @@ TODO: add terminology
 	
 # Relationship Between Perils
 
-(Show Table 4)
+![(Table 4) GitHub Project Peril Matrix by Percentage](imgs/table5_revamp.png){scale=0.5}
 
 
 # An Analysis of the MSR 2014 Mining Challenge
 
-* TODO: What is the challenge
-* TODO: Why does it matter
-
-# MSR 2014 Dataset
-
-* TODO: Show a matrix of the issues with the dataset
-
+* Researchers were given a subset of the GHTorrent dataset to analyze and
+  derive new insights
+* Competition resulted in 9 accepted papers; these papers are their
+  dataset
 
 # MSR 2014 Papers
 
-* TODO: Show issues with the papers
+* **Peril XII:** GitHub's API does not expose all data
+  - Do watchers become contributors? (Sheoran et. al. 2014)
+	- GHTorrent may not recognize the dates that Watchers become Watchers,
+	  just the date GHTorrent noticed.
+
+* **Peril IX:** Many merged pull requests appear as non-merged
+  - What makes a pull request successful? (Rahman and Roy 2014)
+	- The analysis considered merged pull requests as successful,
+	  while marked-as-non-merged as unsuccessful
+  - How often are commits merged into the master branch? (Padhye et al. 2014)
+	- The number of recognized committers can be effected by whether
+	  a pull request was marked as merged
 
 # Discussion
 
