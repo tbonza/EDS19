@@ -138,3 +138,35 @@ def repo_update_main(fpath: str, dirpath: str):
     logger.info("Finished updating {} GitHub repositories".\
                 format(total_repos))
 
+def compress_repo(repo_name: str, dirpath: str) -> bool:
+    """ Compress repo for upload.
+
+    :param repo_name: git repo name with owner included; tensorflow/tensorflow
+    :param dirpath: directory path to git repo
+    :return: creates a compressed file of github repo
+    :rtype: True if git repo successfully compressed
+    """
+    repo_comp = repo_name.replace("/", "_") + ".tar.gz"
+    repo_path = dirpath + repo_name
+    c1 = ["tar", "-zcf", repo_comp, repo_path]
+    rpath = dirpath + repo_name
+    res = subprocess.run(c1, cwd=dirpath, capture_output=True)
+
+    if res.returncode == 0:
+        return True
+    else:
+        return False
+
+def decompress_repo(filepath: str, dirpath: str):
+    """ Decompress repo to a directory.
+
+    :param filepath: file path of tar.gz file
+    :param dirpath: directory path to place uncompressed file with repo owner
+    :return: Uncompresses file and writes 'git_owner_name/git_repo_name'
+             to the specified directory.
+    :rtype: True if successful
+    """
+    pass
+
+    
+

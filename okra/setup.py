@@ -7,6 +7,7 @@ setup(
     license='MIT',
     long_description=open('README.md').read(),
     install_requires=[
+        'boto3==1.9.93',
         'protobuf==3.6.1',
         'sqlalchemy==1.2.17',
         'eralchemy==1.2.10',
