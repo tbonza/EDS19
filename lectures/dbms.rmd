@@ -1,0 +1,942 @@
+---
+title: "Database Management Systems"
+author: Konrad Siek
+date: January 24, 2019
+output: 
+  ioslides_presentation:
+    widescreen: true
+    
+---
+
+# Intro
+
+## DBMS
+
+- network
+- graph
+- hierarchical
+- object-oriented
+- **relational**
+
+## Relational DBMS
+
+**Relational data**:
+
+- relations (tables),
+- attributes (columns),
+- relationships.
+
+**Relational algebra**:
+
+- selections,
+- joins,
+- projections,
+- unions, intersections, difference, etc.
+
+## Popular RDBMSs
+ 
+- **SQLite**,
+- **MySQL**,  
+- **PostgreSQL**, 
+- Oracle DB, 
+- IBM DB2, 
+- Microsoft SQL Server, 
+- MariaDB.
+
+## Popular RDBMSs
+
+**SQLite**
+
+Small single-threaded, single-file DBMS  
+Used by: Adobe, Apple, Bosch, Dropbox, Google, McAffee, Mozilla, Microsoft
+
+**MySQL**
+
+Well-performing open source relational DBMS, popular in web applications  
+Used by: Netflix, YouTube, Spotify, NASA, US Navy, Uber, Booking.com, WhiteHouse.Gov
+
+**PostgreSQL**
+
+Open source object-relational DBMS with emphasis on flexibility and standards   
+Used by: Apple, IMDB, Etsy, Debian, Red Hat, Cisco, Instagram, Reddit, Twitch
+
+## Plan!
+
+- Installing a DBMS
+- Designing a DB
+- Putting in all the data
+- Analyzing data
+- DB connectors 
+
+# Installing SQLite
+
+## SQLite on Linux
+
+**Ubuntu, Debian**
+
+``` bash
+sudo apt install sqlite3
+```
+
+**ArchLinux**
+
+```bash
+sudo pacman -S sqlite
+```
+
+**Fedora**
+
+``` bash
+sudo yum install sqlite
+```
+
+**openSUSE**
+
+``` bash
+sudo zypper install sqlite
+```
+
+## SQLite on Windows
+
+**Windows Subsystem for Linux (WSL)**
+
+``` bash
+sudo apt install sqlite3
+```
+
+**Otherwise**
+
+    - Go to [https://www.sqlite.org/download.html](https://www.sqlite.org/download.html),
+    - Download a tools package from the Precompiled Binaries for Windows section,
+    - Extract the contents of the package to eg. `C:\SQLite3`,
+    - Set the `PATH` to include `C:\SQLite3`, eg. open the console and execute:
+
+``` 
+setx "%path%;C:\SQLite"
+```
+
+## SQLite on Mac OS X
+
+**MacPorts**
+
+``` bash
+sudo port install sqlite3
+```
+
+**Brew**
+
+``` bash
+brew install sqlite3
+```
+
+**Otherwise**
+
+    - Go to [https://www.sqlite.org/download.html](https://www.sqlite.org/download.html),
+    - Download a tools package from the Precompiled Binaries for Windows section,
+    - Extract the contents of the package to eg. `/opt/sqlite3`
+    - Make a link from `/opt/sqlite3/sqlite3` to `/usr/bin` eg. from the commandline:
+
+``` bash
+sudo ln -s /opt/sqlite3/sqlite3 /usr/bin/sqlite3
+```
+
+## SQLite Admin tasks
+
+**Databases are files**
+
+``` bash
+sqlite3 some_dir/some_other_dir/some_database.sqlite
+```
+
+# Installing MySQL
+
+## MySQL on Ubuntu
+
+Installation:
+
+``` bash
+sudo apt install mysql-server mysql-client
+```
+
+Control:
+
+``` bash
+sudo systemctl start mysql.service
+sudo systemctl start mysql.service
+sudo systemctl restart mysql.service
+sudo systemctl stop mysql.service
+```
+
+## MySQL on other systems
+
+- [MySQL on Mac OS X](https://dev.mysql.com/doc/refman/8.0/en/osx-installation.html)
+- [MySQL on Windows](https://dev.mysql.com/downloads/windows/installer/)
+
+# MySQL Admin tasks
+
+## Creating an administrator account
+
+Login in as root:
+
+``` bash
+sudo mysql
+```
+
+Create an administrator user:
+
+``` SQL
+GRANT ALL PRIVILEGES ON *.* TO 'administrator'@'localhost' IDENTIFIED BY 'very_strong_password';
+```
+
+Quit (type in `quit`) and login as administrator user:
+
+``` bash
+mysql --user administrator --password
+```
+
+
+## Managing databases, users, and privileges
+
+``` SQL
+SHOW DATABASES;
+CREATE DATABASE some_database;
+DROP DATABASE some_database;
+```
+
+
+
+It's good practice to create a user that just has access to the database for debugging/trying things out, as well as for any programs that use the database.
+
+``` SQL
+SELECT user, host FROM mysql.user;
+CREATE USER 'some_user'@'localhost' IDENTIFIED BY 'tmp123'; 
+DROP USER 'database_user@'localhost';
+```
+
+
+
+``` SQL
+SHOW GRANTS FOR 'some_user'@'localhost';
+GRANT ALL PRIVILEGES ON some_database.* TO 'some_user'@'localhost';
+REVOKE ALL PRIVILEGES ON some_database.* TO 'some_user'@'localhost';
+```
+
+## MySQL Workbench
+
+``` bash
+sudo apt install mysql-workbench
+```
+
+[https://dev.mysql.com/downloads/workbench/](https://dev.mysql.com/downloads/workbench/)
+
+# Installing PostgreSQL
+
+## PostgreSQL on Ubuntu
+
+Installation:
+
+``` bash
+sudo apt install postgresql postgresql-client
+```
+
+Control:
+
+``` bash
+sudo systemctl status postgresql.service
+sudo systemctl start postgresql.service
+sudo systemctl restart postgresql.service
+sudo systemctl stop postgresql.service
+```
+
+## PostgreSQL on other systems
+
+## PostgreSQL basic admin tasks
+
+Allow PostgreSQL to accept connection to the database from the local machine. Edit the file at `/etc/postgresql/*/main/postgresql.conf` and set:
+
+``` bash
+listen_addresses = 'localhost'
+```
+
+Log in to the template database using the OS user `postgres`:
+
+``` bash
+sudo -u postgres psql template1
+```
+
+Set the password for the postgres user:
+
+``` SQL
+ALTER USER postgres WITH ENCRYPTED PASSWORD 'very_strong_password';
+```
+
+## PostgreSQL basic admin tasks
+
+Then exit (`\q`) and open the `/etc/postgresql/*/main/pg_hba.conf` file to modify the authentication method for the user `postgres` to `MD5` (previously `peer`):
+
+``` bash
+# TYPE    DATABASE  USER            ADDRESS     METHOD
+  local   all       postgres                    md5
+```
+
+Restart the server:
+
+``` bash
+sudo systemctl restart postgresql.service
+```
+
+
+
+## PostgreSQL database, user, privilege management 
+
+``` SQL
+\du+
+CREATE USER some_user WITHE ENCRYPTED PASSWORD 'some_password';
+DROP USER some_user;
+```
+
+
+``` bash
+createdb -h localhost -U postgres -W some_database -O some_user
+dropdb -h localhost -U postgres -W some_database -O some_user
+```
+
+``` SQL
+\l
+SELECT * FROM pg_database;
+```
+
+
+
+``` SQL
+GRANT ALL PRIVILEGES ON DATABASE some_database TO some_user;
+REVOKE ALL PRIVILEGES ON DATABASE some_database FROM cachier;
+```
+
+## Log into your database
+
+``` bash
+psql -h localhost -U some_user -W some_database
+```
+
+# Designing a database
+
+## Normal Forms
+
+- How to minimize redundancy?
+- How to remove insert, update, and deletion anomalies?
+
+## Keys {.smaller}
+
+**Superkey** a set of attributes that map to unique rows  
+**Candidate key** a superkey and has no proper subset that are a superkey  
+**Prime attribute** is a member of a candidate key  
+**Non-prime attribute** is not a member of a candidate key  
+
+| **Brand**      | Established | Origin                     | Availability         | Distribution | Price/oz             |
+| -------------- | ----------- | -------------------------- | -------------------- | ------------ | -------------------- |
+| A&W            | 1919        | Lodi, California           | USA, Canada, Britain | AM, EU       | $0.09 ($0.10 in EU)  |
+| Mug            | 1947        | San Francisco, California  | USA                  | AM           | $0.09                |
+| Barq's         | 1898        | New Orleans, Louisiana     | Britain, USA         | EU, AM       | $0.04                |
+| IBC            | 1919        | St. Louis, Missouri        | USA                  | AM           | $0.07                |
+| B&K            | 1945        | Michigan City, Indiana     | USA                  | AM           |  ''                  |
+| Hank's         | 1996        | Philadelphia, Pennsylvania | USA                  | AM           | $0.12                |
+| Devil's Canyon | NULL        | San Francisco, California  | USA                  | AM           | $0.10                |
+
+## 1st Normal Form
+
+- **All attributes are atomic**  
+- **Attributes are within the one domain each**  
+- **Data order does not matter**  
+
+Attributes are not multi-value or compound. Each row is independent and internally consistent.
+
+## 1NF Example {.smaller}
+
+| **Brand**      | Established | Origin                     | Availability         | Distribution | Price/oz             |
+| -------------- | ----------- | -------------------------- | -------------------- | ------------ | -------------------- |
+| A&W            | 1919        | Lodi, California           | USA, Canada, Britain | AM, EU       | $0.09 ($0.10 in EU)  |
+| Mug            | 1947        | San Francisco, California  | USA                  | AM           | $0.09                |
+| Barq's         | 1898        | New Orleans, Louisiana     | Britain, USA         | EU, AM       | $0.04                |
+| IBC            | 1919        | St. Louis, Missouri        | USA                  | AM           | $0.07                |
+| B&K            | 1945        | Michigan City, Indiana     | USA                  | AM           |  ''                  |
+| Hank's         | 1996        | Philadelphia, Pennsylvania | USA                  | AM           | $0.12                |
+| Devil's Canyon | NULL        | San Francisco, California  | USA                  | AM           | $0.10                |
+
+## 1NF Example {.smaller}
+
+| **Brand**      | Established | Origin City     | Origin State | **Availability** | Distribution | Price/oz |
+| -------------- | ----------- | --------------- |------------- | ---------------- | ------------ | -------- |
+| A&W            | 1919        | Lodi            | California   | USA              | AM           | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Canada           | AM           | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Britain          | EUR          | $0.10    |
+| Mug            | 1947        | San Francisco   | California   | USA              | AM           | $0.09    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | USA              | AM           | $0.04    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | Britain          | EUR          | $0.04    |
+| IBC            | 1919        | St. Louis       | Missouri     | USA              | AM           | $0.07    |
+| B&K            | 1945        | Michigan City   | Indiana      | USA              | AM           | $0.07    |
+| Hank's         | 1996        | Philadelphia    | Pennsylvania | USA              | AM           | $0.12    |
+| Devil's Canyon | NULL        | San Francisco   | California   | USA              | AM           | $0.10    |
+
+
+## 2nd Normal Form
+
+- All attributes are atomic   
+- Attributes are within the one domain each   
+- Data order does not matter  
+- **No partial dependencies**
+    
+All non-prime attributes are determined by the whole candidate key.
+
+## 2NF Example {.smaller}
+
+| **Brand**      | Established | Origin City     | Origin State | **Availability** | Distribution | Price/oz |
+| -------------- | ----------- | --------------- |------------- | ---------------- | ------------ | -------- |
+| A&W            | 1919        | Lodi            | California   | USA              | AM           | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Canada           | AM           | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Britain          | EUR          | $0.10    |
+| Mug            | 1947        | San Francisco   | California   | USA              | AM           | $0.09    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | USA              | AM           | $0.04    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | Britain          | EUR          | $0.04    |
+| IBC            | 1919        | St. Louis       | Missouri     | USA              | AM           | $0.07    |
+| B&K            | 1945        | Michigan City   | Indiana      | USA              | AM           | $0.07    |
+| Hank's         | 1996        | Philadelphia    | Pennsylvania | USA              | AM           | $0.12    |
+| Devil's Canyon | NULL        | San Francisco   | California   | USA              | AM           | $0.10    |
+
+    
+## 2NF Example {.smaller}
+
+| **Brand**      | Established | Origin City     | Origin State | **Availability** | Price/oz |
+| -------------- | ----------- | --------------- |------------- | ---------------- | -------- |
+| A&W            | 1919        | Lodi            | California   | USA              | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Canada           | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Britain          | $0.10    |
+| Mug            | 1947        | San Francisco   | California   | USA              | $0.09    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | USA              | $0.04    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | Britain          | $0.04    |
+| IBC            | 1919        | St. Louis       | Missouri     | USA              | $0.07    |
+| B&K            | 1945        | Michigan City   | Indiana      | USA              | $0.07    |
+| Hank's         | 1996        | Philadelphia    | Pennsylvania | USA              | $0.12    |
+| Devil's Canyon | NULL        | San Francisco   | California   | USA              | $0.10    |
+    
+## 2NF Example {.smaller}
+
+| **Availability** | Distribution |
+| ---------------- | ------------ |
+| USA              | AM           |
+| Canada           | AM           |
+| Britain          | EUR          |
+
+## 3rd Normal Form 
+
+- All attributes are atomic  
+- Attributes are within the one domain each  
+- Data order does not matter  
+- No partial dependencies  
+- **No transitive dependencies**
+
+No non-prime atributes depend on other non-prime attributes.
+
+## 3NF Example {.smaller}
+
+| **Brand**      | Established | Origin City     | Origin State | **Availability** | Price/oz |
+| -------------- | ----------- | --------------- |------------- | ---------------- | -------- |
+| A&W            | 1919        | Lodi            | California   | USA              | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Canada           | $0.09    |
+| A&W            | 1919        | Lodi            | California   | Britain          | $0.10    |
+| Mug            | 1947        | San Francisco   | California   | USA              | $0.09    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | USA              | $0.04    |
+| Barq's         | 1898        | New Orleans     | Louisiana    | Britain          | $0.04    |
+| IBC            | 1919        | St. Louis       | Missouri     | USA              | $0.07    |
+| B&K            | 1945        | Michigan City   | Indiana      | USA              | $0.07    |
+| Hank's         | 1996        | Philadelphia    | Pennsylvania | USA              | $0.12    |
+| Devil's Canyon | NULL        | San Francisco   | California   | USA              | $0.10    |
+   
+
+## 3NF Example {.smaller}
+
+| **Brand**      | Established | Origin City     | **Availability** | Price/oz |
+| -------------- | ----------- | --------------- | ---------------- | -------- |
+| A&W            | 1919        | Lodi            | USA              | $0.09    |
+| A&W            | 1919        | Lodi            | Canada           | $0.09    |
+| A&W            | 1919        | Lodi            | Britain          | $0.10    |
+| Mug            | 1947        | San Francisco   | USA              | $0.09    |
+| Barq's         | 1898        | New Orleans     | USA              | $0.04    |
+| Barq's         | 1898        | New Orleans     | Britain          | $0.04    |
+| IBC            | 1919        | St. Louis       | USA              | $0.07    |
+| B&K            | 1945        | Michigan City   | USA              | $0.07    |
+| Hank's         | 1995        | Phildelphia     | USA              | $0.12    |
+| Devil's Canyon | NULL        | San Francisco   | USA              | $0.10    |
+
+
+## 3NF Example {.smaller}
+
+| **Availability** | Distribution |
+| ---------------- | ------------ |
+| USA              | AM           |
+| Canada           | AM           |
+| Britain          | EUR          |
+
+
+## 3NF Example -- again {.smaller}
+
+| **Brand**      | Established | Origin City     | **Availability** | Price/oz |
+| -------------- | ----------- | --------------- | ---------------- | -------- |
+| A&W            | 1919        | Lodi            | USA              | $0.09    |
+| A&W            | 1919        | Lodi            | Canada           | $0.09    |
+| A&W            | 1919        | Lodi            | Britain          | $0.10    |
+| Mug            | 1947        | San Francisco   | USA              | $0.09    |
+| Barq's         | 1898        | New Orleans     | USA              | $0.04    |
+| Barq's         | 1898        | New Orleans     | Britain          | $0.04    |
+| IBC            | 1919        | St. Louis       | USA              | $0.07    |
+| B&K            | 1945        | Michigan City   | USA              | $0.07    |
+| Hank's         | 1995        | Phildelphia     | USA              | $0.12    |
+| Devil's Canyon | NULL        | San Francisco   | USA              | $0.10    |
+
+## 3NF Example -- again {.smaller}
+
+| **Brand**      | Established | Origin City     |
+| -------------- | ----------- | --------------- |
+| A&W            | 1919        | Lodi            |
+| Mug            | 1947        | San Francisco   |
+| Barq's         | 1898        | New Orleans     |
+| IBC            | 1919        | St. Louis       |
+| B&K            | 1945        | Michigan City   |
+| Hank's         | 1995        | Phildelphia     |
+| Devil's Canyon | NULL        | San Francisco   |
+
+## 3NF Example -- again {.smaller}
+
+| **Brand**      | **Availability** | Price/oz |
+| -------------- | ---------------- | -------- |
+| A&W            | USA              | $0.09    |
+| A&W            | Canada           | $0.09    |
+| A&W            | Britain          | $0.10    |
+| Mug            | USA              | $0.09    |
+| Barq's         | USA              | $0.04    |
+| Barq's         | Britain          | $0.04    |
+| IBC            | USA              | $0.07    |
+| B&K            | USA              | $0.07    |
+| Hank's         | USA              | $0.12    |
+| Devil's Canyon | USA              | $0.10    |
+
+
+
+## Boyce and Codd Normal Form (BCNF)
+
+- All attributes are atomic  
+- Attributes are within the one domain each  
+- Data order does not matter  
+- No partial dependencies  
+- No transitive dependencies  
+- **No overlapping candidate keys**
+
+## 4th Normal form
+
+- All attributes are atomic  
+- Attributes are within the one domain each  
+- Data order does not matter  
+- No partial dependencies  
+- No transitive dependencies  
+- No overlapping candidate keys  
+- **No multi-value dependencies**
+
+## More on Normal Forms:
+
+- [Study Tonight](https://www.studytonight.com/dbms/database-normalization.php)
+- [Wiki](https://en.wikipedia.org/wiki/Database_normalization)
+
+## ERM
+
+![](ERM.jpeg)
+
+source: S.K. Singh. *Database Systems: Concepts, Design and Applications.* 
+
+## ERM terminology
+
+- **entity** is an object or basic concept  
+- **weak entity** is an entity that must be defined by a foreign key of another entity  
+- **relationship** denotes information shared between entitites  
+- **identifying relationship**  the existence of a row in a child table depends on a row in a parent table
+- **key attribute** uniquely identifies an entity  
+- **derived attribute** is derived from another attribute  
+
+Information engineering (crow feet) denotation of cardinality.
+
+# SQL
+
+
+## Structured Query Language
+
+Standards: ANSI & ISO (SQL:2016) vs everybody else
+
+- SQL statements 
+- SQL queries
+
+# SQL statements
+
+## Creating a schema
+
+``` SQL
+CREATE TABLE IF NOT EXISTS shows (
+    id                   INTEGER    PRIMARY KEY,
+    title                NVARCHAR   NOT NULL,
+    english_title        VARCHAR    NOT NULL,
+    transliterated_title VARCHAR    NOT NULL,
+    short_title          VARCHAR    NULL,
+    premier_season       CHAR(6)    NOT NULL CHECK(premier_season in ('Winter','Spring','Summer','Fall')),
+    premier_year         INTEGER(4) NOT NULL,
+    episodes             INTEGER    NOT NULL,
+    finished_airing      BOOLEAN    NOT NULL,
+    produced_by          INTEGER    NOT NULL, 
+    poster               BLOB       NULL,     -- JPG
+    FOREIGN KEY(produced_by) REFERENCES studios(id)
+);
+```
+
+## Creating a schema
+
+``` SQL
+CREATE TABLE IF NOT EXISTS studios (
+    id                   INTEGER    PRIMARY KEY,
+    name                 NVARCHAR   NOT NULL, 
+    headquarters         VARCHAR    NOT NULL,
+    country              VARCHAR    NOT NULL
+);
+```
+
+``` SQL
+CREATE TABLE IF NOT EXISTS actors (
+    id                   INTEGER    PRIMARY KEY,
+    name                 NVARCHAR   NOT NULL, 
+    birth_year           INTEGER    NULL,
+    blood_type           CHAR(2)    NULL CHECK(blood_type in ('A', 'B', 'AB', 'O')),
+    gender               CHAR(1)    NULL CHECK(gender in ('M', 'F', 'X'))
+);
+```
+
+## Creating a schema
+    
+``` SQL
+CREATE TABLE IF NOT EXISTS characters (
+    id                   INTEGER    PRIMARY KEY,
+    name                 NVARCHAR   NOT NULL
+);
+```
+
+
+
+``` SQL
+CREATE TABLE IF NOT EXISTS plays_in (
+    actor_id            INTEGER     NOT NULL,
+    character_id        INTEGER     NOT NULL,
+    show_id             INTEGER     NOT NULL,
+    role_type           CHAR(4)     NOT NULL CHECK(role_type in ('main', 'supp')),
+    FOREIGN KEY(actor_id) REFERENCES actors(id),
+    FOREIGN KEY(character_id) REFERENCES characters(id),
+    FOREIGN KEY(show_id) REFERENCES shows(id)
+);
+```
+    
+## (Useful) Data types {.small}
+
+| SQLite3         | MySQL             | PostgreSQL             |
+| --------------- | ----------------- | ---------------------- |
+| `BOOLEAN`       | `BOOLEAN`         | `BOOLEAN`              |
+| `INTEGER`       | `INTEGER`         | `INTEGER`              |
+| `DOUBLE`        | `DOUBLE`          | `DOUBLE PRECISION`     |
+| `CHAR(255)`     | `CHAR(65535)`     |                        |
+| `NCHAR(255)`    | `NCHAR(65535)`    | `CHAR(~10485760)`      |
+| `VARCHAR(255)`  | `VARCHAR(65535)`  |                        |
+| `NVARCHAR(255)` | `NVARCHAR(65535)` | `VARCHAR(~10485760)`   |
+| `DATE`          | `DATE`            | `DATE`                 |
+
+## (Useful) Data types (2) {.small}
+
+| SQLite3         | MySQL             | PostgreSQL             |
+| --------------- | ----------------- | ---------------------- |
+|                 | `TIME`            | `TIME`                 |
+| `DATETIME`      | `DATETIME`        |                        |
+| `TIMESTAMP`     | `TIMESTAMP`       | `TIMESTAMP`            |
+| `BLOB`          | `BLOB`            | `BYTEA`                |
+|                 | `SERIAL`          | `SERIAL`               |
+|                 | `ENUM(A,B,C,...)` | `ENUM(A,B,C,...)`      |
+|                 |                   | `JSON`                 |
+|                 |                   | `XML`                  |
+|                 |                   | `INTEGER[]`, `TEXT[]`  |
+
+- [https://www.sqlite.org/datatype3.html](https://www.sqlite.org/datatype3.html)
+- [https://dev.mysql.com/doc/refman/8.0/en/data-types.html](https://dev.mysql.com/doc/refman/8.0/en/data-types.html)
+- [https://www.postgresql.org/docs/9.5/datatype.html](https://www.postgresql.org/docs/9.5/datatype.html)
+
+## Constraining data {.small}
+
+| SQLite3               | MySQL                 | PostgreSQL            |
+| --------------------- | --------------------- | --------------------- |
+| `NULL`                | `NULL`                | `NULL`                |
+| `NOT NULL`            | `NOT NULL`            | `NOT NULL`            |
+| `DEFAULT value`       | `DEFAULT value`       | `DEFAULT value`       |
+| `UNIQUE`              | `UNIQUE`              | `UNIQUE`              |
+| `PRIMARY KEY`         | `PRIMARY KEY`         | `PRIMARY KEY`         |
+| `FOREIGN KEY(column)` | `FOREIGN KEY(column)` | `FOREIGN KEY(column)` |
+| `CHECK(condition)`    | `CHECK(condition)`    | `CHECK(condition)`    |
+
+## Inserting data {.small}
+
+``` SQL
+INSERT INTO shows (id, title, english_title, transliterated_title, short_title, 
+premier_season, premier_year, episodes, finished_airing, produced_by) VALUES 
+(1, '転生したらスライムだった件', 'That Time I Got Reincarnated as a Slime', 
+    'Tensei shitara Slime Datta Ken', 'TenSura', 'Fall', 2018, 16, 0, 1), -- 8bit
+(2, '小林さんちのメイドラゴン', 'Miss Kobayashi''s Dragon Maid', 
+    'Kobayashi-san Chi no Maid Dragon', NULL, 'Winter', 2017, 13, 1, 2), -- Kyoto Ani
+(3, 'ワンパンマン', 'One Punch Man', 'One Punch Man', 'OPM', 'Fall', 2015, 12, 1, 3), 
+    -- Madhouse
+(4, '進撃の巨人', 'Attack on Titan', 'Shingeki no Kyojin', 'AoT', 'Spring', 2013, 25, 1, 
+    4), -- Production I.G.
+(5, 'うさぎドロップ', 'Bunny Drop', 'Usagi Drop', NULL, 'Summer', 2011, 11, 1, 4),  
+    -- Production I.G.
+(6, 'のんのんびより', 'Non Non Biyori', 'Non Non Biyori', NULL, 'Fall', 2013, 12, 1, 5), 
+    -- SILVER LINK.
+(7, 'ちはやふる', 'Chihayafuru', 'Chihayafuru', NULL, 'Fall', 2011, 25, 1, 3); -- Madhouse
+```
+
+## Cleaning up
+
+``` SQL
+DELETE FROM shows WHERE 
+```
+
+``` SQL
+DROP TABLE shows;
+```
+
+# SQL queries
+
+## Simple selects
+
+``` SQL
+SELECT * FROM shows;
+```
+
+``` SQL
+SELECT id, title FROM shows;
+```
+
+``` SQL
+SELECT id, '"' || title || '"' AS title FROM shows;
+```
+
+``` SQL
+SELECT DISTINCT premier_year FROM shows;
+```
+
+``` SQL
+SELECT DISTINCT premier_year FROM shows ORDER BY premier_year;
+```
+
+## Formatting output in SQLite
+
+``` SQL
+.mode column
+.headers on
+.separator ROW "\n"
+.nullvalue NULL
+```
+
+## Projection
+
+``` SQL
+SELECT * FROM shows WHERE short_title IS NOT NULL;
+```
+
+``` SQL
+SELECT * FROM shows WHERE premier_year = 2015;
+```
+
+``` SQL
+SELECT * FROM shows WHERE premier_season IN ('Summer', 'Spring');
+```
+
+``` SQL
+SELECT * FROM shows WHERE episodes BETWEEN 11 AND 13;
+```
+
+``` SQL
+SELECT * FROM shows WHERE episodes <11 AND episodes > 24;
+```
+
+## Counting and grouping
+
+``` SQL
+SELECT premier_season, premier_year, COUNT(*) AS count 
+FROM shows 
+WHERE premier_season = 'Fall' AND premier_year = 2018;
+```
+
+``` SQL
+SELECT premier_season, premier_year, COUNT(*) AS count 
+FROM shows 
+GROUP BY premier_season, premier_year;
+```
+
+``` SQL
+SELECT premier_season, premier_year, COUNT(*) AS count 
+FROM shows 
+GROUP BY premier_season, premier_year 
+HAVING count > 1;
+```
+
+## Suqueries
+
+``` SQL
+SELECT premier_season, premier_year, COUNT(*) AS count 
+FROM shows 
+GROUP BY premier_season, premier_year;
+```
+
+``` SQL
+SELECT premier_season, premier_year, MAX(count) AS count FROM
+  (SELECT premier_season, premier_year, COUNT(*) AS count 
+  FROM shows 
+  GROUP BY premier_season, premier_year);
+```
+
+``` SQL
+WITH shows_in_seasons(premier_season, premier_year, count) AS
+  (SELECT premier_season, premier_year, COUNT(*) AS count 
+  FROM shows 
+  GROUP BY premier_season, premier_year)
+SELECT premier_season, premier_year, MAX(count) AS count 
+FROM shows_in_seasons;
+```
+
+## Unions
+
+``` SQL
+SELECT premier_season, premier_year, MAX(count) AS count FROM
+  (SELECT premier_season, premier_year, COUNT(*) AS count 
+  FROM shows 
+  GROUP BY premier_season, premier_year)
+UNION
+SELECT premier_season, premier_year, MIN(count) AS count FROM
+  (SELECT premier_season, premier_year, COUNT(*) AS count 
+  FROM shows 
+  GROUP BY premier_season, premier_year);
+```
+
+## Joins
+
+``` SQL
+SELECT studios.name, shows.english_title
+FROM shows JOIN studios;
+```
+
+``` SQL
+SELECT studios.name, shows.english_title
+FROM shows JOIN studios ON shows.produced_by = studios.id;
+```
+
+## Joins in SQLite
+
+- `INNER JOIN`, `JOIN ... USING`
+- `NATURAL JOIN`
+- `LEFT OUTER JOIN`
+- `CROSS JOIN`
+- `FULL OUTER JOIN`
+
+``` SQL
+SELECT studios.name, shows.english_title
+FROM shows LEFT OUTER JOIN studios ON shows.produced_by = studios.id;
+```
+
+## Storing results in tables
+
+``` SQL
+CREATE TABLE show_ages AS
+  SELECT id, 
+    strftime('%Y', 'now') as in_year, 
+    (strftime('%Y', 'now') - premier_year) AS age 
+  FROM shows;
+```
+
+`TEMPORARY` for tables needed only for one session.
+
+``` SQL
+INSERT INTO show_ages
+  SELECT id, 
+    2010 AS in_year, 
+    (2010 - premier_year) AS age
+  FROM shows
+  WHERE age >= 0;
+```
+
+# R vs DBMS
+
+## Accessing SQLite with R
+
+**Installing the R SQLite connector**:
+
+``` R
+install.packages("RSQLite")
+library(RSQlite)
+```
+
+**Connecting to a DB**:
+
+``` R
+db <- dbConnect(RSQLite::SQLite(), "anime.sqlite")
+```
+
+**Read tables**:
+
+``` R
+dbListTables(db)
+dbListFields(db, "shows")
+df <- dbReadTable(db, "shows")
+```
+
+## Executing SQL
+
+``` R
+result <- 
+  dbSendQuery(db, "SELECT studios.name, shows.english_title
+                   FROM shows JOIN studios ON shows.produced_by = studios.id;")
+
+data <- c()
+while(!dbHasCompleted(result)){
+  chunk <- dbFetch(result, n = 10)
+  data <- rbind(data, chunk)
+}
+```
+
+## Accessing MySQL and PostrgreSQL with R
+
+``` R
+install.packages("RMySQL")
+library(RMySQL)
+
+db = dbConnect(MySQL(), 
+               user='some_user', 
+               password='very_string_password', 
+               dbname='some_database', 
+               host='localhost')
+```
+
+``` R
+install.packages("RPostgreSQL")
+library(RPostgreSQL)
+
+driver <- dbDriver("PostgreSQL")
+db <- dbConnect(drv, 
+                dbname = "some_database",
+                host = "localhost", port = 5432,
+                user = "some_user", 
+                password = "very_strong_password")
+```
+
+
+
+
+
+

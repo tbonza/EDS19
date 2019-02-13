@@ -4,7 +4,9 @@ db.sqlite3
 target
 logs
 *.log
+*.retry
 airflow*
 unittests.cfg
 .DS_Store
 .vscode
+.R_History

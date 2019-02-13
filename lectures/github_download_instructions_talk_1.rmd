@@ -1,0 +1,998 @@
+---
+title: "GitHub data retrieval"
+author: Konrad Siek 
+date: 17 January 2019
+output: 
+
+    ioslides_presentation:
+
+      smaller: true
+  
+---
+
+## Methods
+
+* **GitHub API**
+
+* **cloning**
+
+* GHTorrent
+
+* Scraping the GitHhub website
+
+# GitHub API
+
+## GitHub API
+
+**Pros**
+
+- RESTful API accessed via HTTP, returns JSON
+- relatively low bandwidth usage 
+- flexible queries (see [documentation](https://developer.github.com/v3/))
+
+**Cons**
+
+- result pagination pagination (100 items per page)
+- rate limitation on queries (60/5000 per hour)
+- generally requires authentication
+- some data conveyed via HTTP headers
+- generally fiddly
+
+## Dependencies
+
+**Install packages**:
+
+``` {r, eval=FALSE}
+install.packages(c("httr", "httpuv", "stringr"), 
+                 repos="http://cran.us.r-project.org")
+```
+
+**Load the packages**:
+
+``` {r, comment = "", eval=TRUE, results="hide"}
+library(httr)
+library(httpuv)
+library(stringr)
+```
+
+## A simple request
+
+``` {r, comment = "", eval = FALSE}
+req <- GET("https://api.github.com/users/kondziu")
+stop_for_status(req)
+status_code(req)
+```
+
+## A simple request
+
+``` {r, comment = ""}
+req <- GET("https://api.github.com/users/kondziu")
+stop_for_status(req)
+status_code(req)
+```
+
+## Reading the answer
+
+``` {r, comment = "", eval = FALSE}
+content(req)
+```
+
+## Reading the answer
+
+``` {r, comment = ""}
+content(req)
+```
+
+## Reading the answer
+
+``` {r, comment = ""}
+con <- content(req)
+con$name
+con$public_repos
+con$created_at
+```
+
+## Reading the answer
+
+``` {r, comment = "", eval = FALSE}
+headers(req)
+```
+
+## Reading the answer
+
+``` {r, comment = ""}
+headers(req)
+```
+
+## Reading the answer
+
+``` {r, comment = ""}
+h <- headers(req)
+h$`x-ratelimit-limit`
+```
+
+## OAuth
+
+``` {r, comment="", eval=TRUE, results="hide"}
+endpoints <- oauth_endpoints("github")
+
+myapp <- oauth_app("github",
+  key = "56b637a5baffac62cad9",
+  secret = "8e107541ae1791259e9987d544ca568633da2ebf"
+)
+
+gtoken <- config(token=oauth2.0_token(endpoints, myapp))
+```
+
+## Request with OAuth
+
+``` {r, eval=FALSE}
+
+req <- GET("https://api.github.com/users/kondziu", config=gtoken)
+
+stop_for_status(req)
+headers(req)$`x-ratelimit-limit`
+```
+
+## Request with OAuth
+
+``` {r, eval=TRUE, comment=""}
+
+req <- GET("https://api.github.com/users/kondziu", config=gtoken)
+
+stop_for_status(req)
+headers(req)$`x-ratelimit-limit`
+```
+
+## Grabbing commits
+
+``` {r, eval=FALSE}
+req <- GET("https://api.github.com/repos/torvalds/linux/commits", 
+           config=gtoken)
+
+stop_for_status(req)
+con <- content(req)
+```
+
+## Grabbing commits
+
+``` {r, eval=FALSE}
+req <- GET("https://api.github.com/repos/torvalds/linux/commits", 
+           config=gtoken)
+
+stop_for_status(req)
+con <- content(req)
+
+length(con)
+```
+
+## Grabbing commits
+
+``` {r, eval=TRUE, comment=""}
+req <- GET("https://api.github.com/repos/torvalds/linux/commits", 
+           config=gtoken)
+
+stop_for_status(req)
+con <- content(req)
+
+length(con)
+```
+
+## Grabbing commits
+
+``` {r, eval=TRUE, comment=""}
+con[[1]]
+```
+
+## Grabbing commits
+
+``` {r, eval=FALSE}
+lapply(con, function(item) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+})
+```
+
+## Grabbing commits
+
+``` {r, eval=FALSE}
+lapply(con, function(item) {
+  item$sha
+  item$commit$author$name
+  item$commit$author$email
+  item$commit$author$date
+  item$commit$committer$name
+  item$commit$committer$email
+  item$commit$committer$date
+  item$commit$message
+  
+})
+```
+
+## Grabbing commits
+
+``` {r, eval=FALSE}
+lapply(con, function(item) {
+  cat(paste0("hash: ", item$sha, "n"))
+  cat(paste0("author name: ", item$commit$author$name, "\n"))
+  cat(paste0("author email: ", item$commit$author$email, "\n"))
+  cat(paste0("author date: ", item$commit$author$date, "\n"))
+  cat(paste0("committer name: ", item$commit$committer$name, "\n"))
+  cat(paste0("committer email: ", item$commit$committer$email, "\n"))
+  cat(paste0("committer date: ", item$commit$committer$date, "\n"))
+  cat(paste0("commit message: ", item$commit$message, "\n"))
+  cat("----------------------------------------------\n\n")
+})
+```
+
+## Grabbing commits
+
+``` {r, eval=TRUE, comment="", echo=FALSE}
+lapply(con, function(item) {
+  cat(paste0("hash: ", item$sha, "\n"))
+  cat(paste0("author name: ", item$commit$author$name, "\n"))
+  cat(paste0("author email: ", item$commit$author$email, "\n"))
+  cat(paste0("author date: ", item$commit$author$date, "\n"))
+  cat(paste0("committer name: ", item$commit$committer$name, "\n"))
+  cat(paste0("committer email: ", item$commit$committer$email, "\n"))
+  cat(paste0("committer date: ", item$commit$committer$date, "\n"))
+  cat(paste0("commit message: ", item$commit$message, "\n"))
+  cat("----------------------------------------------\n\n")
+})
+```
+
+## Grabbing commits
+
+``` {r, eval=T}
+results <- lapply(content(req), function(item) {
+  data.frame(`hash` = item$sha,
+             `author name` = item$commit$author$name,
+             `author email` = item$commit$author$email,
+             `author date` = item$commit$author$date,
+             `committer name` = item$commit$committer$name,
+             `committer email` = item$commit$committer$email,
+             `committer date` = item$commit$committer$date,
+             `commit message` = item$commit$message)
+})
+
+df <- do.call(rbind, results)
+```
+
+## Paginated queries
+
+``` {r, eval=F}
+headers(req)$link
+```
+
+## Paginated queries
+
+``` {r, eval=TRUE, results="hide"}
+headers(req)$link
+#str_split(headers(req)$link, ", ")
+```
+
+``` {r, eval=TRUE, comment="", echo=F}
+str_split(headers(req)$link, ", ")
+```
+
+## Paginated queries
+
+``` {r, eval=TRUE}
+read_page_count<- function(req) {
+  # Get the commit-specific link header
+  git_header <- headers(req)$link
+  
+  # Split the header into individual lines and select the reference to last page
+  references <- unlist(str_split(git_header, ","))
+  last_reference <- references[grepl("rel=\"last\"", references)]
+  
+  # Extract last page number and convert to int
+  as.integer(str_extract(str_extract(last_reference, 
+                                     pattern="[&?]page=[0-9]+"), pattern="[0-9]+"))
+}
+```
+
+## Paginated queries
+
+``` {r, eval=TRUE}
+read_page_count<- function(req) {
+  # Get the commit-specific link header
+  git_header <- headers(req)$link
+  
+  # Split the header into individual lines and select the reference to last page
+  references <- unlist(str_split(git_header, ","))
+  last_reference <- references[grepl("rel=\"last\"", references)]
+  
+  # Extract last page number and convert to int
+  as.integer(str_extract(str_extract(last_reference, 
+                                     pattern="[&?]page=[0-9]+"), pattern="[0-9]+"))
+}
+```
+
+``` {r, eval=FALSE, comment=""}
+pages <- read_page_count(req)
+pages
+```
+
+## Paginated queries
+
+``` {r, eval=TRUE}
+read_page_count<- function(req) {
+  # Get the commit-specific link header
+  git_header <- headers(req)$link
+  
+  # Split the header into individual lines and select the reference to last page
+  references <- unlist(str_split(git_header, ","))
+  last_reference <- references[grepl("rel=\"last\"", references)]
+  
+  # Extract last page number and convert to int
+  as.integer(str_extract(str_extract(last_reference, 
+                                     pattern="[&?]page=[0-9]+"), pattern="[0-9]+"))
+}
+```
+
+``` {r, eval=FALSE, comment=""}
+pages <- read_page_count(req)
+pages
+```
+
+``` {r, eval=TRUE, comment="", echo=FALSE}
+pages <- read_page_count(req)
+pages
+```
+
+
+## Paginated queries
+
+``` {r, eval=FALSE}
+req <- GET("https://api.github.com/repos/torvalds/linux/commits", 
+           config=gtoken)
+
+stop_for_status(req)
+
+length(content(req))
+read_page_count(req)
+```
+
+## Paginated queries
+
+``` {r, eval=TRUE, comment=""}
+req <- GET("https://api.github.com/repos/torvalds/linux/commits", 
+           config=gtoken)
+
+stop_for_status(req)
+
+length(content(req))
+read_page_count(req)
+```
+
+## Paginated queries
+
+``` {r, eval=TRUE, comment=""}
+req <- GET("https://api.github.com/repos/torvalds/linux/commits?per_page=100", 
+           config=gtoken)
+
+stop_for_status(req)
+
+length(content(req))
+read_page_count(req)
+```
+
+---
+
+``` {r, eval=FALSE}
+query <- "https://api.github.com/repos/torvalds/linux/commits?per_page=100"
+
+req <- GET(query, config=gtoken)
+stop_for_status(req)
+pages <- read_page_count(req)
+  
+data_from_pages <- lapply(1:pages, function(page) {
+  
+  paginated_query <- paste0(query, '&page=', page)
+  
+  req <- GET(paginated_query, config=gtoken)
+  stop_for_status(req)
+  cat(paste0("Downloading page ", page, "\n"), file=stderr())
+  
+  do.call(rbind, lapply(content(req), function(item) {
+  data.frame(`hash` = item$sha,
+             `author name` = item$commit$author$name,
+             `author email` = item$commit$author$email,
+             `author date` = item$commit$author$date,
+             `committer name` = item$commit$committer$name,
+             `committer email` = item$commit$committer$email,
+             `committer date` = item$commit$committer$date,
+             `commit message` = item$commit$message)
+  }))
+})
+
+data <- do.call(rbind, data_from_pages)
+```
+
+# Cloning
+
+## Cloning repositories
+
+**Pros:**
+
+- complete information about a project, including sources
+- ability to use the git toolchain
+- no rate limit
+
+**Cons:**
+
+- bandwidth intensive
+- large on-disk footprint
+
+## Cloning a repository
+
+``` {bash, eval=F}
+git clone https://github.com/torvalds/linux.git /tmp/linux
+cd /tmp/linux
+```
+
+## Cloning a repository
+
+``` {bash, eval=F, cache=T, comment=""}
+git clone https://github.com/torvalds/linux.git /tmp/linux
+cd /tmp/linux
+```
+
+```
+Cloning into 'linux'...
+remote: Enumerating objects: 1752, done.
+remote: Counting objects: 100% (1752/1752), done.
+remote: Compressing objects: 100% (1341/1341), done.
+remote: Total 6474277 (delta 1120), reused 431 (delta 411), pack-reused 6472525
+Receiving objects: 100% (6474277/6474277), 2.25 GiB | 8.98 MiB/s, done.
+Resolving deltas: 100% (5397885/5397885), done.
+Checking out files: 100% (63125/63125), done.
+```
+
+## Commit metadata
+
+``` {bash, eval=F, comment=""}
+git log
+```
+
+## Commit metadata
+
+``` {bash, eval=F, comment=""}
+git log
+```
+
+```
+commit a3a80255d58d0f0d304ba877ae0313a264973a70 (HEAD -> master, origin/master, origin/HEAD)
+Merge: 6d060fa39035 34fa47612bfe
+Author: Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri Jan 18 06:27:24 2019 +1200
+
+    Merge tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs
+    
+    Pull AFS fixes from David Howells:
+     "Here's a set of fixes for AFS:
+    
+       - Use struct_size() for kzalloc() size calculation.
+    
+       - When calling YFS.CreateFile rather than AFS.CreateFile, it is
+         possible to create a file with a file lock already held. The
+         default value indicating no lock required is actually -1, not 0.
+    
+       - Fix an oops in inode/vnode validation if the target inode doesn't
+         have a server interest assigned (ie. a server that will notify us
+         of changes by third parties).
+    
+       - Fix refcounting of keys in file locking.                                                                                      
+       - Fix a race in refcounting asynchronous operations in the event of                                                           an error during request transmission. The provision of a dedicated                                                          function to get an extra ref on a call is split into a separate                                                             commit"
+    
+    * tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs:
+      afs: Fix race in async call refcounting
+      afs: Provide a function to get a ref on a call
+      afs: Fix key refcounting in file locking code
+      afs: Don't set vnode->cb_s_break in afs_validate()
+      afs: Set correct lock type for the yfs CreateFile
+      afs: Use struct_size() in kzalloc()
+```
+
+## Commit metadata
+
+``` {bash, eval=F}
+man git log
+```
+
+## Commit metadata
+
+``` {bash, eval=F}
+man git log
+```
+
+```
+    --pretty[=<format>], --format=<format>
+           Pretty-print the contents of the commit logs in a given format, where 
+           <format> can be one of oneline, short, medium, full, fuller, email, raw, 
+           format:<string> and tformat:<string>. When <format> is none of the above, 
+           and has %placeholder in it, it acts as if --pretty=tformat:<format> were 
+           given.
+
+           See the "PRETTY FORMATS" section for some additional details for each 
+           format. When =<format> part is omitted, it defaults to medium.
+```
+
+## Commit metadata
+
+``` {bash, eval=F}
+man git log
+```
+
+```
+· %H: commit hash
+· %h: abbreviated commit hash
+· %T: tree hash
+· %t: abbreviated tree hash
+· %P: parent hashes
+· %p: abbreviated parent hashes
+· %an: author name
+· %aN: author name (respecting .mailmap, see git-shortlog(1) or git-blame(1))
+· %ae: author email
+· %aE: author email (respecting .mailmap, see git-shortlog(1) or git-blame(1))
+· %ad: author date (format respects --date= option)
+· %aD: author date, RFC2822 style
+· %ar: author date, relative
+· %at: author date, UNIX timestamp
+· %ai: author date, ISO 8601-like format
+· %aI: author date, strict ISO 8601 format
+· %cn: committer name
+· %cN: committer name (respecting .mailmap, see git-shortlog(1) or git-blame(1))
+· %ce: committer email
+· %cE: committer email (respecting .mailmap, see git-shortlog(1) or git-blame(1))
+· %cd: committer date (format respects --date= option)
+```
+
+## Commit metadata
+
+``` {bash, eval=F}
+man git log
+```
+
+```
+· %cD: committer date, RFC2822 style
+· %cr: committer date, relative
+· %ct: committer date, UNIX timestamp
+· %ci: committer date, ISO 8601-like format
+· %cI: committer date, strict ISO 8601 format
+· %d: ref names, like the --decorate option of git-log(1)
+· %D: ref names without the " (", ")" wrapping.
+· %e: encoding
+· %s: subject
+· %f: sanitized subject line, suitable for a filename
+· %b: body
+· %B: raw body (unwrapped subject and body)
+· %N: commit notes
+· %GG: raw verification message from GPG for a signed commit
+· %GS: show the name of the signer for a signed commit
+· %GK: show the key used to sign a signed commit
+· %gn: reflog identity name
+· %gN: reflog identity name (respecting .mailmap, see git-shortlog(1) or git-blame(1))
+· %ge: reflog identity email
+· %gE: reflog identity email (respecting .mailmap, see git-shortlog(1) or git-blame(1))
+· %gs: reflog subject
+```
+
+## Getting commit metadata
+
+``` {bash, eval=FALSE}
+echo '"hash", "author name", "author email", "author timestamp", ' \
+     '"committer name","committer email", "committer timestamp"' 
+git log --pretty=format:'"%H","%an","%ae","%ad","%cn","%ce","%ct"' 
+```
+
+## Getting commit metadata
+
+``` {bash, eval=FALSE}
+echo '"hash", "author name", "author email", "author timestamp", ' \
+     '"committer name","committer email", "committer timestamp"' 
+git log --pretty=format:'"%H","%an","%ae","%ad","%cn","%ce","%ct"' 
+```
+
+```
+"hash","author name","author email","author timestamp","committer name","committer email","committer timestamp"
+"a3a80255d58d0f0d304ba877ae0313a264973a70","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:27:24 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547749644"
+"6d060fa39035d5ff6bb3e720a8119aeb50453e3b","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:22:08 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547749328"
+"e4484a495586dddf989380f89a7c16d43db6790b","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:20:09 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547749209"
+"d471c4dfa19f4d6de063256370a5be411a1f3149","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:15:28 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547748928"
+"34fa47612bfe5d7de7fcaf658a6952b6aeec3b13","David Howells","dhowells@redhat.com","Thu Jan 10 15:40:50 2019 +0000","David Howells","dhowells@redhat.com","1547738248"
+"7a75b0079a1d54e342c502c3c8107ba97e05d3d3","David Howells","dhowells@redhat.com","Thu Jan 10 15:14:29 2019 +0000","David Howells","dhowells@redhat.com","1547738248"
+"59d49076ae3e6912e6d7df2fd68e2337f3d02036","David Howells","dhowells@redhat.com","Wed Jan 9 17:23:54 2019 +0000","David Howells","dhowells@redhat.com","1547738248"
+"4882a27cec24319d10f95e978ecc80050e3e3e15","Marc Dionne","marc.dionne@auristor.com","Wed Jan 9 17:23:54 2019 +0000","David Howells","dhowells@redhat.com","1547738152"
+"e00d8880481497474792d28c14479a9fb6752046","Masahiro Yamada","yamada.masahiro@socionext.com","Tue Jan 15 16:19:00 2019 +0900","Masahiro Yamada","yamada.masahiro@socionext.com","1547736179"
+"1b504a7bb18fc32a324712a0fc56d667bdabe258","Masahiro Yamada","yamada.masahiro@socionext.com","Tue Jan 15 04:14:23 2019 +0900","Masahiro Yamada","yamada.masahiro@socionext.com","1547736179"
+"558ee616d177c8225e65c75b6b72952408e64a74","Masahiro Yamada","yamada.masahiro@socionext.com","Mon Jan 14 17:44:40 2019 +0900","Masahiro Yamada","yamada.masahiro@socionext.com","1547736157"
+"7fbfee7c80ded94278f109aae4063741c323294a","Linus Torvalds","torvalds@linux-foundation.org","Thu Jan 17 16:54:58 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547700898"
+"a5795fd38ee8194451ba3f281f075301a3696ce2","James Morris","james.morris@microsoft.com","Wed Jan 16 15:41:11 2019 -0800","James Morris","james.morris@microsoft.com","1547682071"
+"9474f4e7cd71a633fa1ef93b7daefd44bbdfd482","Kees Cook","keescook@chromium.org","Wed Jan 16 10:31:09 2019 -0800","James Morris","james.morris@microsoft.com","1547668856"
+```
+
+## Getting commit metadata
+
+``` {bash, eval=FALSE}
+echo '"hash", "author name", "author email", "author timestamp", ' \
+     '"committer name","committer email", "committer timestamp"'  > commits.csv
+git log --pretty=format:'"%H","%an","%ae","%ad","%cn","%ce","%ct"' >> commits.csv
+```
+
+```
+"hash","author name","author email","author timestamp","committer name","committer email","committer timestamp"
+"a3a80255d58d0f0d304ba877ae0313a264973a70","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:27:24 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547749644"
+"6d060fa39035d5ff6bb3e720a8119aeb50453e3b","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:22:08 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547749328"
+"e4484a495586dddf989380f89a7c16d43db6790b","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:20:09 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547749209"
+"d471c4dfa19f4d6de063256370a5be411a1f3149","Linus Torvalds","torvalds@linux-foundation.org","Fri Jan 18 06:15:28 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547748928"
+"34fa47612bfe5d7de7fcaf658a6952b6aeec3b13","David Howells","dhowells@redhat.com","Thu Jan 10 15:40:50 2019 +0000","David Howells","dhowells@redhat.com","1547738248"
+"7a75b0079a1d54e342c502c3c8107ba97e05d3d3","David Howells","dhowells@redhat.com","Thu Jan 10 15:14:29 2019 +0000","David Howells","dhowells@redhat.com","1547738248"
+"59d49076ae3e6912e6d7df2fd68e2337f3d02036","David Howells","dhowells@redhat.com","Wed Jan 9 17:23:54 2019 +0000","David Howells","dhowells@redhat.com","1547738248"
+"4882a27cec24319d10f95e978ecc80050e3e3e15","Marc Dionne","marc.dionne@auristor.com","Wed Jan 9 17:23:54 2019 +0000","David Howells","dhowells@redhat.com","1547738152"
+"e00d8880481497474792d28c14479a9fb6752046","Masahiro Yamada","yamada.masahiro@socionext.com","Tue Jan 15 16:19:00 2019 +0900","Masahiro Yamada","yamada.masahiro@socionext.com","1547736179"
+"1b504a7bb18fc32a324712a0fc56d667bdabe258","Masahiro Yamada","yamada.masahiro@socionext.com","Tue Jan 15 04:14:23 2019 +0900","Masahiro Yamada","yamada.masahiro@socionext.com","1547736179"
+"558ee616d177c8225e65c75b6b72952408e64a74","Masahiro Yamada","yamada.masahiro@socionext.com","Mon Jan 14 17:44:40 2019 +0900","Masahiro Yamada","yamada.masahiro@socionext.com","1547736157"
+"7fbfee7c80ded94278f109aae4063741c323294a","Linus Torvalds","torvalds@linux-foundation.org","Thu Jan 17 16:54:58 2019 +1200","Linus Torvalds","torvalds@linux-foundation.org","1547700898"
+"a5795fd38ee8194451ba3f281f075301a3696ce2","James Morris","james.morris@microsoft.com","Wed Jan 16 15:41:11 2019 -0800","James Morris","james.morris@microsoft.com","1547682071"
+"9474f4e7cd71a633fa1ef93b7daefd44bbdfd482","Kees Cook","keescook@chromium.org","Wed Jan 16 10:31:09 2019 -0800","James Morris","james.morris@microsoft.com","1547668856"
+```
+
+## List of modified files
+
+``` {bash, eval=FALSE}
+git log --pretty=format:%H --numstat
+```
+
+## List of modified files
+
+``` {bash, eval=FALSE}
+git log --pretty=format:%H --numstat
+```
+
+```
+a3a80255d58d0f0d304ba877ae0313a264973a70
+6d060fa39035d5ff6bb3e720a8119aeb50453e3b
+e4484a495586dddf989380f89a7c16d43db6790b
+d471c4dfa19f4d6de063256370a5be411a1f3149
+34fa47612bfe5d7de7fcaf658a6952b6aeec3b13
+30      5       fs/afs/rxrpc.c
+2       0       include/trace/events/afs.h
+
+7a75b0079a1d54e342c502c3c8107ba97e05d3d3
+12      6       fs/afs/rxrpc.c
+
+59d49076ae3e6912e6d7df2fd68e2337f3d02036
+2       2       fs/afs/flock.c
+2       0       fs/afs/inode.c
+
+4882a27cec24319d10f95e978ecc80050e3e3e15
+0       1       fs/afs/inode.c
+
+e00d8880481497474792d28c14479a9fb6752046
+2       2       Makefile
+
+1b504a7bb18fc32a324712a0fc56d667bdabe258
+0       3       arch/openrisc/Makefile
+```
+
+## List of modified files
+
+``` {bash, eval=FALSE}
+git log --pretty=format:🐱%n%H --numstat
+```
+
+```
+🐱
+a3a80255d58d0f0d304ba877ae0313a264973a70
+🐱
+6d060fa39035d5ff6bb3e720a8119aeb50453e3b
+🐱
+e4484a495586dddf989380f89a7c16d43db6790b
+🐱
+d471c4dfa19f4d6de063256370a5be411a1f3149
+🐱
+34fa47612bfe5d7de7fcaf658a6952b6aeec3b13
+30      5       fs/afs/rxrpc.c
+2       0       include/trace/events/afs.h
+
+🐱
+7a75b0079a1d54e342c502c3c8107ba97e05d3d3
+12      6       fs/afs/rxrpc.c
+
+🐱
+59d49076ae3e6912e6d7df2fd68e2337f3d02036
+2       2       fs/afs/flock.c
+2       0       fs/afs/inode.c
+
+```
+
+## List of modified files
+
+`numstat_to_csv.py`:
+
+``` python
+#!/usr/bin/env python3
+import sys
+
+def print_buffer(buffer):
+    hash = buffer[0]
+    for statline in buffer[1:]:
+        if not statline:
+            continue
+        added, deleted, path = statline.split(maxsplit=2)
+        print('"%s",%s,%s,"%s"' % (hash, added, deleted, path))
+
+if __name__ == '__main__':
+    buffer = []
+    for line in sys.stdin:
+        if line.strip() == u'🐱':
+            if not buffer:
+                continue
+            print_buffer(buffer)
+            buffer.clear()
+        else:
+            buffer.append(line.strip())
+```
+
+## List of modified files
+
+``` {bash, eval=FALSE}
+git log --pretty=format:🐱%n%H --numstat | python3 numstat_to_csv.py
+```
+
+## List of modified files
+
+``` {bash, eval=FALSE}
+git log --pretty=format:🐱%n%H --numstat | python3 numstat_to_csv.py 
+```
+
+```
+"34fa47612bfe5d7de7fcaf658a6952b6aeec3b13",30,5,"fs/afs/rxrpc.c"
+"34fa47612bfe5d7de7fcaf658a6952b6aeec3b13",2,0,"include/trace/events/afs.h"
+"7a75b0079a1d54e342c502c3c8107ba97e05d3d3",12,6,"fs/afs/rxrpc.c"
+"59d49076ae3e6912e6d7df2fd68e2337f3d02036",2,2,"fs/afs/flock.c"
+"59d49076ae3e6912e6d7df2fd68e2337f3d02036",2,0,"fs/afs/inode.c"
+"4882a27cec24319d10f95e978ecc80050e3e3e15",0,1,"fs/afs/inode.c"
+"e00d8880481497474792d28c14479a9fb6752046",2,2,"Makefile"
+"1b504a7bb18fc32a324712a0fc56d667bdabe258",0,3,"arch/openrisc/Makefile"
+"558ee616d177c8225e65c75b6b72952408e64a74",0,8,"arch/nds32/Makefile"
+"a5795fd38ee8194451ba3f281f075301a3696ce2",7,0,"security/security.c"
+"9474f4e7cd71a633fa1ef93b7daefd44bbdfd482",3,1,"security/yama/yama_lsm.c"
+"3705add0b783e0deeb6646ba0311bf214fe52b0a",1,2,"include/dt-bindings/reset/amlogic,meson-axg-reset.h"
+"9eac0ae1683575375de8c63166b3596b11d3b56a",1,1,"Documentation/devicetree/bindings/soc/qcom/qcom,glink.txt"
+"9eac0ae1683575375de8c63166b3596b11d3b56a",2,2,"Documentation/devicetree/bindings/soc/qcom/qcom,smp2p.txt"
+"889f4ce60ed19cfd16216e96f90e64a0c1181c0d",0,2,"Documentation/devicetree/bindings/gpio/gpio-mvebu.txt"
+"28b170e88bc0c7509e6724717c15cb4b5686026e",1,0,"drivers/of/property.c"
+"227a76b64718888c1687cc237463aa000ae6fb2b",2,0,"kernel/dma/swiotlb.c"
+```
+
+<!-- COMMIT MESSAGES
+## Commit messages
+
+``` {bash, eval=FALSE}
+git log --pretty=format:"%H %s%n%B"
+```
+
+## Commit messages
+
+``` {bash, eval=FALSE}
+git log --pretty=format:"%H %s%n%B"
+```
+
+```
+a3a80255d58d0f0d304ba877ae0313a264973a70 Merge tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs 
+Merge tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs
+
+Pull AFS fixes from David Howells:
+ "Here's a set of fixes for AFS:
+
+   - Use struct_size() for kzalloc() size calculation.
+
+   - When calling YFS.CreateFile rather than AFS.CreateFile, it is
+     possible to create a file with a file lock already held. The
+     default value indicating no lock required is actually -1, not 0.
+
+   - Fix an oops in inode/vnode validation if the target inode doesn't
+     have a server interest assigned (ie. a server that will notify us
+     of changes by third parties).
+
+   - Fix refcounting of keys in file locking.
+
+   - Fix a race in refcounting asynchronous operations in the event of
+     an error during request transmission. The provision of a dedicated
+     function to get an extra ref on a call is split into a separate
+     commit"
+
+6d060fa39035d5ff6bb3e720a8119aeb50453e3b Merge branch 'stable/for-linus-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/swiotlb
+Merge branch 'stable/for-linus-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/swiotlb
+```
+
+## Commit messages
+
+``` {bash, eval=FALSE}
+git log --pretty=format:"%H %s%n%B🐱"
+```
+
+```
+a3a80255d58d0f0d304ba877ae0313a264973a70 Merge tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs
+Merge tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs
+
+Pull AFS fixes from David Howells:
+ "Here's a set of fixes for AFS:
+
+   - Use struct_size() for kzalloc() size calculation.
+
+   - When calling YFS.CreateFile rather than AFS.CreateFile, it is
+     possible to create a file with a file lock already held. The
+     default value indicating no lock required is actually -1, not 0.
+
+   - Fix an oops in inode/vnode validation if the target inode doesn't
+     have a server interest assigned (ie. a server that will notify us
+     of changes by third parties).
+
+   - Fix refcounting of keys in file locking.
+
+   - Fix a race in refcounting asynchronous operations in the event of
+     an error during request transmission. The provision of a dedicated
+     function to get an extra ref on a call is split into a separate
+     commit"
+     
+🐱
+6d060fa39035d5ff6bb3e720a8119aeb50453e3b Merge branch 'stable/for-linus-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/swiotlb
+Merge branch 'stable/for-linus-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/swiotlb
+```
+
+## Commit messages
+
+`messages_to_csv.py`:
+
+``` python
+#!/usr/bin/env python3
+import sys
+
+ifdef print_buffer(buffer):
+    hash, subject = buffer[0].split(maxsplit=1)
+    message = '\n'.join(buffer[1:])
+            
+    subject = repr(subject).replace('"', r'\"')
+    message = repr(message).replace('"', r'\"')
+            
+    print('%s,"%s","%s"' % (hash, subject, message))
+
+ __name__ == '__main__':
+    buffer = []
+    for line in sys.stdin:
+        if line.strip() == u'🐱':
+            if not buffer:
+                continue
+            hasprint_buffer(buffer)          buffer.clear()
+        else:
+            buffer.append(line.strip())
+```
+
+## Commit messages
+
+``` {bash, eval=FALSE}
+git log --pretty=format:"%H %s%n%B🐱" | python3 messages_to_csv.py
+```
+
+## Commit messages
+
+``` {bash, eval=FALSE}
+git log --pretty=format:"%H %s%n%B🐱" | python3 messages_to_csv.py
+```
+
+```
+a3a80255d58d0f0d304ba877ae0313a264973a70,"\"Merge tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs Merge tag 'afs-fixes-20190117' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs\"","'\nPull AFS fixes from David Howells:\n\"Here\'s a set of fixes for AFS:\n\n- Use struct_size() for kzalloc() size calculation.\n\n- When calling YFS.CreateFile rather than AFS.CreateFile, it is\npossible to create a file with a file lock already held. The\ndefault value indicating no lock required is actually -1, not 0.\n\n- Fix an oops in inode/vnode validation if the target inode doesn\'t\nhave a server interest assigned (ie. a server that will notify us\nof changes by third parties).\n\n- Fix refcounting of keys in file locking.\n\n- Fix a race in refcounting asynchronous operations in the event of\nan error during request transmission. The provision of a dedicated\nfunction to get an extra ref on a call is split into a separate\ncommit\"\n\n* tag \'afs-fixes-20190117\' of git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs:\nafs: Fix race in async call refcounting\nafs: Provide a function to get a ref on a call\nafs: Fix key refcounting in file locking code\nafs: Don\'t set vnode->cb_s_break in afs_validate()\nafs: Set correct lock type for the yfs CreateFile\nafs: Use struct_size() in kzalloc()'"
+6d060fa39035d5ff6bb3e720a8119aeb50453e3b,"\"Merge branch 'stable/for-linus-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/swiotlb Merge branch 'stable/for-linus-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/swiotlb\"","'\nPull swiotlb fix from Konrad Rzeszutek Wilk:\n\"A tiny fix for v5.0-rc2:\n\nThis fixes an issue with GPU cards not working anymore with the DMA\nmapping work Christopher did - as the SWIOTLB is initialized first and\nthen free\'d (as IOMMU is available) but we forgot to clear our start\nand end entries which are used and BOOM\"\n\n* \'stable/for-linus-5.0\' of git://git.kernel.org/pub/scm/linux/kernel/git/konrad/swiotlb:\nswiotlb: clear io_tlb_start and io_tlb_end in swiotlb_exit'"
+e4484a495586dddf989380f89a7c16d43db6790b,"\"Merge tag 'kbuild-fixes-v5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild Merge tag 'kbuild-fixes-v5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild\"","\"\nPull Kbuild fixes from Masahiro Yamada:\n\n- clean generated files in scripts/kconfig/ by 'make mrproper'\n\n- fix conflict between dead code elimination and ftrace for GCC <= 4.7\n\n- fix external module build with CONFIG_STACKPROTECTOR\n\n- remove unused code\n\n* tag 'kbuild-fixes-v5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/masahiroy/linux-kbuild:\nkbuild: mark prepare0 as PHONY to fix external module build\nopenrisc: remove unneeded code in arch/openrisc/Makefile\nnds32: remove unneeded code in arch/nds32/Makefile\nia64: remove redundant 'export AWK'\nkbuild: remove unused archmrproper\nkbuild: remove unused baseprereq\nkbuild: Disable LD_DEAD_CODE_DATA_ELIMINATION with ftrace & GCC <= 4.7\nkconfig: clean generated *conf-cfg files\""
+d471c4dfa19f4d6de063256370a5be411a1f3149,"\"Merge tag 'devicetree-fixes-for-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/robh/linux Merge tag 'devicetree-fixes-for-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/robh/linux\"","\"\nPull Devicetree fixes from Rob Herring:\n\n- Remove now unused struct device_node.type pointer\n\n- Fix meson-axg reset header SPDX tag\n\n- Add missing of_node_put in of_graph_get_remote_port_parent\n\n- Fix several binding doc file references and typos\n\n* tag 'devicetree-fixes-for-5.0' of git://git.kernel.org/pub/scm/linux/kernel/git/robh/linux:\ndt-bindings: reset: meson-axg: fix SPDX license id\ndt-bindings: soc: qcom: Fix trivial language typos\ndoc: gpio-mvebu: fix broken reference to cp110-system-controller0.txt file\nOF: properties: add missing of_node_put\ndoc: bindings: fix bad reference to ARM CPU bindings\ndt-bindings: marvell,mmp2: fix typos in bindings doc\nof: Remove struct device_node.type pointer\""
+34fa47612bfe5d7de7fcaf658a6952b6aeec3b13,"'afs: Fix race in async call refcounting afs: Fix race in async call refcounting'","'\nThere\'s a race between afs_make_call() and afs_wake_up_async_call() in the\ncase that an error is returned from rxrpc_kernel_send_data() after it has\nqueued the final packet.\n\nafs_make_call() will try and clean up the mess, but the call state may have\nbeen moved on thereby causing afs_process_async_call() to also try and to\ndelete the call.\n\nFix this by:\n\n(1) Getting an extra ref for an asynchronous call for the call itself to\nhold.  This makes sure the call doesn\'t evaporate on us accidentally\nand will allow the call to be retained by the caller in a future\npatch.  The ref is released on leaving afs_make_call() or\nafs_wait_for_call_to_complete().\n\n(2) In the event of an error from rxrpc_kernel_send_data():\n\n(a) Don\'t set the call state to AFS_CALL_COMPLETE until *after* the\ncall has been aborted and ended.  This prevents\nafs_deliver_to_call() from doing anything with any notifications\nit gets.\n\n(b) Explicitly end the call immediately to prevent further callbacks.\n\n(c) Cancel any queued async_work and wait for the work if it\'s\nexecuting.  This allows us to be sure the race won\'t recur when we\nchange the state.  We put the work queue\'s ref on the call if we\nmanaged to cancel it.\n\n(d) Put the call\'s ref that we got in (1).  This belongs to us as long\nas the call is in state AFS_CALL_CL_REQUESTING.\n\nFixes: 341f741f04be (\"afs: Refcount the afs_call struct\")\nSigned-off-by: David Howells <dhowells@redhat.com>'"
+7a75b0079a1d54e342c502c3c8107ba97e05d3d3,"'afs: Provide a function to get a ref on a call afs: Provide a function to get a ref on a call'","'\nProvide a function to get a reference on an afs_call struct.\n\nSigned-off-by: David Howells <dhowells@redhat.com>'"
+59d49076ae3e6912e6d7df2fd68e2337f3d02036,"'afs: Fix key refcounting in file locking code afs: Fix key refcounting in file locking code'","'\nFix the refcounting of the authentication keys in the file locking code.\nThe vnode->lock_key member points to a key on which it expects to be\nholding a ref, but it isn\'t always given an extra ref, however.\n\nFixes: 0fafdc9f888b (\"afs: Fix file locking\")\nSigned-off-by: David Howells <dhowells@redhat.com>'"
+4882a27cec24319d10f95e978ecc80050e3e3e15,"\"afs: Don't set vnode->cb_s_break in afs_validate() afs: Don't set vnode->cb_s_break in afs_validate()\"","'\nA cb_interest record is not necessarily attached to the vnode on entry to\nafs_validate(), which can cause an oops when we try to bring the vnode\'s\ncb_s_break up to date in the default case (ie. no current callback promise\nand the vnode has not been deleted).\n\nFix this by simply removing the line, as vnode->cb_s_break will be set when\nneeded by afs_register_server_cb_interest() when we next get a callback\npromise from RPC call.\n\nThe oops looks something like:\n\nBUG: unable to handle kernel NULL pointer dereference at 0000000000000018\n...\nRIP: 0010:afs_validate+0x66/0x250 [kafs]\n...\nCall Trace:\nafs_d_revalidate+0x8d/0x340 [kafs]\n? __d_lookup+0x61/0x150\nlookup_dcache+0x44/0x70\n? lookup_dcache+0x44/0x70\n__lookup_hash+0x24/0xa0\ndo_unlinkat+0x11d/0x2c0\n__x64_sys_unlink+0x23/0x30\ndo_syscall_64+0x4d/0xf0\nentry_SYSCALL_64_after_hwframe+0x44/0xa9\n\nFixes: ae3b7361dc0e (\"afs: Fix validation/callback interaction\")\nSigned-off-by: Marc Dionne <marc.dionne@auristor.com>\nSigned-off-by: David Howells <dhowells@redhat.com>'"
+e00d8880481497474792d28c14479a9fb6752046,"'kbuild: mark prepare0 as PHONY to fix external module build kbuild: mark prepare0 as PHONY to fix external module build'","'\nCommit c3ff2a5193fa (\"powerpc/32: add stack protector support\")\ncaused kernel panic on PowerPC when an external module is used with\nCONFIG_STACKPROTECTOR because the \'prepare\' target was not executed\nfor the external module build.\n\nCommit e07db28eea38 (\"kbuild: fix single target build for external\nmodule\") turned it into a build error because the \'prepare\' target is\nnow executed but the \'prepare0\' target is missing for the external\nmodule build.\n\nExternal module on arm/arm64 with CONFIG_STACKPROTECTOR_PER_TASK is\nalso broken in the same way.\n\nMove \'PHONY += prepare0\' to the common place. GNU Make is fine with\nmissing rule for phony targets. I also removed the comment which is\nwrong irrespective of this commit.\n\nI minimize the change so it can be easily backported to 4.20.x\n\nTo fix v4.20, please backport e07db28eea38 (\"kbuild: fix single target\nbuild for external module\"), and then this commit.\n\nLink: https://bugzilla.kernel.org/show_bug.cgi?id=201891\nFixes: e07db28eea38 (\"kbuild: fix single target build for external module\")\nFixes: c3ff2a5193fa (\"powerpc/32: add stack protector support\")\nFixes: 189af4657186 (\"ARM: smp: add support for per-task stack canaries\")\nFixes: 0a1213fa7432 (\"arm64: enable per-task stack canaries\")\nCc: linux-stable <stable@vger.kernel.org> # v4.20\nReported-by: Samuel Holland <samuel@sholland.org>\nReported-by: Alexey Kardashevskiy <aik@ozlabs.ru>\nSigned-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>\nAcked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>\nTested-by: Alexey Kardashevskiy <aik@ozlabs.ru>'"
+1b504a7bb18fc32a324712a0fc56d667bdabe258,"'openrisc: remove unneeded code in arch/openrisc/Makefile openrisc: remove unneeded code in arch/openrisc/Makefile'","\"\n- LDFLAGS_vmlinux is cleared by the top Makefile\n\n- 'all: vmlinux' is specified by the top Makefile\n\nSigned-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>\""
+558ee616d177c8225e65c75b6b72952408e64a74,"'nds32: remove unneeded code in arch/nds32/Makefile nds32: remove unneeded code in arch/nds32/Makefile'","\"\n- scripts/Kbuild.include already defined 'comma'\n\n- The top Makefile has 'PHONY += FORCE'\n\n- include/asm-*/ was moved to arch/*/include/asm/ a decade ago\n\nSigned-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>\""
+7fbfee7c80ded94278f109aae4063741c323294a,"\"Merge branch 'fixes-v5.0-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security Merge branch 'fixes-v5.0-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security\"","'\nPull security subsystem fixes from James Morris:\n\"Fixes for the security subsystem.\n\nThe first (by Casey actually - it\'s misattributed) fixes a regression\nintroduced with the LSM stacking changes\"\n\n* \'fixes-v5.0-rc2\' of git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security:\nLSM: Check for NULL cred-security on free\nYama: Check for pid death before checking ancestry\nseccomp: fix UAF in user-trap code'"
+a5795fd38ee8194451ba3f281f075301a3696ce2,"'LSM: Check for NULL cred-security on free LSM: Check for NULL cred-security on free'","'\nFrom: Casey Schaufler <casey@schaufler-ca.com>\n\nCheck that the cred security blob has been set before trying\nto clean it up. There is a case during credential initialization\nthat could result in this.\n\nSigned-off-by: Casey Schaufler <casey@schaufler-ca.com>\nAcked-by: John Johansen <john.johansen@canonical.com>\nSigned-off-by: James Morris <james.morris@microsoft.com>\nReported-by: syzbot+69ca07954461f189e808@syzkaller.appspotmail.com'"
+```
+
+COMMIT MESSAGES-->
+
+## Putting it all together
+
+``` {bash, eval = F}
+function download_repo_contents {
+    local destination=$(mktemp --directory)
+    git clone "https://github.com/$1/$2.git" "$destination"
+    echo "$destination"
+}
+```
+
+## Putting it all together
+
+``` {bash, eval = F}
+function retrieve_commit_metadata {
+    echo '"hash", "author name", "author email", "author timestamp", '\
+         '"committer name", "committer email", "committer timestamp"'
+    git log --pretty=format:'"%H","%an","%ae","%at","%cn","%ce","%ct"'
+}
+
+function retrieve_commit_file_modification_info {
+    echo '"hash", "added lines", "deleted lines", "file"'
+    git log --pretty=format:🐱%n%H --numstat | \
+        python3 numstat_to_csv.py 
+}
+```
+
+<!---
+function retrieve_commit_comments {
+    echo '"hash", "subject", "message"'
+    git log --pretty=format:"%H %s %B🐱" | \
+        iconv -t utf-8//IGNORE | \
+        python3 messages_to_csv.py 
+}
+--->
+
+## Putting it all together
+
+``` {bash, eval = F}
+function process_repository {
+    local user="$1" 
+    local repo="$2"
+    
+    local filename="${user}_${repo}.csv"
+    
+    local repository_path="$(download_repo_contents $user $repo)"
+    cd "${repository_path}"
+    
+    retrieve_commit_metadata > "${home}/commit_metadata/${filename}"
+    retrieve_commit_file_modification_info > "${home}/commit_files/${filename}"
+
+    cd "$home"
+
+    rm -fr "${repository_path}"
+}
+```
+
+<!-- retrieve_commit_comments > "${home}/commit_comments/${filename}" -->
+
+## Putting it all together
+
+``` {bash, eval = F}
+function prepare_directories {
+    home="$(pwd)"
+    mkdir -p commit_metadata
+    mkdir -p commit_files
+}
+```
+
+<!--     mkdir -p commit_comments -->
+
+## Putting it all together
+
+``` {bash, eval = F}
+prepare_directories
+echo '"user","repo","time"' > timing.csv
+for info in `cat repos.list`
+do
+    echo processing $info
+
+    user=$(echo $info | cut -f1 -d/)
+    repo=$(echo $info | cut -f2 -d/)
+
+    process_repository $user $repo
+done
+```
+
+
