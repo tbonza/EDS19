@@ -13,22 +13,10 @@ GitHub Repository Management
 .. automodule:: okra.repo_mgmt
    :members:
 
-Assignment 1 Data Utils
------------------------
+Database Models
+---------------
 
-Utilities for collecting the data requested
-in `DS 6050 Assignment 1 <http://janvitek.org/events/NEU/6050/a1.html>`_.
-
-.. automodule:: okra.assn1_data
+.. autoclass:: okra.models.CommitMeta
    :members:
-
-Assignment 2 Database Schemata
-------------------------------
-
-Utilities for creating and implementing the
-database schemata requested in
-`DS 6050 Assignment 2 <http://janvitek.org/events/NEU/6050/a2.html>`_.
-
-.. automodule:: okra.assn2_db
-   :members:
+	       
 

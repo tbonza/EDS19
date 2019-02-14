@@ -16,7 +16,7 @@ def config_assn2_schema():
     metadata = MetaData()
 
     commit_meta = Table('commit_meta', metadata,
-                       Column('id', Integer, primary_key=True, nullable=False),
+                       Column('id', Integer, primary_key=True, nullable=False)
                        Column('owner_name', String, nullable=False),
                        Column('project_name', String, nullable=False),
                        Column('commit_hash', String,
