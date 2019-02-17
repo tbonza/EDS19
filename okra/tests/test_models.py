@@ -101,6 +101,36 @@ class TestModels(unittest.TestCase):
 
         assert query == (1,)
 
+    # Joining tables using Foreign Keys
+
+    def test_join_meta_author(self):
+        query = self.dal.session.\
+            query(Meta.commit_hash, Meta.owner_name, Meta.project_name,
+                  Author.name, Author.email)
+
+        query = query.join(Author)
+        results = query.all()
+
+        assert len(results) == 1
+        assert results[0][0] == '12345'
+        assert results[0][1] == 'Tyler'
+        assert results[0][3] == 'Tyler'
+
+    def test_join_meta_file_info(self):
+        query = self.dal.session.\
+            query(Meta.commit_hash, Meta.owner_name, Meta.project_name,
+                  CommitFile.modified_file, CommitFile.lines_added,
+                  CommitFile.lines_subtracted, Info.subject)
+
+        query = query.join(CommitFile).join(Info)
+        results = query.all()
+
+        assert len(results) == 1
+        assert results[0][0] == '12345'
+        assert results[0][4] == 0
+        assert results[0][5] == 42
+        assert results[0][6] == 'Long strange trip'
+
         
 
 

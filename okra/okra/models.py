@@ -3,7 +3,7 @@
 This is the database schema used for accessing the SQL database.
 """
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import (Table, Column, Integer, String, MetaData, Numeric,
                         ForeignKey, DateTime, create_engine)
 
@@ -14,7 +14,12 @@ class Meta(Base):
 
     __tablename__ = 'meta'
 
-    commit_hash = Column('commit_hash', String(40), primary_key=True,
+    commit_hash = Column('commit_hash', String(40), 
+                         ForeignKey('author.commit_hash'),
+                         ForeignKey('contrib.commit_hash'),
+                         ForeignKey('commit_file.commit_hash'),
+                         ForeignKey('info.commit_hash'),
+                         primary_key=True,
                          index=True)
     owner_name = Column('owner_name', String(100), nullable=False)
     project_name = Column('project_name', String(150), nullable=False)
