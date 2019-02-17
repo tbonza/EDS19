@@ -8,7 +8,7 @@ import unittest
 
 from sqlalchemy import func
 from okra.models import (DataAccessLayer, Meta, Author,
-                         Contrib, CommitFile)
+                         Contrib, CommitFile, Info)
 
 def mock_db(session):
     commit_hash = "12345"
@@ -33,10 +33,19 @@ def mock_db(session):
                   email="angela@email.com",
                   contributed=datetime.now())
 
-    #cf1 = CommitFile
+    cf1 = CommitFile(file_id=1,
+                     commit_hash=commit_hash,
+                     modified_file="/foo/bar/yup.txt",
+                     lines_added=0,
+                     lines_subtracted=42)
+
+    ci1 = Info(commit_hash=commit_hash,
+              subject="Long strange trip",
+              message="What a long strange trip it's been",
+              created=datetime.now())
                        
 
-    session.bulk_save_objects([cm1,ca1,cc1,cc2])
+    session.bulk_save_objects([cm1,ca1,cc1,cc2,cf1,ci1])
     session.commit()
 
 class TestModels(unittest.TestCase):
@@ -77,6 +86,20 @@ class TestModels(unittest.TestCase):
             group_by(Contrib.commit_hash).one()
 
         assert query == (2,)
+
+    def test_add_commit_file(self):
+        query = self.dal.session.\
+            query(func.count(CommitFile.commit_hash)).\
+            group_by(CommitFile.commit_hash).one()
+
+        assert query == (1,)
+
+    def test_add_commit_info(self):
+        query = self.dal.session.\
+            query(func.count(Info.commit_hash)).\
+            group_by(Info.subject).one()
+
+        assert query == (1,)
 
         
 

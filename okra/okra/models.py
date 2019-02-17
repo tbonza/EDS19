@@ -55,8 +55,14 @@ class CommitFile(Base):
     lines_added = Column('lines_added', Integer, nullable=False)
     lines_subtracted = Column('lines_subtracted', Integer, nullable=False)
 
+class Info(Base):
+    __tablename__ = 'info'
 
-
+    commit_hash = Column('commit_hash', String(40), primary_key=True,
+                         index=True)
+    subject = Column('subject', String(250), nullable=True)
+    message = Column('message', String(1500), nullable=True)
+    created = Column('created', DateTime, nullable=False)
 
     
 class DataAccessLayer(object):
