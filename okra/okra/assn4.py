@@ -8,7 +8,7 @@ References:
   http://janvitek.org/events/NEU/6050/a4.html
 """
 from sqlalchemy import func
-from okra.models import CommitMeta
+from okra.models import Meta
 
 def get_truck_factor_by_project(proj_name, dal):
     """ Get the 'truck factor' by project.
@@ -27,7 +27,7 @@ def get_truck_factor_by_project(proj_name, dal):
     :return: Truck factor score for a GitHub project
     :rtype: float
     """
-    query = dal.session.query(func.count(CommitMeta.commit_hash)). \
-        group_by(CommitMeta.owner_name)
+    query = dal.session.query(func.count(Meta.commit_hash)). \
+        group_by(Meta.owner_name)
 
     return query

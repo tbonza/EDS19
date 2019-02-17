@@ -10,41 +10,55 @@ from sqlalchemy import (Table, Column, Integer, String, MetaData, Numeric,
 Base = declarative_base()
 
 
-class CommitMeta(Base):
+class Meta(Base):
 
-    __tablename__ = 'commit_meta'
+    __tablename__ = 'meta'
 
     commit_hash = Column('commit_hash', String(40), primary_key=True,
                          index=True)
     owner_name = Column('owner_name', String(100), nullable=False)
     project_name = Column('project_name', String(150), nullable=False)
 
-class CommitAuthor(Base):
+class Author(Base):
     """ 
     Author email is false, not all authors require a github account,
     so an email is not going to be required. 
     """
-    __tablename__ = 'commit_author'
+    __tablename__ = 'author'
 
     commit_hash = Column('commit_hash', String(40), primary_key=True,
                          index=True)
-    author_name = Column('author_name', String(150), nullable=False,
+    name = Column('name', String(150), nullable=False,
                          index=True)
-    author_email = Column('author_email', String(200), nullable=True)
+    email = Column('email', String(200), nullable=True)
     authored = Column('authored', DateTime, nullable=False)
 
-class CommitContrib(Base):
+class Contrib(Base):
 
-    __tablename__ = 'commit_contrib'
+    __tablename__ = 'contrib'
 
     contrib_id = Column('contrib_id', Integer, primary_key=True)
     commit_hash = Column('commit_hash', String(40), index=True,
                          nullable=False)
-    contrib_name = Column('contrib_name', String(150), index=True,
+    name = Column('name', String(150), index=True,
                           nullable=False)
-    contrib_email = Column('contrib_email', String(200), nullable=True)
+    email = Column('email', String(200), nullable=True)
     contributed = Column('contributed', DateTime, nullable=False)
 
+class CommitFile(Base):
+    __tablename__ = 'commit_file'
+
+    file_id = Column('file_id', Integer, primary_key=True)
+    commit_hash = Column('commit_hash', String(40), index=True,
+                         nullable=False)
+    modified_file = Column('modified_file', String(300), nullable=False)
+    lines_added = Column('lines_added', Integer, nullable=False)
+    lines_subtracted = Column('lines_subtracted', Integer, nullable=False)
+
+
+
+
+    
 class DataAccessLayer(object):
 
     def __init__(self, conn_string):

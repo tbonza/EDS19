@@ -7,31 +7,33 @@ from datetime import datetime
 import unittest
 
 from sqlalchemy import func
-from okra.models import (DataAccessLayer, CommitMeta, CommitAuthor,
-                         CommitContrib)
+from okra.models import (DataAccessLayer, Meta, Author,
+                         Contrib, CommitFile)
 
 def mock_db(session):
     commit_hash = "12345"
-    cm1 = CommitMeta(commit_hash=commit_hash,
+    cm1 = Meta(commit_hash=commit_hash,
                     owner_name="Tyler",
                     project_name="okra")
 
-    ca1 = CommitAuthor(commit_hash=commit_hash,
-                       author_name="Tyler",
-                       author_email="this_email@email.com",
-                       authored = datetime.now())
+    ca1 = Author(commit_hash=commit_hash,
+                 name="Tyler",
+                 email="this_email@email.com",
+                 authored = datetime.now())
 
-    cc1 = CommitContrib(contrib_id = 1,
-                        commit_hash=commit_hash,
-                        contrib_name="Tyler",
-                        contrib_email=None,
-                        contributed=datetime.now())
+    cc1 = Contrib(contrib_id = 1,
+                  commit_hash=commit_hash,
+                  name="Tyler",
+                  email=None,
+                  contributed=datetime.now())
 
-    cc2 = CommitContrib(contrib_id = 2,
-                        commit_hash=commit_hash,
-                        contrib_name="Angela",
-                        contrib_email="angela@email.com",
-                        contributed=datetime.now())
+    cc2 = Contrib(contrib_id = 2,
+                  commit_hash=commit_hash,
+                  name="Angela",
+                  email="angela@email.com",
+                  contributed=datetime.now())
+
+    #cf1 = CommitFile
                        
 
     session.bulk_save_objects([cm1,ca1,cc1,cc2])
@@ -58,21 +60,21 @@ class TestModels(unittest.TestCase):
     # Adding and updating objects
 
     def test_add_commit_meta(self):
-        query = self.dal.session.query(func.count(CommitMeta.commit_hash)). \
-            group_by(CommitMeta.owner_name).one()
+        query = self.dal.session.query(func.count(Meta.commit_hash)). \
+            group_by(Meta.owner_name).one()
 
         assert query == (1,)
 
     def test_add_commit_author(self):
-        query = self.dal.session.query(func.count(CommitAuthor.commit_hash)).\
-            group_by(CommitAuthor.author_name).one()
+        query = self.dal.session.query(func.count(Author.commit_hash)).\
+            group_by(Author.name).one()
 
         assert query == (1,)
 
     def test_add_commit_contrib(self):
         query = self.dal.session.\
-            query(func.count(CommitContrib.commit_hash)).\
-            group_by(CommitContrib.commit_hash).one()
+            query(func.count(Contrib.commit_hash)).\
+            group_by(Contrib.commit_hash).one()
 
         assert query == (2,)
 

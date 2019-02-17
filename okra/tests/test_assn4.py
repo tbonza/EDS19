@@ -4,11 +4,11 @@
 """
 import unittest
 
-from okra.models import DataAccessLayer, CommitMeta
+from okra.models import DataAccessLayer, Meta
 from okra.assn4 import get_truck_factor_by_project
 
 def mock_db(session):
-    c1 = CommitMeta(commit_hash="12345",
+    c1 = Meta(commit_hash="12345",
                     owner_name="Tyler",
                     project_name="okra")
 
