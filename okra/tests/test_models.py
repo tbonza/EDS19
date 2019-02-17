@@ -7,7 +7,8 @@ from datetime import datetime
 import unittest
 
 from sqlalchemy import func
-from okra.models import (DataAccessLayer, CommitMeta, CommitAuthor)
+from okra.models import (DataAccessLayer, CommitMeta, CommitAuthor,
+                         CommitContrib)
 
 def mock_db(session):
     commit_hash = "12345"
@@ -18,10 +19,22 @@ def mock_db(session):
     ca1 = CommitAuthor(commit_hash=commit_hash,
                        author_name="Tyler",
                        author_email="this_email@email.com",
-                       authored_datetime = datetime.now())
+                       authored = datetime.now())
+
+    cc1 = CommitContrib(contrib_id = 1,
+                        commit_hash=commit_hash,
+                        contrib_name="Tyler",
+                        contrib_email=None,
+                        contributed=datetime.now())
+
+    cc2 = CommitContrib(contrib_id = 2,
+                        commit_hash=commit_hash,
+                        contrib_name="Angela",
+                        contrib_email="angela@email.com",
+                        contributed=datetime.now())
                        
 
-    session.bulk_save_objects([cm1,ca1])
+    session.bulk_save_objects([cm1,ca1,cc1,cc2])
     session.commit()
 
 class TestModels(unittest.TestCase):
@@ -55,6 +68,13 @@ class TestModels(unittest.TestCase):
             group_by(CommitAuthor.author_name).one()
 
         assert query == (1,)
+
+    def test_add_commit_contrib(self):
+        query = self.dal.session.\
+            query(func.count(CommitContrib.commit_hash)).\
+            group_by(CommitContrib.commit_hash).one()
+
+        assert query == (2,)
 
         
 

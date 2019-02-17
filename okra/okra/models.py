@@ -31,7 +31,19 @@ class CommitAuthor(Base):
     author_name = Column('author_name', String(150), nullable=False,
                          index=True)
     author_email = Column('author_email', String(200), nullable=True)
-    authored_datetime = Column('author_datetime', DateTime, nullable=False)
+    authored = Column('authored', DateTime, nullable=False)
+
+class CommitContrib(Base):
+
+    __tablename__ = 'commit_contrib'
+
+    contrib_id = Column('contrib_id', Integer, primary_key=True)
+    commit_hash = Column('commit_hash', String(40), index=True,
+                         nullable=False)
+    contrib_name = Column('contrib_name', String(150), index=True,
+                          nullable=False)
+    contrib_email = Column('contrib_email', String(200), nullable=True)
+    contributed = Column('contributed', DateTime, nullable=False)
 
 class DataAccessLayer(object):
 
