@@ -4,10 +4,16 @@
 """
 import unittest
 
-from okra.models import DataAccessLayer, Meta
+from okra.models import (DataAccessLayer, Meta, Author, Contrib,
+                         CommitFile, Info)
 from okra.assn4 import get_truck_factor_by_project
 
 def mock_db(session):
+    """ 
+    Mock up a database that can be used to compute the truck factor
+    of a project.
+    """
+    
     c1 = Meta(commit_hash="12345",
                     owner_name="Tyler",
                     project_name="okra")

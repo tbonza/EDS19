@@ -131,6 +131,3 @@ class TestModels(unittest.TestCase):
         assert results[0][5] == 42
         assert results[0][6] == 'Long strange trip'
 
-        
-
-
