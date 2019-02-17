@@ -9,24 +9,29 @@ from sqlalchemy import (Table, Column, Integer, String, MetaData, Numeric,
 
 Base = declarative_base()
 
-class Cookie(Base):
-    __tablename__ = 'cookies'
-
-    cookie_id = Column(Integer, primary_key=True)
-    cookie_name = Column(String(50), index=True)
-    cookie_recipe_url = Column(String(255))
-    cookie_sku = Column(String(55))
-    quantity = Column(Integer())
-    unit_cost = Column(Numeric(12, 2))
 
 class CommitMeta(Base):
 
     __tablename__ = 'commit_meta'
 
-    commit_hash = Column('commit_hash', String(40), primary_key=True)
+    commit_hash = Column('commit_hash', String(40), primary_key=True,
+                         index=True)
     owner_name = Column('owner_name', String(100), nullable=False)
     project_name = Column('project_name', String(150), nullable=False)
-    
+
+class CommitAuthor(Base):
+    """ 
+    Author email is false, not all authors require a github account,
+    so an email is not going to be required. 
+    """
+    __tablename__ = 'commit_author'
+
+    commit_hash = Column('commit_hash', String(40), primary_key=True,
+                         index=True)
+    author_name = Column('author_name', String(150), nullable=False,
+                         index=True)
+    author_email = Column('author_email', String(200), nullable=True)
+    authored_datetime = Column('author_datetime', DateTime, nullable=False)
 
 class DataAccessLayer(object):
 
