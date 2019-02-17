@@ -16,7 +16,6 @@ GitHub Repository Management
 Database Models
 ---------------
 
-.. autoclass:: okra.models.CommitMeta
+.. automodule:: okra.models
    :members:
-	       
 

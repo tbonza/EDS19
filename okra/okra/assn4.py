@@ -8,7 +8,28 @@ References:
   http://janvitek.org/events/NEU/6050/a4.html
 """
 from sqlalchemy import func
-from okra.models import Meta
+from okra.models import (Meta, Author, Contrib, CommitFile, Info)
+
+def total_number_of_files_by_project(proj_name, dal):
+    """ Compute the total number of files by project. """
+    q = dal.session.query(CommitFile.modified_file).\
+        group_by(CommitFile.modified_file).all()
+    return len(q)
+
+def author_file_owned(proj_name, dal):
+    """ Compute file ownership by each author. """
+
+    # Number of lines added by each author per file
+    q = dal.session.\
+        query(Meta.commit_hash, Author.name, Author.email,
+              CommitFile.modified_file,
+              func.sum(CommitFile.lines_added).label("total_lines_added"))
+    q = q.join(Author).join(CommitFile)
+    q = q.group_by(Author.name, CommitFile.modified_file)
+
+    # Author with max number of lines added per file (owner)
+    res = q.all()
+    return res
 
 def get_truck_factor_by_project(proj_name, dal):
     """ Get the 'truck factor' by project.
@@ -27,7 +48,4 @@ def get_truck_factor_by_project(proj_name, dal):
     :return: Truck factor score for a GitHub project
     :rtype: float
     """
-    query = dal.session.query(func.count(Meta.commit_hash)). \
-        group_by(Meta.owner_name)
-
-    return query
+    pass
