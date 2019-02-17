@@ -19,6 +19,15 @@ class Cookie(Base):
     quantity = Column(Integer())
     unit_cost = Column(Numeric(12, 2))
 
+class CommitMeta(Base):
+
+    __tablename__ = 'commit_meta'
+
+    commit_hash = Column('commit_hash', String(40), primary_key=True)
+    owner_name = Column('owner_name', String(100), nullable=False)
+    project_name = Column('project_name', String(150), nullable=False)
+    
+
 class DataAccessLayer(object):
 
     def __init__(self, conn_string):

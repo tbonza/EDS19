@@ -1,12 +1,11 @@
-""" Validating function data models 
+""" Validating data models using in Assignment 4
 
-Trying to do simple things with the data access layer to make
-sure it doesn't break before doing more interesting things.
+
 """
 import unittest
 
-from sqlalchemy import func
 from okra.models import DataAccessLayer, CommitMeta
+from okra.assn4 import get_truck_factor_by_project
 
 def mock_db(session):
     c1 = CommitMeta(commit_hash="12345",
@@ -37,9 +36,7 @@ class TestModels(unittest.TestCase):
     # Adding and updating objects
 
     def test_add_commit_meta(self):
-        query = self.dal.session.query(func.count(CommitMeta.commit_hash)). \
-            group_by(CommitMeta.owner_name)
-
-        
+        pass
 
 
+    
