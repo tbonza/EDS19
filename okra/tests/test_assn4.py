@@ -9,7 +9,8 @@ import unittest
 from okra.models import (DataAccessLayer, Meta, Author, Contrib,
                          CommitFile, Info)
 from okra.assn4 import (total_number_of_files_by_project,
-                        author_file_owned,
+                        author_file_owned, author_number_of_files_owned,
+                        smallest_owner_set,
                         get_truck_factor_by_project)
 
 def mock_github_project_db(session):
@@ -144,4 +145,36 @@ class TestAssn4(unittest.TestCase):
         assert len(result) == 9
 
     def test_author_number_of_files_owned(self):
-        pass
+        afo = author_file_owned("okra", self.dal)
+        result = author_number_of_files_owned(afo)
+
+        assert len(result) == 4
+        assert result["Tyler"] == 3
+        assert result["Angela"] == 2
+
+    def test_smallest_owner_set(self):
+        afo = author_file_owned("okra", self.dal)
+        authors = author_number_of_files_owned(afo)
+        total = total_number_of_files_by_project("okra", self.dal)
+
+        result = smallest_owner_set(authors, total)
+
+        res_count, res_members = result
+
+        assert res_count == 2
+        assert res_members[0] == ("Tyler", 3)
+        assert res_members[1] == ("Angela", 2)
+
+    def test_get_truck_factor_by_project(self):
+
+        result = get_truck_factor_by_project("okra", self.dal)
+
+        res_count, res_members = result
+
+        assert res_count == 2
+        assert res_members[0] == ("Tyler", 3)
+        assert res_members[1] == ("Angela", 2)
+        
+
+         
+        

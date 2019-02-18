@@ -14,7 +14,13 @@ from sqlalchemy import func
 from okra.models import (Meta, Author, Contrib, CommitFile, Info)
 
 def total_number_of_files_by_project(proj_name, dal):
-    """ Compute the total number of files by project. """
+    """ Compute the total number of files by project. 
+    
+    :param proj_name: name of project
+    :param dal: okra.models.DataAccessLayer
+    :return: the number of files in a project
+    :rtype: int
+    """
     q = dal.session.query(Meta.project_name, CommitFile.modified_file).\
         join(CommitFile).\
         filter(Meta.project_name == proj_name).\
@@ -22,7 +28,13 @@ def total_number_of_files_by_project(proj_name, dal):
     return len(q)
 
 def author_file_owned(proj_name, dal):
-    """ Compute file ownership by each author. """
+    """ Compute file ownership by each author. 
+    
+    :param proj_name: name of project
+    :param dal: okra.models.DataAccessLayer
+    :return: list of file owners based on max number of lines written
+    :rtype: list of sqlalchemy objects
+    """
 
     # Number of lines added by each author per file
     q = dal.session.\
@@ -59,14 +71,14 @@ def author_number_of_files_owned(results):
     :return: {author:  number of files owned}
     :rtype: dict
     """
-    authors = defaultdict(0)
+    authors = defaultdict(int)
     for item in results:
 
         authors[item.name] += 1
 
     return authors
 
-def smallest_owner_set(authors, total):
+def smallest_owner_set(authors, total, size=0.5):
     """ Smallest set of authors owning more than half of project files. 
 
     :param authors: author_number_of_files_owned() output
@@ -74,11 +86,23 @@ def smallest_owner_set(authors, total):
     :return: (number of members in smallest set, smallest set)
     :rtype: tuple
     """
+    items = sorted(authors.items(), key=lambda k_v: k_v[1], reverse=True)
+    threshold = round(total * size)
+    agg = 0
+    members = []
+    member_count = 0
+    for k,v in items:
 
-    # sort dict by keys, descending
+        if agg <= threshold:
 
-    # 
+            members.append((k,v))
+            member_count += 1
+            agg += v
 
+        else:
+            break
+
+    return (member_count, members)
 
 def get_truck_factor_by_project(proj_name, dal):
     """ Get the 'truck factor' by project.
@@ -94,7 +118,12 @@ def get_truck_factor_by_project(proj_name, dal):
 
     :param proj_name: name of GitHub project
     :param dal: okra.models.DataAccessLayer() with connection string param
-    :return: Truck factor score for a GitHub project
-    :rtype: float
+    :return: Truck factor score for a GitHub project, Truck set members
+    :rtype: tuple (int, list)
     """
-    pass
+    total_files = total_number_of_files_by_project(proj_name, dal)
+    owners = author_file_owned(proj_name, dal)
+    authors = author_number_of_files_owned(owners)
+    member_count, members = smallest_owner_set(authors, total_files)
+
+    return (member_count, members)
