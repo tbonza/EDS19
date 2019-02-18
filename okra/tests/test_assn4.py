@@ -131,10 +131,17 @@ class TestAssn4(unittest.TestCase):
         self.dal.session.rollback()
         self.dal.session.close()
 
-    # Adding and updating objects
+    def test_total_number_of_files_by_project(self):
+        result = total_number_of_files_by_project("okra", self.dal)
 
-    def test_add_commit_meta(self):
+        assert result == 9
+
+    def test_author_file_owned(self):
+        result = author_file_owned("okra", self.dal)
+
+        assert result[-2].modified_file == "b1.R"
+        assert result[-2].total_lines_added == 40
+        assert len(result) == 9
+
+    def test_author_number_of_files_owned(self):
         pass
-
-
-    

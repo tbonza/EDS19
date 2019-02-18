@@ -19,6 +19,18 @@ this part of the documentation is for you.
 
    api
 
+Applications
+------------
+
+Certain applications have been implemented using `okra`. You can access
+these applications here. However, `okra` was set up to run these applications
+using a YAML specification provided by the command line as well.
+
+.. toctree::
+   :maxdepth: 2
+
+   apps
+
 
 Indices and tables
 ==================
