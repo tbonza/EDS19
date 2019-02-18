@@ -1,0 +1,6 @@
+[submodule "configuration/roles/ansible-role-docker"]
+	path = configuration/roles/ansible-role-docker
+	url = https://github.com/geerlingguy/ansible-role-docker.git
+[submodule "configuration/roles/ansible-role-pip"]
+	path = configuration/roles/ansible-role-pip
+	url = https://github.com/geerlingguy/ansible-role-pip.git

@@ -6,9 +6,9 @@
 
     - name: Provision a set of instances
       ec2:
-        keypair: "aws_key"
-        group: whatever
-        instance_type: t2.nano
+        keypair: "{{ key_pair_name }}"
+        group: "{{ security_group }}"
+        instance_type: t2.medium
         region: "{{ ec2_region }}"
         image: "{{ ami_id }}"
         wait: true

@@ -9,3 +9,21 @@
     - name: u up?
       ping:
 
+    - name: docker
+      become: yes
+      yum:
+        name: docker
+        state: latest
+
+    - name: git
+      become: yes
+      yum:
+        name: git
+        state: latest
+
+    - name: emacs
+      become: yes
+      yum:
+        name: emacs
+        state: latest
+

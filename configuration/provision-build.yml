@@ -1,9 +1,0 @@
-- hosts: ec2
-  remote_user: ec2-user
-
-  gather_facts: true
-
-  tasks:
-
-    - name: u up?
-      ping:
