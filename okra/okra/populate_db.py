@@ -7,8 +7,8 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from okra.models import (CommitMeta, CommitAuthor, CommitContrib,
-                         CommitFile, CommitInfo)
+from okra.models import (Meta, Author, Contrib, CommitFile, Info,
+                         DataAccessLayer)
                          
 
 logger = logging.getLogger(__name__)
