@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='okra',
-    version='0.8dev0',
+    version='0.8dev1',
     packages=["okra", "okra/protobuf", "okra/playbooks"],
     license='MIT',
     long_description=open('README.md').read(),
@@ -10,6 +10,7 @@ setup(
         'boto3==1.9.93',
         'protobuf==3.6.1',
         'sqlalchemy==1.2.17',
+        'pyyaml==3.13',
     ],
     scripts=['bin/okra'],
     setup_requires=['pytest-runner'],
