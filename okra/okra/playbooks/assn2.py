@@ -4,7 +4,7 @@ http://janvitek.org/events/NEU/6050/a2.html
 """
 import logging
 
-from okra.assn2_db import (config_assn2_schema, metadata_tosql, erm_diagram)
+from okra.assn2_db import (config_assn2_schema, metadata_tosql)
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +29,7 @@ def run_assn2(task_args: dict):
     with open(schema_dest, "w") as outfile:
         outfile.write(schema_sql)
 
-    logger.info("Generating diagram")
-    dgram = erm_diagram(metadata, diagram_dest)
+    logger.warning("ERM diagram removed for docker container update")
 
     logger.info("COMPLETED task_id: assn2")
 
