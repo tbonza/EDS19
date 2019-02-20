@@ -9,6 +9,12 @@
     - name: u up?
       ping:
 
+    - name: Update packages
+      become: yes
+      yum:
+        name: '*'
+        state: latest
+
     - name: docker
       become: yes
       yum:
@@ -27,3 +33,23 @@
         name: emacs
         state: latest
 
+    - name: kubectl repo
+      become: yes
+      copy:
+        src: files/kubernetes.repo
+        dest: /etc/yum.repos.d/kubernetes.repo
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: kubectl
+      become: yes
+      yum:
+        name: kubectl
+        state: latest
+
+    - name: systemd
+      become: yes
+      yum:
+        name: systemd
+        state: latest
