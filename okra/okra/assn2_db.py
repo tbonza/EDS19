@@ -6,7 +6,6 @@ http://janvitek.org/events/NEU/6050/a2.html
 import io
 from contextlib import redirect_stdout
 
-from eralchemy import render_er
 from sqlalchemy import create_engine
 from sqlalchemy import (Table, Column, Integer, String, MetaData,
                         ForeignKey, DateTime)
@@ -92,14 +91,4 @@ def metadata_tosql(metadata: MetaData, db_url: str):
         metadata.create_all(engine)
     out = f.getvalue()
     return out
-
-def erm_diagram(metadata: MetaData, fpath: str):
-    """ Output an Entity-Relationship-Model (ERM).
-
-    :param metadata: sqlalchemy.MetaData() for a specified schema
-    :param fpath: file path to output image
-    :return: Writes a png image of the ERM
-    :rtype: None
-    """
-    render_er(metadata, fpath)
     

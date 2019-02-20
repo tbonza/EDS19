@@ -2,7 +2,6 @@
 
 This is the database schema used for accessing the SQL database.
 """
-from eralchemy import render_er
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy import (Table, Column, Integer, String, MetaData, Numeric,
@@ -83,11 +82,3 @@ class DataAccessLayer(object):
         Base.metadata.create_all(self.engine)
         self.Session = sessionmaker(bind=self.engine)
 
-    def erm_diagram(self, fpath: str):
-        """ Output an Entity-Relationship-Model (ERM).
-
-        :param fpath: file path for output image
-        :return: Writes a png image of the ERM
-        :rtype: None
-        """
-        render_er(Base.metadata, fpath)

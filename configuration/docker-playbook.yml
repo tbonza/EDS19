@@ -57,8 +57,19 @@
       become: yes
       command: systemctl start docker
 
+    - name: set git global email
+      git_config:
+        name: user.email
+        scope: global
+        value: "{{ git_user_email }}"
+
+    - name: set git global user
+      git_config:
+        name: user.name
+        scope: global
+        value: "{{ git_user_name }}"
+
     - name: retrieve EDS19 repo
-      become: yes
       git:
         repo: https://github.com/tbonza/EDS19.git
-        dest: /home/ec2-user/EDS19
+        dest: /home/ubuntu/EDS19

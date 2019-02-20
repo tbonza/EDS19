@@ -2,3 +2,5 @@ ami_id: ami-0ac019f4fcb7cb7e6
 ec2_region: us-east-1
 security_group: whatever
 key_pair_name: aws_key
+git_user_email: "tylers.pile@gmail.com"
+git_user_name: "tbonza"
