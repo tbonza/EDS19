@@ -1,55 +1,54 @@
 ---
 - hosts: ec2
   name: configuration play
-  remote_user: ec2-user
-  gather_facts: true
+  remote_user: ubuntu
+  gather_facts: false
 
   tasks:
 
     - name: u up?
       ping:
 
-    - name: Update packages
+    - name: check updates
       become: yes
-      yum:
-        name: '*'
-        state: latest
-
-    - name: docker
-      become: yes
-      yum:
-        name: docker
-        state: latest
+      apt:
+        upgrade: dist
 
     - name: git
       become: yes
-      yum:
+      apt:
         name: git
         state: latest
 
-    - name: emacs
+    - name: Add Docker GPG key
       become: yes
-      yum:
-        name: emacs
-        state: latest
+      apt_key: url=https://download.docker.com/linux/ubuntu/gpg
 
-    - name: kubectl repo
+    - name: Add Docker APT repository
+      become: yes
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ansible_distribution_release}} stable
+
+    - name: Install list of packages
+      become: yes
+      apt:
+        name: ['apt-transport-https','ca-certificates','curl','software-properties-common','docker-ce']
+        state: present
+        update_cache: yes
+
+    - name: Install kubectl
+      become: yes
+      command: snap install kubectl --classic
+
+    - name: Install minikube
       become: yes
       copy:
-        src: files/kubernetes.repo
-        dest: /etc/yum.repos.d/kubernetes.repo
+        src: files/minikube
+        dest: /usr/local/bin
         owner: root
         group: root
-        mode: 0644
+        mode: 0555
 
-    - name: kubectl
+    - name: start docker
       become: yes
-      yum:
-        name: kubectl
-        state: latest
-
-    - name: systemd
-      become: yes
-      yum:
-        name: systemd
-        state: latest
+      command: systemctl start docker
