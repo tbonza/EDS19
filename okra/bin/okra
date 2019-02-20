@@ -20,7 +20,7 @@ if args.logfile:
 
 if args.redis:
     logger.info("STARTED redis worker")
-    redis_worker(host=args.redis)
+    redis_worker(job=args.redis)
     logger.info("FINISHED redis worker")
 
 else:

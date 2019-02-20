@@ -3,6 +3,8 @@ import logging
 import time
 import okra.rediswq as rediswq
 
+import redis
+
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +13,7 @@ logger = logging.getLogger(__name__)
 # import os
 # host = os.getenv("REDIS_SERVICE_HOST")
 
-def redis_worker(job="job2", host="redis"):
+def redis_worker(job="job2", host="localhost"):
   """ Run redis worker. 
 
   :param job: job name <default: job2>
@@ -30,6 +32,8 @@ def redis_worker(job="job2", host="redis"):
     if item is not None:
       itemstr = item.decode("utf=8")
       logger.info("Working on {}".format(itemstr))
+      if itemstr == "EOF":
+        break
       time.sleep(10) # Put your actual work here instead of sleep.
       q.complete(item)
     else:
