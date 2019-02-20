@@ -10,3 +10,4 @@ unittests.cfg
 .DS_Store
 .vscode
 .R_History
+minikube

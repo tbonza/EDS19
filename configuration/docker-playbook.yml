@@ -4,6 +4,10 @@
   remote_user: ubuntu
   gather_facts: false
 
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    ansible_distribution_release: bionic
+
   tasks:
 
     - name: u up?
@@ -52,3 +56,9 @@
     - name: start docker
       become: yes
       command: systemctl start docker
+
+    - name: retrieve EDS19 repo
+      become: yes
+      git:
+        repo: https://github.com/tbonza/EDS19.git
+        dest: /home/ec2-user/EDS19
