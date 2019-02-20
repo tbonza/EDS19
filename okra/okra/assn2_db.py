@@ -5,7 +5,6 @@ http://janvitek.org/events/NEU/6050/a2.html
 """
 import io
 from contextlib import redirect_stdout
-
 from sqlalchemy import create_engine
 from sqlalchemy import (Table, Column, Integer, String, MetaData,
                         ForeignKey, DateTime)
