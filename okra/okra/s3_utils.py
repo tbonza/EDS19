@@ -56,7 +56,7 @@ def download_prove_file(repo_name: str, dirpath: str, bucket_name= "ds6050"):
         return True
 
     except ClientError as ce:
-        logger.error("Unable to find '{}' in s3 bucket '{}'".\
+        logger.info("Unable to find '{}' in s3 bucket '{}'".\
                      format(key, bucket_name))
         return False
         

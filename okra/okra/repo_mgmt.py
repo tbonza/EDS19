@@ -7,6 +7,7 @@ features.
 import logging
 import os
 import subprocess
+from urllib.parse import urljoin
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def create_parent_dir(repo_name: str, dirpath: str) -> bool:
     https://github.com/tbonza/EDS19/issues/8
     """
     parent_dir = repo_name.split("/")[0]
-    ppath = dirpath + parent_dir
+    ppath = urljoin(dirpath,parent_dir)
     
     if os.path.exists(ppath):
         return True
@@ -44,7 +45,7 @@ def create_parent_dir(repo_name: str, dirpath: str) -> bool:
 def clone_repo(repo_name: str, dirpath: str) -> bool:
     """ Clone GitHub repo. """
     repo_path = "https://github.com/{}.git".format(repo_name)
-    rpath = dirpath + repo_name
+    rpath = urljoin(dirpath, repo_name)
 
     res = subprocess.run(["git", "clone", repo_path, rpath],
                          capture_output=True)
@@ -57,7 +58,7 @@ def clone_repo(repo_name: str, dirpath: str) -> bool:
 def update_repo(repo_name: str, dirpath: str) -> bool:
     """ Update repo with new code. """
     c1 = ["git", "fetch"]
-    rpath = dirpath + repo_name
+    rpath = urljoin(dirpath, repo_name)
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
@@ -148,9 +149,9 @@ def compress_repo(repo_name: str, dirpath: str) -> bool:
     :rtype: True if git repo successfully compressed
     """
     repo_comp = repo_name.replace("/", "_") + ".tar.gz"
-    repo_path = dirpath + repo_name
+    repo_path = urljoin(dirpath, repo_name)
     c1 = ["tar", "-zcf", repo_comp, repo_path]
-    rpath = dirpath + repo_name
+    rpath = urljoin(dirpath, repo_name)
     res = subprocess.run(c1, cwd=dirpath, capture_output=True)
 
     if res.returncode == 0:
@@ -179,3 +180,4 @@ def decompress_repo(repo_name: str, dirpath: str) -> bool:
         return True
     else:
         return False
+    
