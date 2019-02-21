@@ -15,7 +15,7 @@ from okra.protobuf.assn1_pb2 import Commit, Message, File
 logger = logging.getLogger(__name__)
 
 
-def parse_commits(rpath: str):
+def parse_commits(rpath: str, c1=[]):
     """ Yields a protocol buffer of git commit information.
 
     commits.csv collects basic information about 
@@ -29,8 +29,10 @@ def parse_commits(rpath: str):
     committer email
     committer timestamp
     """
-    c1 = ["git", "log",
-          "--pretty=%H^|^%an^|^%ae^|^%ad^|^%cn^|^%ce^|^%ct"]
+    if len(c1) == 0:
+        c1 = ["git", "log",
+              "--pretty=%H^|^%an^|^%ae^|^%ad^|^%cn^|^%ce^|^%ct"]
+
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
@@ -76,7 +78,7 @@ def write_line_commits(parsed_commits):
         ]
         yield row
 
-def parse_messages(rpath: str):
+def parse_messages(rpath: str, c1=[]):
     """ Yields a protocol buffer of a git commit message.
     
     messages.csv collects commit messages and their 
@@ -86,8 +88,9 @@ def parse_messages(rpath: str):
     subject
     message
     """
-    c1 = ["git", "log",
-          "--pretty=^^!^^%H^|^%s^|^%b"]
+    if len(c1) == 0:
+        c1 = ["git", "log",
+              "--pretty=^^!^^%H^|^%s^|^%b"]
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
@@ -127,7 +130,7 @@ def write_line_messages(parsed_messages):
         ]
         yield row
 
-def parse_files(rpath: str):
+def parse_files(rpath: str, c1=[]):
     """
 
     files.csv informs which files were modified by 
@@ -138,9 +141,10 @@ def parse_files(rpath: str):
     hash
     file path
     """
-    c1 = ["git", "log",
-          '--pretty=^|^%n%H',
-          '--numstat']
+    if len(c1) == 0:
+        c1 = ["git", "log",
+              '--pretty=^|^%n%H',
+              '--numstat']
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:

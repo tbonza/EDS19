@@ -14,5 +14,8 @@ from okra.models import (Meta, Author, Contrib, CommitFile, Info,
 logger = logging.getLogger(__name__)
 
 
-def insert_buffer(items: iter) -> bool:
+def insert_buffer(items: iter, buffer_size=1024) -> bool:
     csession = Session()
+    pass
+
+    
