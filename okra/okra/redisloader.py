@@ -19,7 +19,7 @@ class RedisLoader(object):
 
     def __init__(self, name, **redis_kwargs):
         self._db = redis.StrictRedis(**redis_kwargs)
-        self._main_q_key = name
+        self._main_q_key = bytes(name, encoding='utf8')
         self._session = str(uuid.uuid4())
 
     def sessionID(self):
@@ -38,11 +38,14 @@ class RedisLoader(object):
                         format(self._main_q_key))
             count = 0
             for item in data:
-                self._db.set(self._main_q_key, item)
+
+                bitem = bytes(item, encoding='utf8')
+                
+                self._db.rpush(self._main_q_key, bitem)
 
                 if count % self.reference == 0:
                     logger.info("Loaded {} items in queue '{}'".\
-                                format(self._main_q_key))
+                                format(count, self._main_q_key))
                 count += 1
 
             logger.info("Loaded {} items in queue '{}'".\
@@ -66,10 +69,10 @@ class RedisLoader(object):
         """
         try:
             with open(fpath, "r") as infile:
-                data = [i.strip() for i in infile.splitlines()]
+                data = [i.strip() for i in infile.readlines()]
 
             logger.info("Retrieved file '{}', loading queue '{}'".\
-                        format(fpath, self.name))
+                        format(fpath, self._main_q_key))
             self._load_queue(data)
 
         except Exception as exc:
