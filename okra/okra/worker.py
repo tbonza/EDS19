@@ -31,8 +31,6 @@ def redis_worker(job="job2"):
     if item is not None:
       itemstr = item.decode("utf=8")
       logger.info("Working on {}".format(itemstr))
-      if itemstr == "EOF":
-        break
       time.sleep(10) # Put your actual work here instead of sleep.
       q.complete(item)
     else:

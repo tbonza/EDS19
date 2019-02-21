@@ -4,7 +4,6 @@ import argparse
 import logging
 
 from okra.logging_utils import enable_log
-from okra.playbook import load_playbook, parse_playbook
 from okra.worker import redis_worker, redis_loader
 
 logger = logging.getLogger(__name__)

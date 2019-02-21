@@ -16,12 +16,3 @@ logger = logging.getLogger(__name__)
 
 def insert_buffer(items: iter) -> bool:
     csession = Session()
-
-    
-    
-
-
-
-
-
-

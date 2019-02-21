@@ -9,6 +9,7 @@ Reference:
 import logging
 
 import boto3
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,28 @@ def upload_file(bucket_name: str, file_name: str, key: str):
     except Exception as exc:
         logger.error("Issue with s3 upload: {}".format(file_name))
         logger.exception(exc)
+
+def download_prove_file(bucket_name: str, key: str, file_path: str):
+    """ Download file from s3 bucket.
+
+    :param bucket_name: name of s3 bucket
+    :param key: name of key in s3 bucket
+    :param file_path: file path location for s3 object
+    :return: s3 object written to disk and True if present
+    :rtype: bool
+    """
+    s3 = boto3.resource('s3')
+
+    try:
+        s3.Bucket(bucket_name).download_file(key, file_path)
+        logger.info("Downloaded '{}'".format(file_path))
+        return True
+
+    except ClientError as ce:
+        logger.error("Unable to find '{}' in s3 bucket '{}'".\
+                     format(key, bucket_name))
+        return False
+        
         
 
 

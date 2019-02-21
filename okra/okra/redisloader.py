@@ -49,7 +49,7 @@ class RedisLoader(object):
                 count += 1
 
             logger.info("Loaded {} items in queue '{}'".\
-                        format(self._main_q_key))
+                        format(count, self._main_q_key))
             logger.info("FINISHED loading data in queue '{}'".\
                         format(self._main_q_key))
 
