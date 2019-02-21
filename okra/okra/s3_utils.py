@@ -33,16 +33,22 @@ def upload_file(bucket_name: str, file_name: str, key: str):
         logger.error("Issue with s3 upload: {}".format(file_name))
         logger.exception(exc)
 
-def download_prove_file(bucket_name: str, key: str, file_path: str):
+def download_prove_file(repo_name: str, dirpath: str, bucket_name= "ds6050"):
     """ Download file from s3 bucket.
 
+    :param repo_name: git repo name with owner included; 
+                      tensorflow/tensorflow
+    :param dirpath: directory path to place uncompressed 
+                    file with repo owner
+
     :param bucket_name: name of s3 bucket
-    :param key: name of key in s3 bucket
-    :param file_path: file path location for s3 object
     :return: s3 object written to disk and True if present
     :rtype: bool
     """
     s3 = boto3.resource('s3')
+
+    key = repo_name.replace("/", "__")
+    file_path = dirpath + key + ".tar.gz"
 
     try:
         s3.Bucket(bucket_name).download_file(key, file_path)

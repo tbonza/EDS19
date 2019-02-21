@@ -158,10 +158,11 @@ def compress_repo(repo_name: str, dirpath: str) -> bool:
     else:
         return False
 
-def decompress_repo(filepath: str, dirpath: str) -> bool:
+def decompress_repo(repo_name: str, dirpath: str) -> bool:
     """ Decompress repo to a directory.
 
-    :param filepath: file path of tar.gz file
+    :param repo_name: git repo name with owner included; 
+                      tensorflow/tensorflow
     :param dirpath: directory path to place uncompressed 
                     file with repo owner
     :return: Uncompresses file and writes 

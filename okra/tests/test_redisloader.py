@@ -11,6 +11,7 @@ class TestRedisLoader(unittest.TestCase):
     def setUp(self):
         self.rl = RedisLoader(name="job2", host="localhost")
         self.rd = redis.StrictRedis(host="localhost")
+        self.rd.flushall()
 
     def tearDown(self):
         self.rl = None
