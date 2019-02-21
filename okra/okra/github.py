@@ -47,8 +47,43 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
     for cmt in cmts:
         pass
 
+    """
+    Meta(commit_hash='',
+         owner_name='',
+         project_name='')
+
+    Author(commit_hash='',
+           name='',
+           email='',
+           authored='')
+
+    Contrib(contrib_id='',
+            commit_hash='',
+            name='',
+            email='',
+            contributed='')
+
+    CommitFile(file_id='',
+               commit_hash='',
+               modified_file='',
+               lines_added='',
+               lines_subtracted='')
+
+    Info(commit_hash='',
+         subject='',
+         message='',
+         created='')
+    """
+
     for msg in msgs:
-        pass
+
+        msg_item = Info(commit_hash=msg.hash_val,
+                        subject=msg.subject,
+                        message=msg.message_body,
+                        created='')
+
+        yield msg_item
+
 
     for fobj in fobjs:
         pass
