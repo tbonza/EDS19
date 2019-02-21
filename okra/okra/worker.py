@@ -1,19 +1,17 @@
 """ Run redis worker. """
 import logging
+import os
 import time
 import okra.rediswq as rediswq
+import okra.redisloader as redislr
 
 import redis
 
 
 logger = logging.getLogger(__name__)
 
-#host="redis"
-# Uncomment next two lines if you do not have Kube-DNS working.
-# import os
-# host = os.getenv("REDIS_SERVICE_HOST")
 
-def redis_worker(job="job2", host="localhost"):
+def redis_worker(job="job2"):
   """ Run redis worker. 
 
   :param job: job name <default: job2>
@@ -21,6 +19,7 @@ def redis_worker(job="job2", host="localhost"):
   :return: Completes specified jobs
   :rtype: void
   """
+  host = os.getenv("REDIS_SERVICE_HOST") or "redis"
   q = rediswq.RedisWQ(name=job, host=host)
 
   logger.info("Worker with sessionID: {}".format(q.sessionID()))
@@ -40,4 +39,11 @@ def redis_worker(job="job2", host="localhost"):
       logger.info("Waiting for work")
   logger.info("Queue empty, exiting")
 
+def redis_loader(job: str, fpath: str):
+  """ Load redis queue from repo list file. """
+  host = os.getenv("REDIS_SERVICE_HOST") or "redis"
+  q = redislr.RedisLoader(name=job, host=host)
+
+  logger.info("Loader with sessionID: {}".format(q.sessionID()))
+  q.read_repolist(fpath)
 
