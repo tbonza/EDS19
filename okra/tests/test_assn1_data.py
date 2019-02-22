@@ -3,7 +3,7 @@ import unittest
 
 from okra.assn1_data import parse_file_format
 
-file_info = b"""
+FILE_INFO = b"""
 ^|^
 48998029e313b9206daa2d49f55aeb810242361e
 
@@ -49,8 +49,28 @@ class TestAssn1Data(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip
-    def test_parse_files(self):
+    def test_parse_file_format_single_file(self):
 
         # added, deleted
+
+        result = next(parse_file_format(FILE_INFO))
+        assert result.hash_val == \
+            "48998029e313b9206daa2d49f55aeb810242361e"
+        assert result.file_path == \
+            "tensorflow/lite/experimental/micro/README.md"
+        assert result.added == '6'
+        assert result.deleted == '4'
+
+    def test_parse_file_format_two_files(self):
+        results = [i for i in parse_file_format(FILE_INFO)][2:4]
+        r1 = results[0]
+        r2 = results[1]
+        hash_val = "eb17145a7e8f8d50418d0238e8dbd445ea2bd1d7"
+
+        assert r1.hash_val == hash_val
+        assert r2.hash_val == hash_val
+
+    def test_parse_file_format_many_files(self):
         pass
+
+        

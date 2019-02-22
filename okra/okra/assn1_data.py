@@ -135,11 +135,27 @@ def parse_file_format(output: bytes):
     """ Parse file format from git log tool. """
     items = output.decode('utf-8','ignore').split("^|^")
 
-    for row_num, row in enumerate(rows):
+    for row_num, row in enumerate(items):
 
         grp = row.splitlines()
+        count = 0
+        for commit in grp:
 
-    return ""
+            if count == 1:
+                hash_val = commit
+
+            if count > 2:
+
+                fitem = [i.strip() for i in commit.split("    ")]
+                finfo = File()
+                finfo.hash_val = hash_val
+                finfo.added = fitem[0]
+                finfo.deleted = fitem[1]
+                finfo.file_path = fitem[2]
+
+                yield finfo
+
+            count += 1
 
 def parse_files(rpath: str, c1=[]):
     """
