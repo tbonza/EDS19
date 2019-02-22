@@ -1,9 +1,9 @@
 """ Validate assignment 1 data processing. """
 import unittest
 
-from okra.assn1_data import parse_files
+from okra.assn1_data import parse_file_format
 
-file_info = """
+file_info = b"""
 ^|^
 48998029e313b9206daa2d49f55aeb810242361e
 
@@ -51,4 +51,6 @@ class TestAssn1Data(unittest.TestCase):
 
     @unittest.skip
     def test_parse_files(self):
+
+        # added, deleted
         pass

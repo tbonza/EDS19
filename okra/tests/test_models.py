@@ -37,7 +37,7 @@ def mock_db(session):
                      commit_hash=commit_hash,
                      modified_file="/foo/bar/yup.txt",
                      lines_added=0,
-                     lines_subtracted=42)
+                     lines_deleted=42)
 
     ci1 = Info(commit_hash=commit_hash,
               subject="Long strange trip",
@@ -120,7 +120,7 @@ class TestModels(unittest.TestCase):
         query = self.dal.session.\
             query(Meta.commit_hash, Meta.owner_name, Meta.project_name,
                   CommitFile.modified_file, CommitFile.lines_added,
-                  CommitFile.lines_subtracted, Info.subject)
+                  CommitFile.lines_deleted, Info.subject)
 
         query = query.join(CommitFile).join(Info)
         results = query.all()

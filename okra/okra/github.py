@@ -3,6 +3,7 @@
 This is going to generate items for each specified model object
 based on git log commands. 
 """
+from datetime import datetime
 from urllib.parse import urljoin
 
 from okra.models import Meta, Author, Contrib, CommitFile, Info
@@ -69,10 +70,6 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
                lines_added='',
                lines_subtracted='')
 
-    Info(commit_hash='',
-         subject='',
-         message='',
-         created='')
     """
 
     for msg in msgs:
@@ -80,7 +77,7 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
         msg_item = Info(commit_hash=msg.hash_val,
                         subject=msg.subject,
                         message=msg.message_body,
-                        created='')
+                        created=datetime.fromisoformat(msg.timestamp))
 
         yield msg_item
 

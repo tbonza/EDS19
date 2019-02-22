@@ -90,7 +90,7 @@ def parse_messages(rpath: str, c1=[]):
     """
     if len(c1) == 0:
         c1 = ["git", "log",
-              "--pretty=^^!^^%H^|^%s^|^%b"]
+              "--pretty=^^!^^%H^|^%s^|^%b^|^%aI"]
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
@@ -109,6 +109,7 @@ def parse_messages(rpath: str, c1=[]):
                 message.hash_val = items[0]
                 message.subject = items[1]
                 message.message_body = items[2]
+                message.timestamp = items[3]
 
                 yield message
                 
@@ -129,6 +130,16 @@ def write_line_messages(parsed_messages):
             message.message_body,
         ]
         yield row
+
+def parse_file_format(output: bytes):
+    """ Parse file format from git log tool. """
+    items = output.decode('utf-8','ignore').split("^|^")
+
+    for row_num, row in enumerate(rows):
+
+        grp = row.splitlines()
+
+    return ""
 
 def parse_files(rpath: str, c1=[]):
     """
