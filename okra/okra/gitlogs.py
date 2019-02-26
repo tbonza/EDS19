@@ -185,62 +185,6 @@ def parse_commited_files(rpath: str, chash=''):
                 finfo.file_path = props[2]
 
                 yield finfo
-                
-
-def parse_files(rpath: str, chash=''):
-    """
-
-    files.csv informs which files were modified by 
-    commits. If a commit modifies multiple files, 
-    files.csv will contain multiple lines referencing 
-    that commit’s hash (one per modified file).
-
-    hash
-    file path
-    """
-    if len(chash) == 0:
-        c1 = ["git", "log",
-              '--pretty=^|^%n%H',
-              '--numstat']
-    else:
-        c1 = ["git", "log",
-              '--pretty=^|^%n%H',
-              '--numstat',
-              "{}..HEAD".format(chash)]
-
-    res = subprocess.run(c1, cwd=rpath, capture_output=True)
-
-    if res.returncode == 0:
-        logger.info("SUCCESS -- extracted files_csv info")
-        rows = res.stdout.decode('utf-8', 'ignore').split("^|^")
-
-        for row_num, row in enumerate(rows):
-
-            grp = row.splitlines()
-
-            if len(grp) >= 3:
-                
-                hash_val = grp[1]
-
-                for i in range(3, len(grp)):
-
-                    possible_file = grp[i].split()
-
-                    if len(possible_file) == 3:
-                    
-                        finfo = File()
-                        
-                        finfo.hash_val = hash_val
-                        finfo.file_path = possible_file[-1]
-
-                        yield finfo
-
-            else:
-                if len(grp) != 2:
-                    logger.error("Issue with row {}, repo '{}'".\
-                                 format(row_num, rpath))
-    else:
-        logger.error("FAIL -- unable to extract files_csv")
 
 def write_line_files(parsed_files):
     """ Generate a line for each git filepath message. """

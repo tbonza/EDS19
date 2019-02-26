@@ -7,7 +7,8 @@ from datetime import datetime
 from urllib.parse import urljoin
 
 from okra.models import Meta, Author, Contrib, CommitFile, Info
-from okra.assn1_data import (parse_commits, parse_messages, parse_files)
+from okra.gitlogs import (parse_commits, parse_messages,
+                          parse_commited_files)
 
 def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
     """ Retrieve objects from last commit if exists

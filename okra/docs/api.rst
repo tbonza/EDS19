@@ -16,7 +16,7 @@ GitHub Repository Management
 Git Log Management
 ------------------
 
-.. automodule:: okra.assn1_data
+.. automodule:: okra.gitlogs
    :members:
 
 Database Models

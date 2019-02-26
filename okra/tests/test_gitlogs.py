@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from urllib.parse import urljoin
 
-from okra.assn1_data import (parse_commited_files, parse_commits,
+from okra.gitlogs import (parse_commited_files, parse_commits,
                              parse_messages)
 from okra.playbooks import retrieve_or_clone
 
