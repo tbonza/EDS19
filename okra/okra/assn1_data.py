@@ -31,7 +31,7 @@ def parse_commits(rpath: str, c1=[]):
     """
     if len(c1) == 0:
         c1 = ["git", "log",
-              "--pretty=%H^|^%an^|^%ae^|^%ad^|^%cn^|^%ce^|^%ct"]
+              "--pretty=%H^|^%an^|^%ae^|^%aI^|^%cn^|^%ce^|^%cI"]
 
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
