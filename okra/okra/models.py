@@ -41,10 +41,9 @@ class Author(Base):
 class Contrib(Base):
 
     __tablename__ = 'contrib'
-
     contrib_id = Column('contrib_id', Integer, primary_key=True)
     commit_hash = Column('commit_hash', String(40), index=True,
-                         nullable=False)
+                         nullable=False, primary_key=True)
     name = Column('name', String(150), index=True,
                           nullable=False)
     email = Column('email', String(200), nullable=True)

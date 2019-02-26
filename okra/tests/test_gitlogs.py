@@ -12,6 +12,7 @@ from okra.playbooks import retrieve_or_clone
 class TestAssn1Data(unittest.TestCase):
 
     repo_name = "tbonza/tiny_dancer"
+    total_commits = 4
 
     @classmethod
     def setUpClass(cls):
@@ -36,7 +37,7 @@ class TestAssn1Data(unittest.TestCase):
         
         results = [i for i in parse_commits(self.repo_path)]
         
-        assert len(results) == 3
+        assert len(results) == self.total_commits
 
         r = results[0]
 
@@ -53,7 +54,7 @@ class TestAssn1Data(unittest.TestCase):
         chash = '35d8e493ef66bd8c01c15a519c15d9a6d31cb2f4'
         results = [i for i in parse_commits(self.repo_path, chash)]
 
-        assert len(results) == 2
+        assert len(results) == self.total_commits - 1
 
         r = results[0]
 
@@ -69,7 +70,7 @@ class TestAssn1Data(unittest.TestCase):
 
         results = [i for i in parse_messages(self.repo_path)]
 
-        assert len(results) == 3
+        assert len(results) == self.total_commits
 
         r = results[0]
 
@@ -82,7 +83,7 @@ class TestAssn1Data(unittest.TestCase):
         chash = '35d8e493ef66bd8c01c15a519c15d9a6d31cb2f4'
         results = [i for i in parse_messages(self.repo_path, chash)]
 
-        assert len(results) == 2
+        assert len(results) == self.total_commits - 1
         
         r = results[0]
 
@@ -95,7 +96,7 @@ class TestAssn1Data(unittest.TestCase):
 
         results = [i for i in parse_commited_files(self.repo_path)]
 
-        assert len(results) == 7
+        assert len(results) == 8
         r = results[0]
 
         assert r.hash_val == 'ed4dd8e797db7d6c1ce23980c24d94228d66b1d6'

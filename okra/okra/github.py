@@ -29,42 +29,20 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
         
         cmts = parse_commits(repopath):
         msgs = parse_messages(repopath):
-        fobjs = parse_files(repopath):
+        fobjs = parse_committed_files(repopath):
 
     else:
         # retrieve from last commit HEAD
         # need to set 'c1' lists
 
-        c1_commits = []
-        cmts = parse_commits(repopath, c1=c1_commits):
-
-        c1_messages = []
-        msgs = parse_messages(repopath, c1=c1_messages):
-
-        c1_files = []
-        fobjs = parse_files(repopath, c1=c1_files):
+        cmts = parse_commits(repopath, chash=last_commit)
+        msgs = parse_messages(repopath, chash=last_commit)
+        fobjs = parse_committed_files(repopath, chash=last_commit)
 
     # map objects to database objects
 
-    for cmt in cmts:
-        pass
-
     """
-    Meta(commit_hash='',
-         owner_name='',
-         project_name='')
-
-    Author(commit_hash='',
-           name='',
-           email='',
-           authored='')
-
-    Contrib(contrib_id='',
-            commit_hash='',
-            name='',
-            email='',
-            contributed='')
-
+    
     CommitFile(file_id='',
                commit_hash='',
                modified_file='',
@@ -80,11 +58,33 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
                         message=msg.message_body,
                         created=datetime.fromisoformat(msg.timestamp))
 
-        yield msg_item
+        o,p = repo_name.split('/')
+        meta_item = Meta(commit_hash=msg.hash_val,
+                         owner_name=o,
+                         project_name=p)
 
+        yield msg_item, meta_item
 
+    for cmt in cmts:
+        
+        author_item = Author(commit_hash=cmt.hash_val,
+                             name=cmt.author,
+                             email=cmt.author_email,
+                             authored=datetime.\
+                             fromisoformat(cmt.author_timestamp))
+
+        contrib_item = Contrib(commit_hash=cmt.hash_val,
+                               name=cmt.committer,
+                               email=cmt.committer_email,
+                               contributed=datetime.\
+                               fromisoformat(cmt.committer_timestamp))
+        
+        yield author_item, contrib_item
+        
     for fobj in fobjs:
         pass
+
+
 
 
 
