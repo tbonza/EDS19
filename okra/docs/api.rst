@@ -13,6 +13,12 @@ GitHub Repository Management
 .. automodule:: okra.repo_mgmt
    :members:
 
+Git Log Management
+------------------
+
+.. automodule:: okra.assn1_data
+   :members:
+
 Database Models
 ---------------
 

@@ -15,23 +15,24 @@ from okra.protobuf.assn1_pb2 import Commit, Message, File
 logger = logging.getLogger(__name__)
 
 
-def parse_commits(rpath: str, c1=[]):
+def parse_commits(rpath: str, chash=""):
     """ Yields a protocol buffer of git commit information.
 
     commits.csv collects basic information about 
     commits and contains the following columns:
 
-    hash
-    author
-    author email
-    author timestamp
-    committer
-    committer email
-    committer timestamp
+    :param rpath: path to git repository
+    :param chash: optional param, retrieve all commits since commit hash
+    :return: :class: okra.protobuf.assn1_pb2.Commit
+    :rtype: generator, protocol buffer
     """
-    if len(c1) == 0:
+    if len(chash) == 0:
         c1 = ["git", "log",
               "--pretty=%H^|^%an^|^%ae^|^%aI^|^%cn^|^%ce^|^%cI"]
+    else:
+        c1 = ["git", "log",
+              "--pretty=%H^|^%an^|^%ae^|^%aI^|^%cn^|^%ce^|^%cI",
+              "{}..HEAD".format(chash)]
 
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
@@ -78,19 +79,25 @@ def write_line_commits(parsed_commits):
         ]
         yield row
 
-def parse_messages(rpath: str, c1=[]):
+def parse_messages(rpath: str, chash=""):
     """ Yields a protocol buffer of a git commit message.
     
     messages.csv collects commit messages and their 
-    subject as follows:
+    subject.
 
-    hash
-    subject
-    message
+    :param rpath: path to git repository
+    :param chash: optional param, retrieve all commits since commit hash
+    :return: :class: okra.protobuf.assn1_pb2.Message
+    :rtype: generator, protocol buffer
     """
-    if len(c1) == 0:
+    if len(chash) == 0:
         c1 = ["git", "log",
-              "--pretty='^^!^^%H^|^%s^|^%b^|^%aI'"]
+              "--pretty=^^!^^%H^|^%s^|^%b^|^%aI"]
+    else:
+        c1 = ["git", "log",
+              "--pretty=^^!^^%H^|^%s^|^%b^|^%aI",
+              "{}..HEAD".format(chash)]
+        
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
@@ -102,14 +109,14 @@ def parse_messages(rpath: str, c1=[]):
 
             items = row.split("^|^")
 
-            if len(items) == 3:
+            if len(items) == 4:
 
                 message = Message()
 
                 message.hash_val = items[0]
                 message.subject = items[1]
                 message.message_body = items[2]
-                message.timestamp = items[3]
+                message.timestamp = items[3].strip()
 
                 yield message
                 
@@ -131,33 +138,56 @@ def write_line_messages(parsed_messages):
         ]
         yield row
 
-def parse_file_format(output: bytes):
-    """ Parse file format from git log tool. """
-    items = output.decode('utf-8','ignore').split("^|^")
+def parse_commited_files(rpath: str, chash=''):
+    """ Parse file format from git log tool. 
+
+    :param rpath: path to git repository
+    :param chash: optional param, retrieve all commits since commit hash
+    :return: :class: okra.protobuf.assn1_pb2.Message
+    :rtype: generator, protocol buffer
+    """
+    if len(chash) == 0:
+        c1 = ["git", "log",
+              '--pretty=^|^%n%H',
+              '--numstat']
+    else:
+        c1 = ["git", "log",
+              '--pretty=^|^%n%H',
+              '--numstat',
+              "{}..HEAD".format(chash)]
+
+    res = subprocess.run(c1, cwd=rpath, capture_output=True)
+
+    if res.returncode != 0:
+        logger.error("Unable find file info: {}".format(rpath))        
+    
+    items = res.stdout.decode('utf-8','ignore').split("^|^")
 
     for row_num, row in enumerate(items):
 
-        grp = row.splitlines()
+        grp = row.strip().splitlines()
         count = 0
-        for commit in grp:
 
-            if count == 1:
-                hash_val = commit
+        if len(grp) > 0:
 
-            if count > 2:
+            commit_hash = grp[0]
 
-                fitem = [i.strip() for i in commit.split("    ")]
+            for file_item in grp[1:]:
+                props = file_item.split()
+
+                if len(props) == 0:
+                    continue
+
                 finfo = File()
-                finfo.hash_val = hash_val
-                finfo.added = fitem[0]
-                finfo.deleted = fitem[1]
-                finfo.file_path = fitem[2]
+                finfo.hash_val = commit_hash
+                finfo.added = props[0]
+                finfo.deleted = props[1]
+                finfo.file_path = props[2]
 
                 yield finfo
+                
 
-            count += 1
-
-def parse_files(rpath: str, c1=[]):
+def parse_files(rpath: str, chash=''):
     """
 
     files.csv informs which files were modified by 
@@ -168,10 +198,16 @@ def parse_files(rpath: str, c1=[]):
     hash
     file path
     """
-    if len(c1) == 0:
+    if len(chash) == 0:
         c1 = ["git", "log",
               '--pretty=^|^%n%H',
               '--numstat']
+    else:
+        c1 = ["git", "log",
+              '--pretty=^|^%n%H',
+              '--numstat',
+              "{}..HEAD".format(chash)]
+
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
