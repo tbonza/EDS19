@@ -90,7 +90,7 @@ def parse_messages(rpath: str, c1=[]):
     """
     if len(c1) == 0:
         c1 = ["git", "log",
-              "--pretty=^^!^^%H^|^%s^|^%b^|^%aI"]
+              "--pretty='^^!^^%H^|^%s^|^%b^|^%aI'"]
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
