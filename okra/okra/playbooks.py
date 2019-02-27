@@ -3,6 +3,8 @@ import os
 import logging
 from urllib.parse import urljoin
 
+from okra.assn4 import get_truck_factor_by_project
+from okra.models import DataAccessLayer
 from okra.populate_db import populate_db
 from okra.error_handling import NetworkError
 from okra.repo_mgmt import (create_parent_dir, clone_repo, update_repo,
@@ -30,6 +32,8 @@ def simple_version_truck_factor(repos: list, dirpath: str, dburl: str, b:int):
     """
     logger.info("STARTED -- simple-version truck factor")
 
+    # Retrieve or update git repos
+    
     for repo_name in repos:
 
         rpath = urljoin(dirpath, repo_name)
@@ -40,11 +44,28 @@ def simple_version_truck_factor(repos: list, dirpath: str, dburl: str, b:int):
 
         else:
             clone_repo(repo_name, dirpath)
-        
+
+    # Populate database
 
     populate_db(dburl, dirpath, repos, b)
 
+    # Compute truck factor for each project
+
+    dal = DataAccessLayer(dburl)
+    dal.connect()
+    dal.session = dal.Session()
+
+    results = []
+    for repo_name in repos:
+
+        owner, project = repo_name.split("/")
+        truck_factor, _ = get_truck_factor_by_project(owner, project, dal)
+
+        results.append((repo_name, truck_factor))
+
+    dal.session.close()
     logger.info("COMPLETED -- simple-version truck factor")
+    return results
     
 
 def retrieve_or_clone(repo_name: str, dirpath: str) -> bool:
