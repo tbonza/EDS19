@@ -6,7 +6,7 @@ import unittest
 from urllib.parse import urljoin
 
 from okra.gitlogs import (parse_committed_files, parse_commits,
-                          parse_messages)
+                          parse_messages, parse_inventory)
 from okra.playbooks import retrieve_or_clone
 
 class TestAssn1Data(unittest.TestCase):
@@ -110,3 +110,13 @@ class TestAssn1Data(unittest.TestCase):
         assert r2.file_path == 'hello1.py'
         assert r2.added == '1'
         assert r2.deleted == '2'
+
+    def test_parse_inventory(self):
+
+        r = parse_inventory(self.repo_path, self.repo_name)
+
+        assert r.owner == 'tbonza'
+        assert r.project == 'tiny_dancer'
+        assert r.last_hash == 'b6ca6229284e18b0ce8defeb4b240aa2f26223b4'
+
+        

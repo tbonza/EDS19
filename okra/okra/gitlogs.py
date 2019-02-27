@@ -10,9 +10,36 @@ import os
 import subprocess
 
 from okra.repo_mgmt import read_repos
-from okra.protobuf.assn1_pb2 import Commit, Message, File
+from okra.protobuf.assn1_pb2 import Commit, Message, File, Inventory
 
 logger = logging.getLogger(__name__)
+
+def parse_inventory(rpath: str, repo_name: str):
+    """ Return inventory information for a git repo.
+
+    :param rpath: repository path
+    :return: inventory message object
+    :rtype: okra.protobuf.assn1_pb2.Inventory
+    """
+    owner, project = repo_name.split("/")
+
+    c = ["git", "log", "-1", "--pretty=%H"]
+    res = subprocess.run(c, cwd=rpath, capture_output=True)
+
+    if res.returncode == 0:
+        logger.info("SUCCESS - extracted inventory info")
+        hash_val = res.stdout.decode('utf-8', 'ignore').strip()
+
+        inv = Inventory()
+        inv.owner = owner
+        inv.project = project
+        inv.last_hash = hash_val
+        return inv
+
+    else:
+        logger.error("FAIL - {}, {}, inventory not extracted".\
+                     format(repo_name, rpath))
+    
 
 
 def parse_commits(rpath: str, chash=""):
@@ -37,7 +64,7 @@ def parse_commits(rpath: str, chash=""):
     res = subprocess.run(c1, cwd=rpath, capture_output=True)
 
     if res.returncode == 0:
-        logger.info("SUCCESS -- extracted commits_csv info")
+        logger.info("SUCCESS -- extracted git commit info")
 
         rows = res.stdout.splitlines()
 
@@ -62,7 +89,7 @@ def parse_commits(rpath: str, chash=""):
                 logger.error("Issue with row {}, repo '{}'".\
                              format(row_num, rpath))            
     else:
-        logger.error("FAIL -- unable to extract commits_csv")
+        logger.error("FAIL -- unable to extract git commits info")
 
 def write_line_commits(parsed_commits):
     """ Generate a line for each git commit message. """

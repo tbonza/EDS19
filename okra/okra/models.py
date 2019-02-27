@@ -15,9 +15,9 @@ class Inventory(Base):
     __tablename__ = 'inventory'
 
     owner_name = Column('owner_name', String(100), nullable=False,
-                        unique=True, primary_key=True, index=True)
+                        primary_key=True, index=True)
     project_name = Column('project_name', String(150), nullable=False,
-                          unique=True, primary_key=True, index=True)
+                        primary_key=True, index=True)
     last_commit = Column('last_commit', String(40), nullable=True)
 
 class Meta(Base):

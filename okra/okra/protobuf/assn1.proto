@@ -25,3 +25,9 @@ message File {
   string added = 3;
   string deleted = 4;
 }
+
+message Inventory {
+  string owner = 1;
+  string project = 2;
+  string last_hash = 3;
+}

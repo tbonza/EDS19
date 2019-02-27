@@ -123,7 +123,6 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
         yield cf_item
 
         file_id += 1
-        
 
 
 

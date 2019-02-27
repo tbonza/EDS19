@@ -3,17 +3,17 @@
 References:
   https://docs.sqlalchemy.org/en/latest/orm/tutorial.html
 """
-import itertools
 import logging
 from urllib.parse import urljoin
 
-from okra.models import DataAccessLayer, Inventory
-from okra.github import repo_to_objects                         
+from okra.models import DataAccessLayer, Inventory, Meta
+from okra.github import repo_to_objects
+from okra.gitlogs import parse_inventory
 
 logger = logging.getLogger(__name__)
 
 
-def insert_buffer(items: iter, dal, invobj, buffer_size=1024):
+def insert_buffer(items: iter, dal, buffer_size=1024):
     """ Insert items using a buffer. 
 
     :param items: sqlalchemy orm database objects
@@ -24,14 +24,14 @@ def insert_buffer(items: iter, dal, invobj, buffer_size=1024):
     logger.info("STARTED insert buffer")
     count = 0
     for item in items:
-
+        
         dal.session.add(item)
 
         if count % buffer_size == 0:
             try:
                 dal.session.commit()
                 logger.info("Committed db objects: {}".format(count))
-
+                
             except Exception as exc:
                 dal.session.rollback()
                 logger.error("Rolled back session")
@@ -39,10 +39,6 @@ def insert_buffer(items: iter, dal, invobj, buffer_size=1024):
                 raise exc
 
         count += 1
-
-    # update inventory
-    invobj.last_commit = item.commit_hash
-    dal.session.add(invobj)
 
     try:
         dal.session.commit()
@@ -59,6 +55,8 @@ def insert_buffer(items: iter, dal, invobj, buffer_size=1024):
 def populate_db(dburl: str, dirpath: str, repolist:list, buffer_size=1024):
     """ Populate a new or existing database. """
 
+    logger.info("STARTED populating db: {}".format(dburl))
+    
     # Initialize data access layer
     
     dal = DataAccessLayer(dburl)
@@ -67,19 +65,61 @@ def populate_db(dburl: str, dirpath: str, repolist:list, buffer_size=1024):
 
     for repo_name in repolist:
         
-        # TODO: check if repo exists, last commit
         owner, project = repo_name.split("/")
+        rpath = urljoin(dirpath, repo_name)
+
+        # Check or get git repo inventory information
+
+        last_commit = ""
         invobj = dal.session.query(
             Inventory.project_name, Inventory.owner_name,
-            Inventory.last_commit).first() # unique value
+            Inventory.last_commit).\
+            filter(Inventory.project_name == project,
+                   Inventory.owner_name == owner).first() # unique value
 
-        invobj.owner_name = owner
-        invobj.project_name = project
-        print(invobj.last_commit)
+        if invobj is not None:
+            last_commit = invobj.last_commit
 
-        rpath = urljoin(dirpath, repo_name)
-        objs = repo_to_objects(repo_name, dirpath, invobj.last_commit)
+        # insert relevant commits into database
+        
+        objs = repo_to_objects(repo_name, dirpath, last_commit)
+        insert_buffer(objs, dal, buffer_size)
 
-        insert_buffer(objs, dal, invobj, buffer_size)
+        # update inventory
+
+        invmsg = parse_inventory(rpath, repo_name)
+
+        if len(last_commit) > 0:
+
+            # Retrieve new object b/c old object is no longer in session
+            
+            inv = dal.session.query(
+                Inventory.project_name, Inventory.owner_name,
+                Inventory.last_commit).\
+            filter(Inventory.project_name == project,
+                   Inventory.owner_name == owner).first() # unique value
+
+            # Do not try updating database if object hasn't changed
+            
+            if inv.last_commit != invmsg.last_hash:
+                inv.last_commit = invmsg.last_hash
+                dal.session.add(inv)
+                dal.session.commit()
+    
+        else:
+
+            # Add new inventory object
+            
+            inv = Inventory(
+                owner_name = invmsg.owner,
+                project_name = invmsg.project,
+                last_commit = invmsg.last_hash
+            )
+        
+            dal.session.add(inv)
+            dal.session.commit()
+
+    dal.session.close()
+    logger.info("FINISHED populating db: {}".format(dburl))
 
     
