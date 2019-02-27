@@ -8,7 +8,7 @@ import logging
 import re
 from urllib.parse import urljoin
 
-from okra.models import Meta, Author, Contrib, CommitFile, Info
+from okra.models import Meta, Author, Contrib, CommitFile, Info, Inventory
 from okra.gitlogs import (parse_commits, parse_messages,
                           parse_committed_files)
 
@@ -123,7 +123,6 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
         yield cf_item
 
         file_id += 1
-
         
 
 

@@ -3,47 +3,53 @@
 References:
   https://docs.sqlalchemy.org/en/latest/orm/tutorial.html
 """
+import itertools
 import logging
 from urllib.parse import urljoin
 
-from okra.models import DataAccessLayer
+from okra.models import DataAccessLayer, Inventory
 from okra.github import repo_to_objects                         
 
 logger = logging.getLogger(__name__)
 
 
-def insert_buffer(items: iter, session, buffer_size=1024):
+def insert_buffer(items: iter, dal, invobj, buffer_size=1024):
     """ Insert items using a buffer. 
 
     :param items: sqlalchemy orm database objects
-    :param session: DataAccessLayer.Session instance
+    :param dal: okra.models.DataAccessLayer
+    :param invobj: okra.models.Inventory object, to be updated
     :buffer_size: number of items to add before committing a session
     """
     logger.info("STARTED insert buffer")
     count = 0
     for item in items:
 
-        session.add(item)
+        dal.session.add(item)
 
         if count % buffer_size == 0:
             try:
-                session.commit()
+                dal.session.commit()
                 logger.info("Committed db objects: {}".format(count))
 
             except Exception as exc:
-                session.rollback()
+                dal.session.rollback()
                 logger.error("Rolled back session")
                 logger.exception(exc)
                 raise exc
 
         count += 1
 
+    # update inventory
+    invobj.last_commit = item.commit_hash
+    dal.session.add(invobj)
+
     try:
-        session.commit()
+        dal.session.commit()
         logger.info("Committed db objects: {}".format(count))
 
     except Exception as exc:
-        session.rollback()
+        dal.session.rollback()
         logger.error("Rolled back session")
         logger.exception(exc)
         raise exc
@@ -57,16 +63,23 @@ def populate_db(dburl: str, dirpath: str, repolist:list, buffer_size=1024):
     
     dal = DataAccessLayer(dburl)
     dal.connect()
-    session = dal.Session()
+    dal.session = dal.Session()
 
     for repo_name in repolist:
         
         # TODO: check if repo exists, last commit
+        owner, project = repo_name.split("/")
+        invobj = dal.session.query(
+            Inventory.project_name, Inventory.owner_name,
+            Inventory.last_commit).first() # unique value
+
+        invobj.owner_name = owner
+        invobj.project_name = project
+        print(invobj.last_commit)
 
         rpath = urljoin(dirpath, repo_name)
-        objs = repo_to_objects(repo_name, dirpath)
+        objs = repo_to_objects(repo_name, dirpath, invobj.last_commit)
 
-        if type(objs) != None:
-            insert_buffer(objs, session, buffer_size)
+        insert_buffer(objs, dal, invobj, buffer_size)
 
     

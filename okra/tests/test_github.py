@@ -101,3 +101,4 @@ class TestGithub(unittest.TestCase):
         assert r5.modified_file == 'friends.py'
         assert r5.lines_added == 2
         assert r5.lines_deleted == 0
+

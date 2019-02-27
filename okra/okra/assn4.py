@@ -117,7 +117,7 @@ def get_truck_factor_by_project(proj_name, dal):
        of users such that they own more than half of the files in the project.
 
     :param proj_name: name of GitHub project
-    :param dal: okra.models.DataAccessLayer() with connection string param
+    :param dal: okra.models.DataAccessLayer
     :return: Truck factor score for a GitHub project, Truck set members
     :rtype: tuple (int, list)
     """
