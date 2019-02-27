@@ -45,7 +45,7 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
 
     # map objects to database objects
 
-    m = re.compile("Co-authored-by\:(.*?)<(.*?)>")
+    m = re.compile(r"Co-authored-by\:(.*?)<(.*?)>")
     for msg, cmt in zip(msgs, cmts):
         contrib_id = 0
 
@@ -92,8 +92,8 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
                 contrib_item = Contrib(
                     contrib_id=contrib_id,
                     commit_hash=msg.hash_val,
-                    name=item[0],
-                    email=item[1],
+                    name=item[0].strip(),
+                    email=item[1].strip(),
                     contributed=datetime.fromisoformat(msg.timestamp)
                 )
                 yield contrib_item
