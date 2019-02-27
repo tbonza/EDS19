@@ -12,41 +12,52 @@ from okra.github import repo_to_objects
 logger = logging.getLogger(__name__)
 
 
-def insert_buffer(items: iter, dal: DataAccessLayer, buffer_size=1024):
+def insert_buffer(items: iter, session, buffer_size=1024):
     """ Insert items using a buffer. 
 
     :param items: sqlalchemy orm database objects
-    :param session: sqlalchemy.orm Session
+    :param session: DataAccessLayer.Session instance
     :buffer_size: number of items to add before committing a session
     """
     logger.info("STARTED insert buffer")
     count = 0
     for item in items:
 
-        dal.session.add(item)
+        session.add(item)
 
         if count % buffer_size == 0:
             try:
-                dal.session.commit()
+                session.commit()
                 logger.info("Committed db objects: {}".format(count))
 
             except Exception as exc:
-                dal.session.rollback()
+                session.rollback()
                 logger.error("Rolled back session")
                 logger.exception(exc)
                 raise exc
 
         count += 1
 
+    try:
+        session.commit()
+        logger.info("Committed db objects: {}".format(count))
+
+    except Exception as exc:
+        session.rollback()
+        logger.error("Rolled back session")
+        logger.exception(exc)
+        raise exc
+
     logger.info("COMPLETED insert buffer")
 
-def populate_db(dburl: str, dirpath: str, repolist:list):
+def populate_db(dburl: str, dirpath: str, repolist:list, buffer_size=1024):
     """ Populate a new or existing database. """
 
     # Initialize data access layer
     
     dal = DataAccessLayer(dburl)
     dal.connect()
+    session = dal.Session()
 
     for repo_name in repolist:
         
@@ -55,6 +66,7 @@ def populate_db(dburl: str, dirpath: str, repolist:list):
         rpath = urljoin(dirpath, repo_name)
         objs = repo_to_objects(repo_name, dirpath)
 
-        insert_buffer(objs, dal)
+        if type(objs) != None:
+            insert_buffer(objs, session, buffer_size)
 
     

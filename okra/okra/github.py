@@ -14,6 +14,17 @@ from okra.gitlogs import (parse_commits, parse_messages,
 
 logger = logging.getLogger(__name__)
 
+def make_digit(numstr, desc):
+    try:
+        d = int(numstr)
+        return d
+    
+    except ValueError:
+        d = 0
+        if numstr.strip() != '-':
+            logger.error("ValueError for {}: {}".format(desc, numstr))
+        return d
+
 def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
     """ Retrieve objects from last commit if exists
 
@@ -106,10 +117,12 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
             file_id=file_id,
             commit_hash=fobj.hash_val,
             modified_file=fobj.file_path,
-            lines_added=int(fobj.added),
-            lines_deleted=int(fobj.deleted)
+            lines_added=make_digit(fobj.added, "fobj.added"),
+            lines_deleted=make_digit(fobj.deleted, "fobj.deleted")
         )
         yield cf_item
+
+        file_id += 1
 
         
 
