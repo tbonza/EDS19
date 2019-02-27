@@ -11,3 +11,4 @@ unittests.cfg
 .vscode
 .R_History
 minikube
+*.db
