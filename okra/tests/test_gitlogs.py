@@ -5,8 +5,8 @@ import tempfile
 import unittest
 from urllib.parse import urljoin
 
-from okra.gitlogs import (parse_commited_files, parse_commits,
-                             parse_messages)
+from okra.gitlogs import (parse_committed_files, parse_commits,
+                          parse_messages)
 from okra.playbooks import retrieve_or_clone
 
 class TestAssn1Data(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestAssn1Data(unittest.TestCase):
         
         assert len(results) == self.total_commits
 
-        r = results[0]
+        r = results[1]
 
         assert r.hash_val == 'ed4dd8e797db7d6c1ce23980c24d94228d66b1d6'
         assert r.author == 'tbonza'
@@ -56,7 +56,7 @@ class TestAssn1Data(unittest.TestCase):
 
         assert len(results) == self.total_commits - 1
 
-        r = results[0]
+        r = results[1]
 
         assert r.hash_val == 'ed4dd8e797db7d6c1ce23980c24d94228d66b1d6'
         assert r.author == 'tbonza'
@@ -74,10 +74,10 @@ class TestAssn1Data(unittest.TestCase):
 
         r = results[0]
 
-        assert r.hash_val == 'ed4dd8e797db7d6c1ce23980c24d94228d66b1d6'
-        assert r.subject == 'multi files, lines deleted'
-        assert r.message_body == ''
-        assert r.timestamp == '2019-02-26T09:55:26-05:00'
+        assert r.hash_val == 'b6ca6229284e18b0ce8defeb4b240aa2f26223b4'
+        assert r.subject == 'added a function with friends.'
+        assert r.message_body == 'Co-authored-by: johnbaldwin <john@appsembler.com>\nCo-authored-by: awong <angela@angela.com\n'
+        assert r.timestamp == '2019-02-26T18:22:54-05:00'
 
     def test_new_parse_messages(self):
         chash = '35d8e493ef66bd8c01c15a519c15d9a6d31cb2f4'
@@ -87,24 +87,24 @@ class TestAssn1Data(unittest.TestCase):
         
         r = results[0]
 
-        assert r.hash_val == 'ed4dd8e797db7d6c1ce23980c24d94228d66b1d6'
-        assert r.subject == 'multi files, lines deleted'
-        assert r.message_body == ''
-        assert r.timestamp == '2019-02-26T09:55:26-05:00'
+        assert r.hash_val == 'b6ca6229284e18b0ce8defeb4b240aa2f26223b4'
+        assert r.subject == 'added a function with friends.'
+        assert r.message_body == 'Co-authored-by: johnbaldwin <john@appsembler.com>\nCo-authored-by: awong <angela@angela.com\n'
+        assert r.timestamp == '2019-02-26T18:22:54-05:00'
 
     def test_basic_parse_commited_files(self):
 
-        results = [i for i in parse_commited_files(self.repo_path)]
+        results = [i for i in parse_committed_files(self.repo_path)]
 
         assert len(results) == 8
-        r = results[0]
+        r = results[1]
 
         assert r.hash_val == 'ed4dd8e797db7d6c1ce23980c24d94228d66b1d6'
         assert r.added == '2'
         assert r.deleted == '1'
         assert r.file_path == 'hello.py'
 
-        r2 = results[1]
+        r2 = results[2]
 
         assert r2.hash_val == 'ed4dd8e797db7d6c1ce23980c24d94228d66b1d6'
         assert r2.file_path == 'hello1.py'

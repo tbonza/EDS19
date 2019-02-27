@@ -4,11 +4,15 @@ This is going to generate items for each specified model object
 based on git log commands. 
 """
 from datetime import datetime
+import logging
+import re
 from urllib.parse import urljoin
 
 from okra.models import Meta, Author, Contrib, CommitFile, Info
 from okra.gitlogs import (parse_commits, parse_messages,
-                          parse_commited_files)
+                          parse_committed_files)
+
+logger = logging.getLogger(__name__)
 
 def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
     """ Retrieve objects from last commit if exists
@@ -27,9 +31,9 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
 
     if len(last_commit) == 0:
         
-        cmts = parse_commits(repopath):
-        msgs = parse_messages(repopath):
-        fobjs = parse_committed_files(repopath):
+        cmts = parse_commits(repopath)
+        msgs = parse_messages(repopath)
+        fobjs = parse_committed_files(repopath)
 
     else:
         # retrieve from last commit HEAD
@@ -41,48 +45,73 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
 
     # map objects to database objects
 
-    """
-    
-    CommitFile(file_id='',
-               commit_hash='',
-               modified_file='',
-               lines_added='',
-               lines_subtracted='')
+    m = re.compile("Co-authored-by\:(.*?)<(.*?)>")
+    for msg, cmt in zip(msgs, cmts):
+        contrib_id = 0
 
-    """
-
-    for msg in msgs:
-
-        msg_item = Info(commit_hash=msg.hash_val,
-                        subject=msg.subject,
-                        message=msg.message_body,
-                        created=datetime.fromisoformat(msg.timestamp))
+        msg_item = Info(
+            commit_hash=msg.hash_val,
+            subject=msg.subject,
+            message=msg.message_body,
+            created=datetime.fromisoformat(msg.timestamp)
+        )
 
         o,p = repo_name.split('/')
-        meta_item = Meta(commit_hash=msg.hash_val,
-                         owner_name=o,
-                         project_name=p)
-
-        yield msg_item, meta_item
-
-    for cmt in cmts:
+        meta_item = Meta(
+            commit_hash=msg.hash_val,
+            owner_name=o,
+            project_name=p
+        )
         
-        author_item = Author(commit_hash=cmt.hash_val,
-                             name=cmt.author,
-                             email=cmt.author_email,
-                             authored=datetime.\
-                             fromisoformat(cmt.author_timestamp))
+        author_item = Author(
+            commit_hash=cmt.hash_val,
+            name=cmt.author,
+            email=cmt.author_email,
+            authored=datetime.fromisoformat(cmt.author_timestamp)
+        )
 
-        contrib_item = Contrib(commit_hash=cmt.hash_val,
-                               name=cmt.committer,
-                               email=cmt.committer_email,
-                               contributed=datetime.\
-                               fromisoformat(cmt.committer_timestamp))
+        contrib_item = Contrib(
+            contrib_id=contrib_id,
+            commit_hash=cmt.hash_val,
+            name=cmt.committer,
+            email=cmt.committer_email,
+            contributed=datetime.fromisoformat(cmt.committer_timestamp)
+        )        
+        yield msg_item
+        yield meta_item
+        yield author_item
+        yield contrib_item
+
+        # some commits will have multiple contributors
         
-        yield author_item, contrib_item
-        
+        if m.match(msg.message_body):
+
+            contrib_id += 1
+            for item in m.findall(msg.message_body):
+
+                contrib_item = Contrib(
+                    contrib_id=contrib_id,
+                    commit_hash=msg.hash_val,
+                    name=item[0],
+                    email=item[1],
+                    contributed=datetime.fromisoformat(msg.timestamp)
+                )
+                yield contrib_item
+                contrib_id += 1
+
+    file_id = 0
     for fobj in fobjs:
-        pass
+
+        cf_item = CommitFile(
+            file_id=file_id,
+            commit_hash=fobj.hash_val,
+            modified_file=fobj.file_path,
+            lines_added=int(fobj.added),
+            lines_deleted=int(fobj.deleted)
+        )
+        yield cf_item
+
+        
 
 
 

@@ -138,7 +138,7 @@ def write_line_messages(parsed_messages):
         ]
         yield row
 
-def parse_commited_files(rpath: str, chash=''):
+def parse_committed_files(rpath: str, chash=''):
     """ Parse file format from git log tool. 
 
     :param rpath: path to git repository

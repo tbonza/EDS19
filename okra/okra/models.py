@@ -54,7 +54,7 @@ class CommitFile(Base):
 
     file_id = Column('file_id', Integer, primary_key=True)
     commit_hash = Column('commit_hash', String(40), index=True,
-                         nullable=False)
+                         nullable=False,primary_key=True)
     modified_file = Column('modified_file', String(500), nullable=False)
     lines_added = Column('lines_added', Integer, nullable=False)
     lines_deleted = Column('lines_subtracted', Integer, nullable=False)
