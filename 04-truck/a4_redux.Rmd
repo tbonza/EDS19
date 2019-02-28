@@ -1,0 +1,82 @@
+---
+title: "TruckFactor"
+author: Tyler Brown
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DBI)
+library(dplyr)
+library(knitr)
+library(readr)
+library(RSQLite)
+
+df <- read_csv("truck_factor_assn4.csv")
+
+sqlite <- dbDriver("SQLite")
+con = dbConnect(sqlite, "assn4.db")
+```
+
+We compute truck factor TF by finding the number of developers who
+added code to that file. My initial version is taking a simple
+approach, parsing log files and uploading to the database takes
+about two minutes. To run the data collection and truck factor
+computation, install the `okra` python package and run
+
+```{shell}
+python run_analysis.py
+``` 
+
+in this, `EDS19/04-truck`,  folder.
+
+```{r, echo=FALSE}
+kable(df, caption="Truck Factor Results")
+```
+
+We can compute the number of commits in the database per project.
+
+```{r, echo=FALSE}
+meta_db <- tbl(con, "meta")
+kable(meta_db %>% 
+	  group_by(owner_name, project_name) %>% 
+	  count() %>%
+	  arrange(desc(n)), caption="Number of Commits per Project")
+```
+
+We can also compute the number of unique authors per project.
+
+```{r, echo=FALSE}
+author_db <- tbl(con, "author")
+a <- author_db %>%
+         inner_join(meta_db, c("commit_hash" = "commit_hash")) %>%
+		 distinct(owner_name, project_name, name) %>%
+		 group_by(owner_name, project_name) %>%
+		 count() %>%
+		 arrange(desc(n))
+kable(a, caption="Number of Unique Authors per Project")
+```
+
+Number of files per project which were commited with average
+number of additions and deletions.
+
+```{r, echo=FALSE}
+commit_db <- tbl(con, "commit_file")
+b <- commit_db %>%
+	     inner_join(meta_db, c("commit_hash" = "commit_hash")) %>%
+		 group_by(owner_name, project_name) %>%
+		 summarize(
+			 total_files = n(),
+		     avg_lines_added = mean(lines_added, na.rm=TRUE),
+			 avg_lines_deleted = mean(lines_subtracted, na.rm=TRUE)
+		 ) %>%
+		 arrange(desc(total_files))
+kable(b, caption="File Stats per Project")
+```
+
+
+```{r, echo=FALSE}
+DBI::dbDisconnect(con)
+```
+
+
