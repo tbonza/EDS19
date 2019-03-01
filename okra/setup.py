@@ -7,6 +7,7 @@ setup(
     license='MIT',
     long_description=open('README.md').read(),
     install_requires=[
+        'google-cloud-storage==1.14.0',
         'protobuf==3.6.1',
         'sqlalchemy==1.2.17',
         'redis==3.2.0',

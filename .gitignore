@@ -12,3 +12,4 @@ unittests.cfg
 .R_History
 minikube
 *.db
+oenv
