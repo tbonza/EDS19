@@ -1,14 +1,28 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: job-wq-2
+  name: okra
 spec:
-  parallelism: 2
+  parallelism: 1
   template:
     metadata:
-      name: job-wq-2
+      name: okra
     spec:
       containers:
       - name: c
-        image: gcr.io/school-232423/job-wq-2
+        image: gcr.io/school-232423/okra
+        volumeMounts:
+          - name: scrt
+            mountPath: "/etc/scrt"
+        env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "/etc/scrt/tbonza-gcloud-storage.json"
+      volumes:
+        - name: scrt
+          secret:
+            secretName: gcloudStorage
+            items:
+            - key: tbonza-gcloud-storage
+              path: "tbonza-gcloud-storage.json"
+              mode: 256
       restartPolicy: OnFailure

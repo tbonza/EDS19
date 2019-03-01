@@ -1,6 +1,5 @@
-FROM python
-RUN pip install redis
-COPY ./worker.py /worker.py
-COPY ./rediswq.py /rediswq.py
+FROM python:3.7.2-alpine3.9
 
-CMD  python worker.py
+RUN pip install okra
+
+CMD  okra -h
