@@ -9,8 +9,6 @@ from okra.populate_db import populate_db
 from okra.error_handling import NetworkError
 from okra.repo_mgmt import (create_parent_dir, clone_repo, update_repo,
                             compress_repo, decompress_repo)
-from okra.s3_utils import download_prove_file
-
 
 logger = logging.getLogger(__name__)
 
@@ -75,13 +73,6 @@ def retrieve_or_clone(repo_name: str, dirpath: str) -> bool:
 
     if os.path.exists(repopath): # may already exist
         return True
-
-    elif download_prove_file(repo_name, dirpath):
-    
-        # s3 retrieve and unpack repo if it exists
-        
-        d2 = decompress_repo(repo_name, dirpath)
-        return d2
 
     else:
         # clone repo if present
