@@ -30,7 +30,7 @@ spec:
       volumes:
         - name: scrt
           secret:
-            secretName: tbonza-gcloud-storage
+            secretName: gcloudStorage
             items:
             - key: tbonza-gcloud-storage
               path: "tbonza-gcloud-storage.json"

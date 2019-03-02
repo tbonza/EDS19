@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+"""
+Based on http://peter-hoffmann.com/2012/python-simple-queue-redis-queue.html 
+and the suggestion in the redis documentation for RPOPLPUSH, at 
+http://redis.io/commands/rpoplpush, which suggests how to implement a 
+work-queue.
 
-# Based on http://peter-hoffmann.com/2012/python-simple-queue-redis-queue.html 
-# and the suggestion in the redis documentation for RPOPLPUSH, at 
-# http://redis.io/commands/rpoplpush, which suggests how to implement a work-queue.
-
- 
+References:
+  https://kubernetes.io/docs/tasks/job/fine-parallel-processing-work-queue/
+"""
 import redis
 import uuid
 import hashlib
