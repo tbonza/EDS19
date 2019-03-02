@@ -1,7 +1,16 @@
-""" Run redis worker. """
+""" Run redis worker. 
+
+Configuration parameters are either handled by environment
+variables placed within the job specification or passed
+via the command line. The convention is to set environment 
+variables that will be shared across okra tasks like storage
+locations, redis dns name, etc.
+"""
 import logging
 import os
 import time
+from urllib.parse import urljoin
+
 import okra.rediswq as rediswq
 import okra.redisloader as redislr
 
@@ -39,9 +48,20 @@ def redis_worker(job="job2"):
 
 def redis_loader(job: str, fpath: str):
   """ Load redis queue from repo list file. """
+  
   host = os.getenv("REDIS_SERVICE_HOST") or "redis"
+  gpresent = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+  bucket_id = os.getenv("BUCKET_ID")
+  cache = os.getenv("CACHE")
+  
   q = redislr.RedisLoader(name=job, host=host)
-
   logger.info("Loader with sessionID: {}".format(q.sessionID()))
-  q.read_repolist(fpath)
+
+  if gpresent is not None and cache is not None:
+    gpath = fpath
+    file_path = urljoin(cache, fpath)
+    q.read_gcloud_repolist(bucket_id, gpath, file_path)
+
+  else:
+    q.read_repolist(fpath)
 

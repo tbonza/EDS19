@@ -18,15 +18,15 @@ args = parser.parse_args()
 if args.logfile:
     enable_log(args.logfile)
 
-if args.redis:
-    logger.info("STARTED redis worker")
-    redis_worker(job=args.redis)
-    logger.info("FINISHED redis worker")
-
 if args.load_redis:
     logger.info("STARTED redis loader")
     redis_loader(job=args.redis, fpath=args.load_redis)
     logger.info("FINISHED redis loader")
+
+elif args.redis:
+    logger.info("STARTED redis worker")
+    redis_worker(job=args.redis)
+    logger.info("FINISHED redis worker")
 
 else:
     parser.print_help()

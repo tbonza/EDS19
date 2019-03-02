@@ -10,6 +10,7 @@ import uuid
 
 import redis
 
+from okra.gcloud_utility import read_gcloud_blob
 
 logger = logging.getLogger(__name__)
 
@@ -79,4 +80,20 @@ class RedisLoader(object):
             logger.error("Unable to read file '{}'".format(fpath))
             logger.exception(exc)
 
-            
+    def read_gcloud_repolist(self, bucket_id, gpath, fpath):
+        """ Read the 'GitHub repo list' format from gcloud, load queue.
+
+        :param bucket_id: bucket name of gcloud storage
+        :param gpath: file path of resource within gcloud bucket
+        :param fpath: file path to write resource within container
+        :return: loads repolist to redis finite queue
+        :rtype: None
+        """
+        try:
+            read_gcloud_blob(bucket_id, gpath, fpath)
+            self.read_repolist(fpath)
+
+        except Exception as exc:
+            logger.error("Unable to read file '{}' from gcloud".\
+                         format(gpath))
+            logger.exception(exc)
