@@ -30,11 +30,7 @@ spec:
       volumes:
         - name: scrt
           secret:
-            secretName: gcloudStorage
-            items:
-            - key: tbonza-gcloud-storage
-              path: "tbonza-gcloud-storage.json"
-              mode: 256
+            secretName: tbonza-gcloud-storage
         - name: cache-volume
           emptyDir: {}
       restartPolicy: OnFailure
