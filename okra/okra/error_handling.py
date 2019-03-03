@@ -30,5 +30,16 @@ class MissingEnvironmentVariableError(Error):
         self.expression = expression
         self.message = message
 
+class DirectoryNotCreatedError(Error):
+    """ Exception raised when directory unable to be created.
+
+    :param expression: input expression in which error occurred
+    :param message: explanation of error
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
 
     

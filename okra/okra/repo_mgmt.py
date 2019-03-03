@@ -9,6 +9,8 @@ import os
 import subprocess
 from urllib.parse import urljoin
 
+from okra.error_handling import DirectoryNotCreatedError
+
 logger = logging.getLogger(__name__)
 
 def read_repos(fpath: str) -> list:
@@ -158,7 +160,7 @@ def repo_update_main(fpath: str, dirpath: str):
     logger.info("Finished updating {} GitHub repositories".\
                 format(total_repos))
 
-def compress_repo(repo_name: str, dirpath: str) -> bool:
+def compress_repo(repo_name: str, cache: str, repo_comp: str) -> bool:
     """ Compress repo for upload.
 
     :param repo_name: git repo name with owner included; 
@@ -167,36 +169,45 @@ def compress_repo(repo_name: str, dirpath: str) -> bool:
     :return: creates a compressed file of github repo
     :rtype: True if git repo successfully compressed
     """
-    repo_comp = repo_name.replace("/", "_") + ".tar.gz"
-    repo_path = urljoin(dirpath, repo_name)
-    c1 = ["tar", "-zcf", repo_comp, repo_path]
-    rpath = urljoin(dirpath, repo_name)
-    res = subprocess.run(c1, cwd=dirpath, capture_output=True)
+    c1 = ["tar", "-zcf", repo_comp, repo_name]
+    res = subprocess.run(c1, cwd=cache, capture_output=True)
+
+    print(res.stderr)
 
     if res.returncode == 0:
         return True
     else:
+        logger.error(res.stderr)
         return False
 
-def decompress_repo(repo_name: str, dirpath: str) -> bool:
+def decompress_repo(repo_name: str, dirpath: str, filepath: str) -> bool:
     """ Decompress repo to a directory.
 
     :param repo_name: git repo name with owner included; 
                       tensorflow/tensorflow
     :param dirpath: directory path to place uncompressed 
                     file with repo owner
+    :param filepath: path to file to be decompressed
     :return: Uncompresses file and writes 
              'git_owner_name/git_repo_name' to the 
              specified directory.
-    :rtype: True if successful
+    :rtype: boolean
+    :raises: :class:`okra.error_handling.DirectoryNotCreatedError`
     """
-    c1 = ["mkdir", dirpath]
+
+    if not os.path.exists(dirpath):
+        c1 = ["mkdir", dirpath]
+        res1 = subprocess.run(c1, capture_output=True)
+        if res1.returncode != 0:
+            raise DirectoryNotCreatedError(
+                expression = " ".join(c1),
+                message = "Unable to make directory"
+            )
+
     c2 = ["tar", "-zxf", filepath, "-C", dirpath]
-    res1 = subprocess.run(c1, capture_output=True)
     res2 = subprocess.run(c2, capture_output=True)
 
-    if res1.returncode == 0 and res2.returncode == 0:
+    if res2.returncode == 0:
         return True
     else:
-        return False
-    
+        return Falseb

@@ -21,6 +21,12 @@ def gcloud_persistance(repo_name: str):
     log information. Both the repository and sqlite database are
     compressed before storage. 
 
+    // ==================================================================
+    // PLEASE DO NOT ATTEMPT TO SIMPLIFY THIS CODE.
+    // KEEP THE SPACE SHUTTLE FLYING.
+    // HERE BE DRAGONS.
+    // ==================================================================
+
     """
     logger.info("STARTED -- persisting {}".format(repo_name))
 
@@ -57,14 +63,15 @@ def gcloud_persistance(repo_name: str):
 
     # Decompress cached files if they exist
 
-    
+    decompress_repo(repo_name, cache, filepath)
+    decompress_repo(repo_name, cache, filepath)
 
     # Retrieve or update git repos
 
-    #gcloud_clone_or_fetch_repo(fpaths
-    
-    
-    # Retrieve or create git repo database
+    gcloud_clone_or_fetch_repo(repo_name, fpaths[0])
+
+    # Update repo db
+
 
     # Compress repo and database
 
