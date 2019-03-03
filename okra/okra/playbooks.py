@@ -4,11 +4,13 @@ import logging
 from urllib.parse import urljoin
 
 from okra.assn4 import get_truck_factor_by_project
+from okra.error_handling import NetworkError, MissingEnvironmentVariableError
+from okra.gcloud_utils import read_gcloud_blob, write_gcloud_blob
 from okra.models import DataAccessLayer
 from okra.populate_db import populate_db
-from okra.error_handling import NetworkError
 from okra.repo_mgmt import (create_parent_dir, clone_repo, update_repo,
-                            compress_repo, decompress_repo)
+                            compress_repo, decompress_repo,
+                            gcloud_clone_or_fetch_repo)
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +23,46 @@ def gcloud_persistance(repo_name: str):
 
     """
     logger.info("STARTED -- persisting {}".format(repo_name))
-    repodb = "__REPO__".join(repo_name.split("/"))
+
+    # Set object file names
+    
+    repodb = "__REPODB__".join(repo_name.split("/"))
+    repo = "__REPO__".join(repo_name.split("/"))
+
+    # Retreive environment variables
+
+    gpresent = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") 
+    bucket_id = os.getenv("BUCKET_ID")
+    cache = os.getenv("CACHE")
+
+    envars = [("GOOGLE_APPLICATION_CREDENTIALS", gpresent),
+              ("BUCKET_ID", bucket_id),
+              ("CACHE", cache)]
+    check_envars = [i[0] for i in envars if i[1] is None]
+
+    if len(check_envars) > 0:
+
+        raise MissingEnvironmentVariableError(
+            expression = ",".join(check_envars),
+            message = "Mandatory env variables for gcloud access not found."
+        )
+
+    # Fetch cached files if they exist from gcloud storage
+
+    gpaths = [i + ".tar.gz" for i in [repo, repodb]]
+    fpaths = [urljoin(cache, i) for i in gpaths]
+    
+    read_gcloud_blob(bucket_id, gpaths[0], fpaths[0])
+    read_gcloud_blob(bucket_id, gpaths[1], fpaths[1])
+
+    # Decompress cached files if they exist
+
+    
 
     # Retrieve or update git repos
+
+    #gcloud_clone_or_fetch_repo(fpaths
+    
     
     # Retrieve or create git repo database
 

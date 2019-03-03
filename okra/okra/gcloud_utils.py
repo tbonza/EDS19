@@ -7,6 +7,7 @@ import logging
 
 from google.cloud import storage
 from google.cloud.storage import Blob
+from google.cloud.exceptions import NotFound
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,9 @@ def read_gcloud_blob(bucket_id: str, gpath: str, fpath:str):
 
         logger.info("SUCCESS -- downloaded '{}' to '{}' from '{}'".\
                     format(gpath, fpath, bucket_id))
+
+    except NotFound:
+        logger.warning("gcloud object not found: {}".format(gpath))
 
     except Exception as exc:
         logger.error("Unable to download '{}' to '{}' from '{}'".\

@@ -19,5 +19,16 @@ class NetworkError(Error):
         self.expression = expression
         self.message = message
 
+class MissingEnvironmentVariableError(Error):
+    """ Exception raised when mandatory enviroment variable is missing.
+
+    :param expression: input expression in which error occurred
+    :param message: explanation of error
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
 
     

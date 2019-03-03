@@ -32,5 +32,14 @@ Redis Finite Queue Management
    :members:
 
 .. automodule:: okra.rediswq
+   :members:
+
+Okra Exceptions
+---------------
+
+.. automodule:: okra.error_handling
+   :members:
+
+		
 	
 
