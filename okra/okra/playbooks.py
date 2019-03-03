@@ -12,6 +12,38 @@ from okra.repo_mgmt import (create_parent_dir, clone_repo, update_repo,
 
 logger = logging.getLogger(__name__)
 
+def gcloud_persistance(repo_name: str):
+    """ Persist git repos and log information in gcloud storage.
+
+    Each git repository is assigned a sqlite database to store its
+    log information. Both the repository and sqlite database are
+    compressed before storage. 
+
+    """
+    logger.info("STARTED -- persisting {}".format(repo_name))
+    repodb = "__REPO__".join(repo_name.split("/"))
+
+    # Retrieve or update git repos
+    
+    # Retrieve or create git repo database
+
+    # Compress repo and database
+
+    # Send repo and database to gcloud storage
+
+    # Remove repo and database from container volume
+
+
+def gcloud_analysis():
+    """ Consolidate git repo log information for analysis.
+
+    Analysis is done using Spark. We have to write a new 
+    parquet file for each table to reflect data updates. 
+    Parquet files are populated using each repo's sqlite 
+    database containing its log information.
+    """
+    pass
+
 def simple_version_truck_factor(repos: list, dirpath: str, dburl: str, b:int):
     """ Simple version of the truck factor analysis.
 

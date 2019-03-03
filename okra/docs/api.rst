@@ -25,3 +25,12 @@ Database Models
 .. automodule:: okra.models
    :members:
 
+Redis Finite Queue Management
+-----------------------------
+
+.. automodule:: okra.redisloader
+   :members:
+
+.. automodule:: okra.rediswq
+	
+

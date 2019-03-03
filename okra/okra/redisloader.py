@@ -10,7 +10,7 @@ import uuid
 
 import redis
 
-from okra.gcloud_utility import read_gcloud_blob
+from okra.gcloud_utils import read_gcloud_blob
 
 logger = logging.getLogger(__name__)
 
