@@ -72,7 +72,21 @@ class TestRepoMgmt(unittest.TestCase):
         assert os.path.exists(rpath)
 
     def test_decompress_repo(self):
-        pass
+
+        repo_comp = self.repo + ".tar.gz"
+        rpath = urljoin(self.tmpdirname, repo_comp)
+        assert os.path.exists(rpath)
+
+        decompress_repo(rpath, self.tmpdirname)
+
+        assert os.path.exists(urljoin(self.tmpdirname, self.repo_name))
 
     def test_db_decompress_repo(self):
-        pass
+
+        repo_comp = self.repodb + ".tar.gz"
+        rpath = urljoin(self.tmpdirname, repo_comp)
+        assert os.path.exists(rpath)
+
+        decompress_repo(rpath, self.tmpdirname)
+
+        assert os.path.exists(urljoin(self.tmpdirname, self.repodb + ".db"))

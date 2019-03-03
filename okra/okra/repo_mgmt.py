@@ -180,7 +180,7 @@ def compress_repo(repo_name: str, cache: str, repo_comp: str) -> bool:
         logger.error(res.stderr)
         return False
 
-def decompress_repo(repo_name: str, dirpath: str, filepath: str) -> bool:
+def decompress_repo(repo_comp: str, cache) -> bool:
     """ Decompress repo to a directory.
 
     :param repo_name: git repo name with owner included; 
@@ -194,20 +194,10 @@ def decompress_repo(repo_name: str, dirpath: str, filepath: str) -> bool:
     :rtype: boolean
     :raises: :class:`okra.error_handling.DirectoryNotCreatedError`
     """
-
-    if not os.path.exists(dirpath):
-        c1 = ["mkdir", dirpath]
-        res1 = subprocess.run(c1, capture_output=True)
-        if res1.returncode != 0:
-            raise DirectoryNotCreatedError(
-                expression = " ".join(c1),
-                message = "Unable to make directory"
-            )
-
-    c2 = ["tar", "-zxf", filepath, "-C", dirpath]
+    c2 = ["tar", "-zxf", repo_comp, "-C", cache]
     res2 = subprocess.run(c2, capture_output=True)
 
     if res2.returncode == 0:
         return True
     else:
-        return Falseb
+        return False
