@@ -11,6 +11,7 @@ import os
 import time
 from urllib.parse import urljoin
 
+from okra.playbooks import gcloud_persistance
 import okra.rediswq as rediswq
 import okra.redisloader as redislr
 
@@ -40,7 +41,7 @@ def redis_worker(job="job2"):
     if item is not None:
       itemstr = item.decode("utf=8")
       logger.info("Working on {}".format(itemstr))
-      time.sleep(10) # Put your actual work here instead of sleep.
+      gcloud_persistance(itemstr)
       q.complete(item)
     else:
       logger.info("Waiting for work")
@@ -65,3 +66,6 @@ def redis_loader(job: str, fpath: str):
   else:
     q.read_repolist(fpath)
 
+def redis_merger(job: str):
+  """ Merge db files. """
+  pass

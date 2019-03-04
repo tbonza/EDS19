@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: okra-worker-persist
+spec:
+  parallelism: 1
+  template:
+    metadata:
+      name: okra
+    spec:
+      containers:
+      - name: c
+        image: gcr.io/school-232423/okra
+        command: ["okra"]
+        args: ["--redis", "job2"]
+        volumeMounts:
+          - name: scrt
+            mountPath: "/etc/scrt"
+          - name: cache-volume
+            mountPath: "/cache"
+        env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "/etc/scrt/tbonza-gcloud-storage.json"
+          - name: REDIS_SERVICE_HOST
+            value: "redis"
+          - name: BUCKET_ID
+            value: "ds6050"
+          - name: CACHE
+            value: "/cache/"
+      volumes:
+        - name: scrt
+          secret:
+            secretName: tbonza-gcloud-storage
+        - name: cache-volume
+          emptyDir: {}
+      restartPolicy: OnFailure

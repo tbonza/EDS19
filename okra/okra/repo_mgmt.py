@@ -172,8 +172,6 @@ def compress_repo(repo_name: str, cache: str, repo_comp: str) -> bool:
     c1 = ["tar", "-zcf", repo_comp, repo_name]
     res = subprocess.run(c1, cwd=cache, capture_output=True)
 
-    print(res.stderr)
-
     if res.returncode == 0:
         return True
     else:

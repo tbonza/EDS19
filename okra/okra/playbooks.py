@@ -1,6 +1,7 @@
 """ Playbooks for running full analyses """
 import os
 import logging
+import shutil
 from urllib.parse import urljoin
 
 from okra.assn4 import get_truck_factor_by_project
@@ -40,10 +41,12 @@ def gcloud_persistance(repo_name: str):
     gpresent = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") 
     bucket_id = os.getenv("BUCKET_ID")
     cache = os.getenv("CACHE")
+    buffer_size = os.getenv("BUFFER_SIZE")
 
     envars = [("GOOGLE_APPLICATION_CREDENTIALS", gpresent),
               ("BUCKET_ID", bucket_id),
-              ("CACHE", cache)]
+              ("CACHE", cache),
+              ("BUFFER_SIZE", buffer_size)]
     check_envars = [i[0] for i in envars if i[1] is None]
 
     if len(check_envars) > 0:
@@ -68,17 +71,29 @@ def gcloud_persistance(repo_name: str):
 
     # Retrieve or update git repos
 
-    gcloud_clone_or_fetch_repo(repo_name, fpaths[0])
+    gcloud_clone_or_fetch_repo(repo_name, urljoin(cache, repo_name))
 
     # Update repo db
 
+    dburl = "sqlite:///" + repodb + ".db"
+    populate_db(dburl, cache, [repo_name], buffer_size)
 
     # Compress repo and database
 
+    compress_repo(repo_name, cache, gpaths[0])
+    compress_repo(repodb + ".db", cache, gpaths[1])
+
     # Send repo and database to gcloud storage
+
+    write_glcoud_blob(bucket_id, gpaths[0], fpaths[0])
+    write_gcloud_blob(bucket_id, gpaths[1], fpaths[1])
 
     # Remove repo and database from container volume
 
+    os.remove(fpaths[0])
+    os.remove(fpaths[1])
+    os.remove(urljoin(cache, repodb + ".db"))
+    shutil.rmtree(urljoin(cache, repo_name))
 
 def gcloud_analysis():
     """ Consolidate git repo log information for analysis.
