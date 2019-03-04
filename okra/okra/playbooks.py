@@ -84,7 +84,7 @@ def gcloud_persistance(repo_name: str):
 
     # Send repo and database to gcloud storage
 
-    write_glcoud_blob(bucket_id, gpaths[0], fpaths[0])
+    write_gcloud_blob(bucket_id, gpaths[0], fpaths[0])
     write_gcloud_blob(bucket_id, gpaths[1], fpaths[1])
 
     # Remove repo and database from container volume
