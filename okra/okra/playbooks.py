@@ -59,7 +59,7 @@ def gcloud_persistance(repo_name: str):
     # Fetch cached files if they exist from gcloud storage
     # Decompress cached files if they exist
 
-    gpaths = [i + ".tar.gz" for i in [repo, repodb]]
+    gpaths = ["repos/" + i + ".tar.gz" for i in [repo, repodb]]
     fpaths = [urljoin(cache, i) for i in gpaths]
     
     if read_gcloud_blob(bucket_id, gpaths[0], fpaths[0]):
@@ -74,7 +74,7 @@ def gcloud_persistance(repo_name: str):
 
     # Update repo db
 
-    dburl = "sqlite:///" + repodb + ".db"
+    dburl = "sqlite:///" + cache + repodb + ".db"
     populate_db(dburl, cache, [repo_name], buffer_size)
 
     # Compress repo and database
