@@ -41,7 +41,7 @@ def gcloud_persistance(repo_name: str):
     gpresent = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") 
     bucket_id = os.getenv("BUCKET_ID")
     cache = os.getenv("CACHE")
-    buffer_size = os.getenv("BUFFER_SIZE")
+    buffer_size = int(os.getenv("BUFFER_SIZE"))
 
     envars = [("GOOGLE_APPLICATION_CREDENTIALS", gpresent),
               ("BUCKET_ID", bucket_id),
