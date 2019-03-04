@@ -59,15 +59,8 @@ def gcloud_persistance(repo_name: str):
     # Fetch cached files if they exist from gcloud storage
     # Decompress cached files if they exist
 
-    gpaths = [
-        "repos/" + repo + ".tar.gz",
-        "repos/" + repodb + ".tar.gz",
-    ]
-
-    fpaths = [
-        urljoin(cache, repo),
-        urljoin(cache, repodb),
-    ]
+    gpaths = [i + ".tar.gz" for i in [repo, repodb]]
+    fpaths = [urljoin(cache, i) for i in gpaths]
     
     if read_gcloud_blob(bucket_id, gpaths[0], fpaths[0]):
         decompress_repo(repo_name, cache, fpaths[0])
