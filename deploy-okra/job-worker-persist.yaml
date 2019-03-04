@@ -8,6 +8,8 @@ spec:
     metadata:
       name: okra
     spec:
+      nodeSelector:
+        cloud.google.com/gke-preemptible: "true"
       containers:
       - name: c
         image: gcr.io/school-232423/okra
@@ -27,6 +29,8 @@ spec:
             value: "ds6050"
           - name: CACHE
             value: "/cache/"
+          - name: BUFFER_SIZE
+            value: "2048"
       volumes:
         - name: scrt
           secret:

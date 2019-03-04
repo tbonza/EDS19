@@ -8,6 +8,8 @@ spec:
     metadata:
       name: okra
     spec:
+      nodeSelector:
+        master: "queue"
       containers:
       - name: c
         image: gcr.io/school-232423/okra

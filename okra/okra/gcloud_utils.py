@@ -11,7 +11,7 @@ from google.cloud.exceptions import NotFound
 
 logger = logging.getLogger(__name__)
 
-def read_gcloud_blob(bucket_id: str, gpath: str, fpath:str):
+def read_gcloud_blob(bucket_id: str, gpath: str, fpath:str) -> bool:
     """ Read blob from Google Cloud Storage. 
 
     References:
@@ -29,20 +29,24 @@ def read_gcloud_blob(bucket_id: str, gpath: str, fpath:str):
         bucket = client.get_bucket(bucket_id)
 
         blob = bucket.get_blob(gpath)
-    
-        with open(fpath, 'wb') as outfile:
-            blob.download_to_file(outfile)
 
-        logger.info("SUCCESS -- downloaded '{}' to '{}' from '{}'".\
-                    format(gpath, fpath, bucket_id))
+        if blob is None:
+            logger.warning("gcloud object not found: {}".format(gpath))
+            return False
 
-    except NotFound:
-        logger.warning("gcloud object not found: {}".format(gpath))
+        else:
+            with open(fpath, 'wb') as outfile:
+                blob.download_to_file(outfile)
+
+            logger.info("SUCCESS -- downloaded '{}' to '{}' from '{}'".\
+                        format(gpath, fpath, bucket_id))
+            return True
 
     except Exception as exc:
         logger.error("Unable to download '{}' to '{}' from '{}'".\
                      format(gpath, fpath, bucket_id))
         logger.exception(exc)
+        return False
 
 def write_gcloud_blob(bucket_id: str, gpath: str, fpath:str):
     """ Write blob from Google Cloud Storage.
