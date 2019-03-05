@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: okra-worker-persist
 spec:
-  parallelism: 10
+  parallelism: 1
   template:
     metadata:
       name: okra
@@ -24,7 +24,7 @@ spec:
           - name: GOOGLE_APPLICATION_CREDENTIALS
             value: "/etc/scrt/tbonza-gcloud-storage.json"
           - name: REDIS_SERVICE_HOST
-            value: "redis-slave"
+            value: "redis-master"
           - name: BUCKET_ID
             value: "ds6050"
           - name: CACHE

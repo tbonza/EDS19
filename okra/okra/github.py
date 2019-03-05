@@ -5,9 +5,11 @@ based on git log commands.
 """
 from datetime import datetime
 import logging
+import os
 import re
 from urllib.parse import urljoin
 
+from okra.error_handling import DirectoryNotCreatedError
 from okra.models import Meta, Author, Contrib, CommitFile, Info, Inventory
 from okra.gitlogs import (parse_commits, parse_messages,
                           parse_committed_files)
@@ -39,6 +41,13 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
     :rtype: sqlalchemy database objects
     """
     repopath = urljoin(dirpath, repo_name)
+
+    if not os.path.exists(repopath):
+        review = "review cache: {}".format(','.join(os.listdir(dirpath)))
+        raise DirectoryNotCreatedError(
+            expression = repopath,
+            message = review
+        )
 
     if len(last_commit) == 0:
         

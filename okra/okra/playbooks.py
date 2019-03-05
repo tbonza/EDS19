@@ -68,9 +68,13 @@ def gcloud_persistance(repo_name: str):
     if read_gcloud_blob(bucket_id, gpaths[1], fpaths[1]):
         decompress_repo(repo_name, cache, fpaths[1])
 
+    # Create parent directory
+
+    os.makedirs(urljoin(cache, repo_name))
+
     # Retrieve or update git repos
 
-    gcloud_clone_or_fetch_repo(repo_name, urljoin(cache, repo_name))
+    gcloud_clone_or_fetch_repo(repo_name)
 
     # Update repo db
 
@@ -92,7 +96,7 @@ def gcloud_persistance(repo_name: str):
     os.remove(fpaths[0])
     os.remove(fpaths[1])
     os.remove(urljoin(cache, repodb + ".db"))
-    shutil.rmtree(urljoin(cache, repo_name))
+    shutil.rmtree(urljoin(cache, repo_name.split("/")[0]))
 
 def gcloud_analysis():
     """ Consolidate git repo log information for analysis.
