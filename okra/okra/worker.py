@@ -57,7 +57,7 @@ def redis_worker(job="job2"):
       logger.info("Waiting for work")
   logger.info("Queue empty, exiting")
 
-def redis_loader(job: str, fpath: str):
+def redis_loader(job: str, prefix: str):
   """ Load redis queue from repo list file. """
   
   host = os.getenv("REDIS_SERVICE_HOST") or "redis"
@@ -68,13 +68,14 @@ def redis_loader(job: str, fpath: str):
   q = redislr.RedisLoader(name=job, host=host)
   logger.info("Loader with sessionID: {}".format(q.sessionID()))
 
-  if gpresent is not None and cache is not None:
+  try:
     gpath = fpath
     file_path = urljoin(cache, fpath)
-    q.read_gcloud_repolist(bucket_id, gpath, file_path)
+    q.read_gcloud_repolist(bucket_id, gpath, prefix)
 
-  else:
-    q.read_repolist(fpath)
+  except Exception as exc:
+    raise exc
+
 
 def redis_merger(job: str):
   """ Merge db files. """

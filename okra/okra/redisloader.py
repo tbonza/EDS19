@@ -6,7 +6,9 @@ Reference:
 https://kubernetes.io/docs/tasks/job/fine-parallel-processing-work-queue/
 """
 import logging
+import os
 import re
+from urllib.parse import urljoin
 import uuid
 
 import redis
@@ -99,18 +101,25 @@ class RedisLoader(object):
             logger.error("Unable to read file '{}'".format(fpath))
             logger.exception(exc)
 
-    def read_gcloud_repolist(self, bucket_id, gpath, fpath, prefix):
+    def read_gcloud_repolist(self, bucket_id, gpath, prefix):
         """ Read the 'GitHub repo list' format from gcloud, load queue.
 
         :param bucket_id: bucket name of gcloud storage
         :param gpath: file path of resource within gcloud bucket
-        :param fpath: file path to write resource within container
         :param prefix: specify load files; ex. 'repo_list/results_'
         :return: loads repolist to redis finite queue
         :rtype: None
         """
+        cache = os.getenv("CACHE")
+        dirpath = "/repo_list/"
+        repo_list_dir = urljoin(cache, dirpath)
         try:
+            if not os.path.exists(repo_list_dir):
+                os.mkdir(repo_list_dir)
+
             for gpath in repo_list_gcloud_bucket(bucket_id, prefix):
+
+                fpath = urljoin(repo_list_dir, gpath)
                 read_gcloud_blob(bucket_id, gpath, fpath)
                 self.read_repolist(fpath)
 

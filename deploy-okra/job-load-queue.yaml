@@ -14,7 +14,7 @@ spec:
       - name: c
         image: gcr.io/school-232423/okra
         command: ["okra"]
-        args: ["--redis", "job2", "--load_redis", "repos_assn1.list"]
+        args: ["--redis", "job2", "--load_redis","repo_list/results_20190301"]
         volumeMounts:
           - name: scrt
             mountPath: "/etc/scrt"
