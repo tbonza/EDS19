@@ -31,6 +31,7 @@ def redis_worker(job="job2"):
   """
   host = os.getenv("REDIS_SERVICE_HOST") or "redis"
   q = rediswq.RedisWQ(name=job, host=host)
+  recover = redislr.RedisLoader(name=job, host=host)
 
   logger.info("Worker with sessionID: {}".format(q.sessionID()))
   logger.info("Initial queue state: empty= {}".format(str(q.empty())))
@@ -41,8 +42,17 @@ def redis_worker(job="job2"):
     if item is not None:
       itemstr = item.decode("utf=8")
       logger.info("Working on {}".format(itemstr))
-      gcloud_persistance(itemstr)
-      q.complete(item)
+
+      try:
+        gcloud_persistance(itemstr)
+        q.complete(item)
+
+      except Exception as exc:
+        logger.warning("Trying to recover: {}".format(itemstr))
+        recover._load_queue([itemstr])
+        logger.info("Recovered: {}".format(itemstr))
+        raise exc
+
     else:
       logger.info("Waiting for work")
   logger.info("Queue empty, exiting")

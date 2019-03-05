@@ -6,11 +6,12 @@ Reference:
 https://kubernetes.io/docs/tasks/job/fine-parallel-processing-work-queue/
 """
 import logging
+import re
 import uuid
 
 import redis
 
-from okra.gcloud_utils import read_gcloud_blob
+from okra.gcloud_utils import read_gcloud_blob, repo_list_gcloud_bucket
 
 logger = logging.getLogger(__name__)
 
@@ -64,14 +65,32 @@ class RedisLoader(object):
     def read_repolist(self, fpath):
         """ Read the 'GitHub repo list' format and load queue.
 
+        Regular expression pertains to ghtorrent api strings
+        that they use to define the location of each repo.
+
         :param fpath: str, file path to repo list text file
         :return: loaded redis queue
         :rtype: None
         """
+        pat = re.compile(r".*repos/(\w+/\w+)|(\w+/\w+)")
         try:
+            data = []
             with open(fpath, "r") as infile:
-                data = [i.strip() for i in infile.readlines()]
+                for line in infile.readlines():
 
+                    matchy = pattern.match(line)
+
+                    if matchy:
+                        matched = matchy.groups()
+                        if matched[0] is not None:
+                            data.append(matched[0])
+
+                        elif matched[1] is not None:
+                            data.append(matched[1])
+                            
+                        else:
+                            logger.error("Unable to parse: {}".format(line))
+            
             logger.info("Retrieved file '{}', loading queue '{}'".\
                         format(fpath, self._main_q_key))
             self._load_queue(data)
@@ -80,18 +99,20 @@ class RedisLoader(object):
             logger.error("Unable to read file '{}'".format(fpath))
             logger.exception(exc)
 
-    def read_gcloud_repolist(self, bucket_id, gpath, fpath):
+    def read_gcloud_repolist(self, bucket_id, gpath, fpath, prefix):
         """ Read the 'GitHub repo list' format from gcloud, load queue.
 
         :param bucket_id: bucket name of gcloud storage
         :param gpath: file path of resource within gcloud bucket
         :param fpath: file path to write resource within container
+        :param prefix: specify load files; ex. 'repo_list/results_'
         :return: loads repolist to redis finite queue
         :rtype: None
         """
         try:
-            read_gcloud_blob(bucket_id, gpath, fpath)
-            self.read_repolist(fpath)
+            for gpath in repo_list_gcloud_bucket(bucket_id, prefix):
+                read_gcloud_blob(bucket_id, gpath, fpath)
+                self.read_repolist(fpath)
 
         except Exception as exc:
             logger.error("Unable to read file '{}' from gcloud".\

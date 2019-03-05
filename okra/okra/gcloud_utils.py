@@ -11,6 +11,23 @@ from google.cloud.exceptions import NotFound
 
 logger = logging.getLogger(__name__)
 
+def repo_list_gcloud_bucket(bucket_id: str, prefix="repo_list/results_"):
+    """ Return a list of files containing repos. 
+    """
+    logger.info("Listing '{}' with prefix '{}'".format(bucket_id, prefix))
+    try:
+        client = storage.Client()
+        bucket = client.get_bucket(bucket_id)
+
+        blobs = bucket.list_blobs(prefix=prefix)
+        gpaths = [i.name for i in blobs]
+        logger.info("{} repo lists found".format(len(gpaths)))
+        return gpaths
+
+    except Exception as exc:
+        logger.error("Unable to find repo list")
+        raise exc
+
 def read_gcloud_blob(bucket_id: str, gpath: str, fpath:str) -> bool:
     """ Read blob from Google Cloud Storage. 
 

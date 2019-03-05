@@ -13,6 +13,9 @@ from okra.error_handling import DirectoryNotCreatedError
 
 logger = logging.getLogger(__name__)
 
+def gcloud_read_repos():
+    pass
+
 def read_repos(fpath: str) -> list:
     """ Read list of repos from disk """
     try:

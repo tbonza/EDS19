@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: okra-worker-persist
 spec:
-  parallelism: 1
+  parallelism: 10
   template:
     metadata:
       name: okra
@@ -30,7 +30,7 @@ spec:
           - name: CACHE
             value: "/cache/"
           - name: BUFFER_SIZE
-            value: "2048"
+            value: "102400"
       volumes:
         - name: scrt
           secret:
