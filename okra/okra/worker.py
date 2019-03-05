@@ -69,9 +69,7 @@ def redis_loader(job: str, prefix: str):
   logger.info("Loader with sessionID: {}".format(q.sessionID()))
 
   try:
-    gpath = fpath
-    file_path = urljoin(cache, fpath)
-    q.read_gcloud_repolist(bucket_id, gpath, prefix)
+    q.read_gcloud_repolist(bucket_id, prefix)
 
   except Exception as exc:
     raise exc

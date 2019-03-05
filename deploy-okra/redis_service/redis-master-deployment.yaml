@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: redis-master
 spec:
-  nodeSelector:
-    master: "queue"
   selector:
     matchLabels:
       app: redis

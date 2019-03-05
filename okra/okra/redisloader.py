@@ -101,17 +101,16 @@ class RedisLoader(object):
             logger.error("Unable to read file '{}'".format(fpath))
             logger.exception(exc)
 
-    def read_gcloud_repolist(self, bucket_id, gpath, prefix):
+    def read_gcloud_repolist(self, bucket_id, prefix):
         """ Read the 'GitHub repo list' format from gcloud, load queue.
 
         :param bucket_id: bucket name of gcloud storage
-        :param gpath: file path of resource within gcloud bucket
         :param prefix: specify load files; ex. 'repo_list/results_'
         :return: loads repolist to redis finite queue
         :rtype: None
         """
         cache = os.getenv("CACHE")
-        dirpath = "/repo_list/"
+        dirpath = "repo_list/"
         repo_list_dir = urljoin(cache, dirpath)
         try:
             if not os.path.exists(repo_list_dir):
