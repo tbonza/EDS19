@@ -64,7 +64,7 @@ def populate_db(dburl: str, cache: str, repo_name: str, buffer_size=1024):
     dal.session = dal.Session()
 
     owner, project = repo_name.split("/")
-    rpath = urljoin(dirpath, repo_name)
+    rpath = urljoin(cache, repo_name)
 
     # Check or get git repo inventory information
 
@@ -111,9 +111,8 @@ def populate_db(dburl: str, cache: str, repo_name: str, buffer_size=1024):
         inv = Inventory(
             owner_name = invmsg.owner,
             project_name = invmsg.project,
-            last_commit = invmsg.last_hash
-        )
-        
+            last_commit = invmsg.last_hash)
+
         dal.session.add(inv)
         dal.session.commit()
 

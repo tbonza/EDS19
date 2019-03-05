@@ -5,7 +5,7 @@ import shutil
 from urllib.parse import urljoin
 
 from okra.assn4 import get_truck_factor_by_project
-from okra.error_handling import NetworkError, MissingEnvironmentVariableError
+from okra.error_handling import MissingEnvironmentVariableError
 from okra.gcloud_utils import read_gcloud_blob, write_gcloud_blob
 from okra.models import DataAccessLayer
 from okra.populate_db import populate_db
@@ -172,23 +172,7 @@ def retrieve_or_clone(repo_name: str, dirpath: str) -> bool:
     if os.path.exists(repopath): # may already exist
         return True
 
-    else:
-        # clone repo if present
-
-        d3 = clone_repo(repo_name, dirpath)
-        return d3
-
-def get_or_update_github_repo(bucket_name, dirpath, bucket="ds6050"):
-
-    if not retrieve_or_clone(repo_name, dirpath):
-        logger.error("Unable to retrieve or clone {} to {}".\
-                     format(repo_name, dirpath))
-        raise NetworkError(repo_name, "Unable to retrieve or clone")
-
-    if not update_repo(repo_name, dirpath):
-        logger.error("Unable to fetch new commits {}".format(repo_name))
-        raise NetworkError(repo_name, "Unable to fetch new commits")
-    return True
+    return clone_repo(repo_name, dirpath)
 
 def persist_repo_data(dirpath, urlstring):
     # extract data and write to a database
