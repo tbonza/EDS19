@@ -5,7 +5,9 @@ import shutil
 from urllib.parse import urljoin
 
 from okra.assn4 import get_truck_factor_by_project
-from okra.error_handling import MissingEnvironmentVariableError, NetworkError
+from okra.error_handling import (MissingEnvironmentVariableError,
+                                 NetworkError,
+                                 DirectoryNotCreatedError)
 from okra.gcloud_utils import read_gcloud_blob, write_gcloud_blob
 from okra.models import DataAccessLayer
 from okra.populate_db import populate_db
@@ -61,18 +63,23 @@ def gcloud_persistance(repo_name: str):
 
     gpaths = [i + ".tar.gz" for i in [repo, repodb]]
     fpaths = [urljoin(cache, i) for i in gpaths]
-
-    # Create parent directory
-
-    repo_path = urljoin(cache, repo_name)
-    if not os.path.exists(repo_path):
-        os.makedirs(repo_path)
     
     if read_gcloud_blob(bucket_id, gpaths[0], fpaths[0]):
+        repo_path = urljoin(cache, repo_name)
+        if not os.path.exists(repo_path):
+            os.makedirs(repo_path)
         decompress_repo(repo_name, cache, fpaths[0])
 
     if read_gcloud_blob(bucket_id, gpaths[1], fpaths[1]):
         decompress_repo(repo_name, cache, fpaths[1])
+
+    # Create parent directory
+
+    if not create_parent_dir(repo_name, cache):
+        DirectoryNotCreatedError(
+            expression = repo_name,
+            message = "Unable to create parent directory."
+        )
 
     # Retrieve or update git repos
 

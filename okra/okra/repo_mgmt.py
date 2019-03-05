@@ -45,6 +45,7 @@ def create_parent_dir(repo_name: str, dirpath: str) -> bool:
     if res.returncode == 0 and os.path.exists(ppath):
         return True
     else:
+        logger.error(res.stderr)
         return False
 
 def gcloud_clone_or_fetch_repo(repo_name: str) -> bool:
@@ -69,15 +70,13 @@ def clone_repo(repo_name: str, dirpath: str) -> bool:
     """ Clone GitHub repo. """
     repo_path = "https://github.com/{}.git".format(repo_name)
     rpath = urljoin(dirpath, repo_name)
-
-    logger.warning("clone repo path: {}".format(rpath))
-
     res = subprocess.run(["git", "clone", repo_path, rpath],
                          capture_output=True)
 
     if res.returncode == 0 and os.path.exists(rpath):
         return True
     else:
+        logger.error(res.stderr)
         return False
 
 def update_repo(repo_name: str, dirpath: str) -> bool:
@@ -89,6 +88,7 @@ def update_repo(repo_name: str, dirpath: str) -> bool:
     if res.returncode == 0:
         return True
     else:
+        logger.error(res.stderr)
         return False
 
 def compress_repo(repo_name: str, cache: str, repo_comp: str) -> bool:
@@ -129,4 +129,5 @@ def decompress_repo(repo_comp: str, cache) -> bool:
     if res2.returncode == 0:
         return True
     else:
+        logger.error(res.stderr)
         return False
