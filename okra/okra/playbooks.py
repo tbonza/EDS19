@@ -61,16 +61,18 @@ def gcloud_persistance(repo_name: str):
 
     gpaths = [i + ".tar.gz" for i in [repo, repodb]]
     fpaths = [urljoin(cache, i) for i in gpaths]
+
+    # Create parent directory
+
+    repo_path = urljoin(cache, repo_name)
+    if not os.path.exists(repo_path):
+        os.makedirs(repo_path)
     
     if read_gcloud_blob(bucket_id, gpaths[0], fpaths[0]):
         decompress_repo(repo_name, cache, fpaths[0])
 
     if read_gcloud_blob(bucket_id, gpaths[1], fpaths[1]):
         decompress_repo(repo_name, cache, fpaths[1])
-
-    # Create parent directory
-
-    os.makedirs(urljoin(cache, repo_name))
 
     # Retrieve or update git repos
 
@@ -79,7 +81,7 @@ def gcloud_persistance(repo_name: str):
     # Update repo db
 
     dburl = "sqlite:///" + cache + repodb + ".db"
-    populate_db(dburl, cache, [repo_name], buffer_size)
+    populate_db(dburl, cache, repo_name, buffer_size)
 
     # Compress repo and database
 

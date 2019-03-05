@@ -27,7 +27,7 @@ def make_digit(numstr, desc):
             logger.error("ValueError for {}: {}".format(desc, numstr))
         return d
 
-def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
+def repo_to_objects(repo_name: str, cache: str, last_commit=""):
     """ Retrieve objects from last commit if exists
 
     This function is a generator so we can specify a buffer size
@@ -40,14 +40,7 @@ def repo_to_objects(repo_name: str, dirpath: str, last_commit=""):
     :return: generator of populated model database objects
     :rtype: sqlalchemy database objects
     """
-    repopath = urljoin(dirpath, repo_name)
-
-    if not os.path.exists(repopath):
-        review = "review cache: {}".format(','.join(os.listdir(dirpath)))
-        raise DirectoryNotCreatedError(
-            expression = repopath,
-            message = review
-        )
+    repopath = urljoin(cache, repo_name)
 
     if len(last_commit) == 0:
         
