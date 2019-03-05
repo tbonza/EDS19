@@ -118,7 +118,7 @@ class RedisLoader(object):
 
             for gpath in repo_list_gcloud_bucket(bucket_id, prefix):
 
-                fpath = urljoin(repo_list_dir, gpath)
+                fpath = urljoin(cache, gpath)
                 read_gcloud_blob(bucket_id, gpath, fpath)
                 self.read_repolist(fpath)
 
