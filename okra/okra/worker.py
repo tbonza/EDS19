@@ -1,4 +1,4 @@
-""" Run redis worker. 
+""" Run redis worker.
 
 Configuration parameters are either handled by environment
 variables placed within the job specification or passed
@@ -8,21 +8,16 @@ locations, redis dns name, etc.
 """
 import logging
 import os
-import time
-from urllib.parse import urljoin
 
 from okra.playbooks import gcloud_persistance
 import okra.rediswq as rediswq
 import okra.redisloader as redislr
 
-import redis
-
-
 logger = logging.getLogger(__name__)
 
 
 def redis_worker(job="job2"):
-  """ Run redis worker. 
+  """ Run redis worker.
 
   :param job: job name <default: job2>
   :param host: host name <default: redis>
@@ -61,9 +56,7 @@ def redis_loader(job: str, prefix: str):
   """ Load redis queue from repo list file. """
   
   host = os.getenv("REDIS_SERVICE_HOST") or "redis"
-  gpresent = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
   bucket_id = os.getenv("BUCKET_ID")
-  cache = os.getenv("CACHE")
   
   q = redislr.RedisLoader(name=job, host=host)
   logger.info("Loader with sessionID: {}".format(q.sessionID()))

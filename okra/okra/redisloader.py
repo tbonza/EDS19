@@ -80,7 +80,7 @@ class RedisLoader(object):
             with open(fpath, "r") as infile:
                 for line in infile.readlines():
 
-                    matchy = pattern.match(line)
+                    matchy = pat.match(line)
 
                     if matchy:
                         matched = matchy.groups()
