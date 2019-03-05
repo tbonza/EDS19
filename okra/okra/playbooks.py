@@ -5,7 +5,7 @@ import shutil
 from urllib.parse import urljoin
 
 from okra.assn4 import get_truck_factor_by_project
-from okra.error_handling import MissingEnvironmentVariableError
+from okra.error_handling import MissingEnvironmentVariableError, NetworkError
 from okra.gcloud_utils import read_gcloud_blob, write_gcloud_blob
 from okra.models import DataAccessLayer
 from okra.populate_db import populate_db
@@ -76,7 +76,12 @@ def gcloud_persistance(repo_name: str):
 
     # Retrieve or update git repos
 
-    gcloud_clone_or_fetch_repo(repo_name)
+    res = gcloud_clone_or_fetch_repo(repo_name)
+    if not res:
+        raise NetworkError(
+            expression = repo_name,
+            message = "Unable to clone or fetch repo"
+        )
 
     # Update repo db
 

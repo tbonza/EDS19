@@ -62,10 +62,8 @@ def gcloud_clone_or_fetch_repo(repo_name: str) -> bool:
     repo_path = urljoin(cache, repo_name)
     
     if os.path.exists(repo_path):
-        update_repo(repo_name, cache)
-
-    else:
-        clone_repo(repo_name, cache)
+        return update_repo(repo_name, cache)
+    return clone_repo(repo_name, cache)
 
 def clone_repo(repo_name: str, dirpath: str) -> bool:
     """ Clone GitHub repo. """
