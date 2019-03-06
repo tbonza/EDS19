@@ -9,7 +9,7 @@ import os
 import subprocess
 from urllib.parse import urljoin
 
-from okra.error_handling import DirectoryNotCreatedError
+from okra.error_handling import DirectoryNotCreatedError, NetworkError
 
 logger = logging.getLogger(__name__)
 
@@ -68,16 +68,22 @@ def gcloud_clone_or_fetch_repo(repo_name: str) -> bool:
 
 def clone_repo(repo_name: str, dirpath: str) -> bool:
     """ Clone GitHub repo. """
-    repo_path = "https://github.com/{}.git".format(repo_name)
-    rpath = urljoin(dirpath, repo_name)
-    res = subprocess.run(["git", "clone", repo_path, rpath],
-                         capture_output=True)
+    try:
+        repo_path = "https://github.com/{}.git".format(repo_name)
+        rpath = urljoin(dirpath, repo_name)
+        res = subprocess.run(["git", "clone", repo_path, rpath],
+                             capture_output=True)
 
-    if res.returncode == 0 and os.path.exists(rpath):
-        return True
-    else:
-        logger.error(res.stderr)
-        return False
+        if res.returncode == 0 and os.path.exists(rpath):
+            return True
+        raise NetworkError(
+            expression = res.stderr,
+            message = "Issue with git clone"
+        )
+
+    except Exception as exc:
+        logger.error("Issue with git clone: {}".format(res.stderr))
+        raise exc
 
 def update_repo(repo_name: str, dirpath: str) -> bool:
     """ Update repo with new code. """
