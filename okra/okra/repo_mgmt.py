@@ -130,9 +130,9 @@ def decompress_repo(repo_comp: str, cache) -> bool:
     :raises: :class:`okra.error_handling.DirectoryNotCreatedError`
     """
     c2 = ["tar", "-zxf", repo_comp, "-C", cache]
-    res2 = subprocess.run(c2, capture_output=True)
+    res = subprocess.run(c2, capture_output=True)
 
-    if res2.returncode == 0:
+    if res.returncode == 0:
         return True
     else:
         logger.error(res.stderr)

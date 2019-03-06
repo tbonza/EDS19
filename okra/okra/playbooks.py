@@ -68,10 +68,10 @@ def gcloud_persistance(repo_name: str):
         repo_path = urljoin(cache, repo_name)
         if not os.path.exists(repo_path):
             os.makedirs(repo_path)
-        decompress_repo(repo_name, cache, fpaths[0])
+        decompress_repo(fpaths[0], cache)
 
     if read_gcloud_blob(bucket_id, gpaths[1], fpaths[1]):
-        decompress_repo(repo_name, cache, fpaths[1])
+        decompress_repo(fpaths[1], cache)
 
     # Create parent directory
 
