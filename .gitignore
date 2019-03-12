@@ -3,6 +3,7 @@ __pycache__
 db.sqlite3
 target
 logs
+*.csv
 *.log
 *.retry
 airflow*
@@ -12,4 +13,5 @@ unittests.cfg
 .R_History
 minikube
 *.db
+*.txt
 oenv
