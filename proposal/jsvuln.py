@@ -50,6 +50,7 @@ with open("jsgithub_items.txt", "w") as outfile:
 
         outfile.write(item + itembreak + "\n")
 
+jsgit_highlights = [("CVE-2018-1999024","mathjax"), ("CVE-2018-19787", "lxml python")]]
 
 # All highlights have direct links to GitHub issues
 
