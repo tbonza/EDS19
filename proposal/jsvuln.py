@@ -18,9 +18,14 @@ print("Found {} items".format(len(items)))
 
 
 pat = re.compile(".*javascript", re.DOTALL | re.IGNORECASE)
+gitpat = re.compile(".*github", re.DOTALL | re.IGNORECASE)
+
 
 jsitems = [i for i in items if pat.match(i)]
 print("Found {} javascript items".format(len(jsitems)))
+js_github_items = [i for i in items if pat.match(i) and gitpat.match(i)]
+print("Found {} javascript items mentioning github".\
+      format(len(js_github_items)))
 
 header="""
 Javascript vulnerabilities subset of CVE List
@@ -34,6 +39,17 @@ with open("jsitems.txt", "w") as outfile:
 
         outfile.write(item + itembreak + "\n")
 
+header="""
+Javascript vulnerabilities subset of CVE List mentioning github
+
+    https://cve.mitre.org/data/downloads/index.html\n
+"""
+with open("jsgithub_items.txt", "w") as outfile:
+    outfile.write(header + itembreak + "\n")
+    for item in js_github_items:
+
+        outfile.write(item + itembreak + "\n")
+
 
 # All highlights have direct links to GitHub issues
 
@@ -44,7 +60,7 @@ cve_highlights = [
     "CVE-2016-1927",
 ]
 
-print("Found the following CVE items related to JS:")
+print("\nFound the following CVE items related to JS:")
 for item in cve_highlights:
     print(item)
 
@@ -82,7 +98,6 @@ with open("javaitems.txt", "w") as outfile:
 
         outfile.write(item + itembreak + "\n")
 
-gitpat = re.compile(".*github", re.DOTALL | re.IGNORECASE)
 java_github_items = [i for i in items if pat.match(i) and gitpat.match(i)]
 
 print("Java items mentioning github: {}".format(len(java_github_items)))
