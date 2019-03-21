@@ -1,7 +1,0 @@
----
-- hosts: local
-
-  tasks:
-    - name: Retrieve all github repos
-    - name: Upload GitHub repos to AWS S3 Bucket
-    - name: Extract information into Database

@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>okra.rediswq &mdash; &#39;okra&#39; 1.0.18 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> 'okra'
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Developer Interface</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apps.html">Applications</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">'okra'</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>okra.rediswq</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for okra.rediswq</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Based on http://peter-hoffmann.com/2012/python-simple-queue-redis-queue.html </span>
+<span class="sd">and the suggestion in the redis documentation for RPOPLPUSH, at </span>
+<span class="sd">http://redis.io/commands/rpoplpush, which suggests how to implement </span>
+<span class="sd">a work-queue.</span>
+
+<span class="sd">Reference: </span>
+<span class="sd">https://kubernetes.io/docs/tasks/job/fine-parallel-processing-work-queue/</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">redis</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+
+<div class="viewcode-block" id="RedisWQ"><a class="viewcode-back" href="../../api.html#okra.rediswq.RedisWQ">[docs]</a><span class="k">class</span> <span class="nc">RedisWQ</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simple Finite Work Queue with Redis Backend</span>
+
+<span class="sd">    This work queue is finite: as long as no more work is added</span>
+<span class="sd">    after workers start, the workers can detect when the queue</span>
+<span class="sd">    is completely empty.</span>
+
+<span class="sd">    The items in the work queue are assumed to have unique values.</span>
+
+<span class="sd">    This object is not intended to be used by multiple threads</span>
+<span class="sd">    concurrently.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">redis_kwargs</span><span class="p">):</span>
+       <span class="sd">&quot;&quot;&quot;The default connection parameters are: host=&#39;localhost&#39;, port=6379, db=0</span>
+
+<span class="sd">       The work queue is identified by &quot;name&quot;.  The library may create other</span>
+<span class="sd">       keys with &quot;name&quot; as a prefix. </span>
+<span class="sd">       &quot;&quot;&quot;</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_db</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">StrictRedis</span><span class="p">(</span><span class="o">**</span><span class="n">redis_kwargs</span><span class="p">)</span>
+       <span class="c1"># The session ID will uniquely identify this &quot;worker&quot;.</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_session</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+       <span class="c1"># Work queue is implemented as two queues: main, and processing.</span>
+       <span class="c1"># Work is initially in main, and moved to processing when a client picks it up.</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_main_q_key</span> <span class="o">=</span> <span class="n">name</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_processing_q_key</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:processing&quot;</span>
+       <span class="bp">self</span><span class="o">.</span><span class="n">_lease_key_prefix</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:leased_by_session:&quot;</span>
+
+<div class="viewcode-block" id="RedisWQ.sessionID"><a class="viewcode-back" href="../../api.html#okra.rediswq.RedisWQ.sessionID">[docs]</a>    <span class="k">def</span> <span class="nf">sessionID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the ID for this session.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span></div>
+
+    <span class="k">def</span> <span class="nf">_main_qsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the size of the main queue.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">llen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_main_q_key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_processing_qsize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the size of the main queue.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">llen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_processing_q_key</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RedisWQ.empty"><a class="viewcode-back" href="../../api.html#okra.rediswq.RedisWQ.empty">[docs]</a>    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the queue is empty, including work being done, False otherwise.</span>
+
+<span class="sd">        False does not necessarily mean that there is work available to work on right now,</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_main_qsize</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing_qsize</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<span class="c1"># TODO: implement this</span>
+<span class="c1">#    def check_expired_leases(self):</span>
+<span class="c1">#        &quot;&quot;&quot;Return to the work queueReturn True if the queue is empty, False otherwise.&quot;&quot;&quot;</span>
+<span class="c1">#        # Processing list should not be _too_ long since it is approximately as long</span>
+<span class="c1">#        # as the number of active and recently active workers.</span>
+<span class="c1">#        processing = self._db.lrange(self._processing_q_key, 0, -1)</span>
+<span class="c1">#        for item in processing:</span>
+<span class="c1">#          # If the lease key is not present for an item (it expired or was </span>
+<span class="c1">#          # never created because the client crashed before creating it)</span>
+<span class="c1">#          # then move the item back to the main queue so others can work on it.</span>
+<span class="c1">#          if not self._lease_exists(item):</span>
+<span class="c1">#            TODO: transactionally move the key from processing queue to</span>
+<span class="c1">#            to main queue, while detecting if a new lease is created</span>
+<span class="c1">#            or if either queue is modified.</span>
+
+    <span class="k">def</span> <span class="nf">_itemkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a string that uniquely identifies an item (bytes).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha224</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_lease_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;True if a lease on &#39;item&#39; exists.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lease_key_prefix</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_itemkey</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+<div class="viewcode-block" id="RedisWQ.lease"><a class="viewcode-back" href="../../api.html#okra.rediswq.RedisWQ.lease">[docs]</a>    <span class="k">def</span> <span class="nf">lease</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lease_secs</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Begin working on an item the work queue. </span>
+
+<span class="sd">        Lease the item for lease_secs.  After that time, other</span>
+<span class="sd">        workers may consider this client to have crashed or stalled</span>
+<span class="sd">        and pick up the item instead.</span>
+
+<span class="sd">        If optional args block is true and timeout is None (the default), block</span>
+<span class="sd">        if necessary until an item is available.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">brpoplpush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_main_q_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing_q_key</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">rpoplpush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_main_q_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_processing_q_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">item</span><span class="p">:</span>
+            <span class="c1"># Record that we (this session id) are working on a key.  Expire that</span>
+            <span class="c1"># note after the lease timeout.</span>
+            <span class="c1"># Note: if we crash at this line of the program, then GC will see no lease</span>
+            <span class="c1"># for this item a later return it to the main queue.</span>
+            <span class="n">itemkey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_itemkey</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lease_key_prefix</span> <span class="o">+</span> <span class="n">itemkey</span><span class="p">,</span> <span class="n">lease_secs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="RedisWQ.complete"><a class="viewcode-back" href="../../api.html#okra.rediswq.RedisWQ.complete">[docs]</a>    <span class="k">def</span> <span class="nf">complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Complete working on the item with &#39;value&#39;.</span>
+
+<span class="sd">        If the lease expired, the item may not have completed, and some</span>
+<span class="sd">        other worker may have picked it up.  There is no indication</span>
+<span class="sd">        of what happened.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">lrem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_processing_q_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="c1"># If we crash here, then the GC code will try to move the value, but it will</span>
+        <span class="c1"># not be here, which is fine.  So this does not need to be a transaction.</span>
+        <span class="n">itemkey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_itemkey</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lease_key_prefix</span> <span class="o">+</span> <span class="n">itemkey</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_session</span><span class="p">)</span></div></div>
+
+<span class="c1"># TODO: add functions to clean up all keys associated with &quot;name&quot; when</span>
+<span class="c1"># processing is complete.</span>
+
+<span class="c1"># TODO: add a function to add an item to the queue.  Atomically</span>
+<span class="c1"># check if the queue is empty and if so fail to add the item</span>
+<span class="c1"># since other workers might think work is done and be in the process</span>
+<span class="c1"># of exiting.</span>
+
+<span class="c1"># TODO(etune): move to my own github for hosting, e.g. github.com/erictune/rediswq-py and</span>
+<span class="c1"># make it so it can be pip installed by anyone (see</span>
+<span class="c1"># http://stackoverflow.com/questions/8247605/configuring-so-that-pip-install-can-work-from-github)</span>
+
+<span class="c1"># TODO(etune): finish code to GC expired leases, and call periodically</span>
+<span class="c1">#  e.g. each time lease times out.</span>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Tyler Brown
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
