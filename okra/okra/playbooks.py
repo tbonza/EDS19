@@ -17,6 +17,25 @@ from okra.repo_mgmt import (create_parent_dir, clone_repo, update_repo,
 
 logger = logging.getLogger(__name__)
 
+def local_persistance(repo_name: str, parent_dir: str, buffer_size=4096):
+    """ Collect relevant data for locally cloned repos. 
+
+    :param repo_name: name of git repository, <linux>
+    :param parent_dir: parent directory path, </home/user/code/>
+    :param buffer_size: number of records processed before db commit
+    :return: populate sqlite database for a repo
+    :rtype: None
+    """
+    logger.info("STARTED -- local persistance")
+    repodb = "__REPODB__".join(repo_name.split("/"))
+    cache = parent_dir
+
+    dburl = "sqlite:///" + cache + repodb + ".db"
+    populate_db(dburl, cache, repo_name, buffer_size)
+
+    logger.info("FINISHED -- local perisistance")
+
+
 def gcloud_persistance(repo_name: str):
     """ Persist git repos and log information in gcloud storage.
 

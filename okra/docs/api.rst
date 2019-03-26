@@ -40,6 +40,12 @@ Okra Exceptions
 .. automodule:: okra.error_handling
    :members:
 
+Git Playbooks
+-------------
+
+.. automodule:: okra.playbooks
+   :members:
+
 		
 	
 
