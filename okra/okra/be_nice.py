@@ -67,7 +67,7 @@ def okay_benice(qpath: str):
 
         try:
             create_parent_dir(repo_name, dirpath=cache)
-            gcloud_clone_or_fetch_repo(repo_name)
+            gcloud_clone_or_fetch_repo(repo_name, ssh=True)
 
             # Update repo db
 
