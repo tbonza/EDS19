@@ -8,6 +8,7 @@ Google. This approach is meant to be nice.
 import csv
 import logging
 import os
+import time
 from urllib.parse import urljoin
 
 from okra.repo_mgmt import create_parent_dir, gcloud_clone_or_fetch_repo
@@ -30,7 +31,8 @@ def parse_bigquery_csv(fpath: str):
 
         for row in reader:
 
-            cln = row['url'].replace("https://api.github.com/repos/","")
+            cln = row.get('url', None)
+            cln = cln.replace("https://api.github.com/repos/","")
             repos.append(cln)
 
     return repos
@@ -47,7 +49,9 @@ def okay_benice(qpath: str):
             message = "cache {}, buffer size {}".format(cache, buffer_size)
         )
 
-    repos = parse_bigquery_csv(qpath)
+    #repos = parse_bigquery_csv(qpath)
+    repos = [i.strip().replace("https://api.github.com/repos/","")
+             for i in open(qpath, "r").readlines()]
     logger.info("Found {} repos".format(len(repos)))
     
 
@@ -55,6 +59,8 @@ def okay_benice(qpath: str):
 
     count = 0
     for repo_name in repos:
+
+        time.sleep(10)
 
         logger.info("STARTED processing {}".format(repo_name))
         rpath = urljoin(cache, repo_name)
