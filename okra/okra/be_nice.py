@@ -37,7 +37,7 @@ def parse_bigquery_csv(fpath: str):
 
     return repos
 
-def okay_benice(qpath: str):
+def okay_benice(qpath: str, ssh=True):
 
     cache = os.getenv("CACHE")
     buffer_size = int(os.getenv("BUFFER_SIZE"))
@@ -67,7 +67,7 @@ def okay_benice(qpath: str):
 
         try:
             create_parent_dir(repo_name, dirpath=cache)
-            gcloud_clone_or_fetch_repo(repo_name, ssh=True)
+            gcloud_clone_or_fetch_repo(repo_name, ssh=ssh)
 
             # Update repo db
 
