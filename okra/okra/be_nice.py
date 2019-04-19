@@ -64,19 +64,26 @@ def okay_benice(qpath: str):
 
         logger.info("STARTED processing {}".format(repo_name))
         rpath = urljoin(cache, repo_name)
-        create_parent_dir(repo_name, dirpath=cache)
-        gcloud_clone_or_fetch_repo(repo_name)
 
-        # Update repo db
+        try:
+            create_parent_dir(repo_name, dirpath=cache)
+            gcloud_clone_or_fetch_repo(repo_name)
 
-        repodb = "__REPODB__".join(repo_name.split("/"))
-        dburl = "sqlite:///" + cache + repodb + ".db"
-        populate_db(dburl, cache, repo_name, buffer_size)
-        logger.info("FINISHED processing {}".format(repo_name))
+            # Update repo db
+
+            repodb = "__REPODB__".join(repo_name.split("/"))
+            dburl = "sqlite:///" + cache + repodb + ".db"
+            populate_db(dburl, cache, repo_name, buffer_size)
+            logger.info("FINISHED processing {}".format(repo_name))
+
+        except Exception as exc:
+
+            logger.exception(exc)
 
         if count % 100 == 0:
             logger.info("Processed {} repos".format(count))
         count += 1
+
     logger.info("Processed {} total repos".format(count))
     
 
