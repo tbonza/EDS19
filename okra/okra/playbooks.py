@@ -17,6 +17,7 @@ from okra.repo_mgmt import (create_parent_dir, clone_repo, update_repo,
 
 logger = logging.getLogger(__name__)
 
+
 def local_persistance(repo_name: str, parent_dir: str, buffer_size=4096):
     """ Collect relevant data for locally cloned repos. 
 
