@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='okra',
     version='1.0dev31',
-    packages=["okra", "okra/protobuf"],
+    packages=["okra", "okra/protobuf", 'okra/spark'],
     license='MIT',
     long_description=open('README.md').read(),
     install_requires=[
