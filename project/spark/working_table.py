@@ -29,21 +29,21 @@ if __name__ == "__main__":
 
     ## Join dataframes
 
-    # Meta to Authors (one to one)
+    # Meta to Authors (one to one); inner join is default
 
-    joinType = "left_outer"
     joinExpression = meta['commit_hash'] == authors['commit_hash']
-    metaAuthors = meta.join(author, joinExpression, joinType)
+    metaAuthors = meta.join(author, joinExpression)
 
     # MetaAuthors to Commits (one to many)
     
-    joinType = "outer"
-    joinExpression = metaAuthors['commit_hash'] == commits['commit_hash']
-    metadf = metaAuthors.join(commits, joinExpression, joinType)
+    #joinType = "outer"
+    #joinExpression = metaAuthors['commit_hash'] == commits['commit_hash']
+    #metadf = metaAuthors.join(commits, joinExpression, joinType)
 
     ## Write out working_table
 
     metadf.write.format("parquet").save(outpath)
+
 
 
 
