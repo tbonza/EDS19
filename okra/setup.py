@@ -11,10 +11,11 @@ setup(
         'pandas==0.24.2',
         'protobuf==3.6.1',
         'pyarrow==0.13.0',
+        'pyspark==2.4.1',
         'sqlalchemy==1.2.17',
         'redis==3.2.0',
     ],
-    scripts=['bin/okra'],
+    scripts=['bin/okra', 'bin/spokra'],
     setup_requires=['pytest-runner'],
     test_requires=[
         'pytest',
