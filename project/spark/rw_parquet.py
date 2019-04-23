@@ -14,12 +14,5 @@ if __name__ == "__main__":
     df = spark.read.format("parquet")\
         .load("s3://ds6050/author_2019-04-20_0.parquet")\
 
-    try:
-        df.groupby('name')\
-          .count()\
-          .write.format("parquet")\.mode("overwrite")\
-                                   .save(outpath)
+    df.write.format("parquet")\.mode("overwrite").save(outpath)
 
-    except Exception as exc:
-        sys.stderr.write(exc)
-        raise exc
