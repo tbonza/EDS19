@@ -13,26 +13,23 @@ from pyspark.sql import SparkSession
 if __name__ == "__main__":
 
     outpath = "s3://ds6050-output/working_table.parquet"
-    inpaths = {
-        "author": "s3://ds6050/author_2019-04-20_0.parquet",
-        "commit_file": "s3://ds6050/commit_file_2019-04-20_0.parquet",
-        "meta": "s3://ds6050/meta_2019-04-20_0.parquet",
-    }
     
     spark = SparkSession.builder.getOrCreate()
+    spark.conf.set("spark.sql.cbo.enabled", "true")
 
     ## Load data
     
-    authors = spark.read.format("parquet").load(inpaths['author'])
-    commits = spark.read.format("parquet").load(inpaths['commit_file'])
-    meta = spark.read.format("parquet").load(inpaths['meta'])
+    authors = spark.read.format("parquet").load("s3://ds6050/author_2019-04-20_0.parquet")
+    #commits = spark.read.format("parquet").load("s3://ds6050/commit_file_2019-04-20_0.parquet")
+    meta = spark.read.format("parquet").load("s3://ds6050/meta_2019-04-20_0.parquet")
 
     ## Join dataframes
 
     # Meta to Authors (one to one); inner join is default
 
     joinExpression = meta['commit_hash'] == authors['commit_hash']
-    metaAuthors = meta.join(author, joinExpression)
+    metaAuthors = meta.join(authors, joinExpression)
+    #metaAuthors = metaAuthors.repartition(1)
 
     # MetaAuthors to Commits (one to many)
     
@@ -42,7 +39,9 @@ if __name__ == "__main__":
 
     ## Write out working_table
 
-    metadf.write.format("parquet").save(outpath)
+    #metadf.write.format("parquet").save(outpath)
+    metaAuthors.repartition(5)\
+        .write.format("parquet").save(outpath)
 
 
 
