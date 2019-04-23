@@ -14,5 +14,5 @@ if __name__ == "__main__":
     df = spark.read.format("parquet")\
         .load("s3://ds6050/author_2019-04-20_0.parquet")\
 
-    df.write.format("parquet")\.mode("overwrite").save(outpath)
+    df.write.format("parquet").save(outpath)
 
