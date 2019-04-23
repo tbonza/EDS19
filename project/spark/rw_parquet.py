@@ -1,6 +1,8 @@
 """ 
 Read parquet file and write an output.
 """
+import sys
+
 from pyspark.sql import SparkSession
 
 
@@ -12,7 +14,12 @@ if __name__ == "__main__":
     df = spark.read.format("parquet")\
         .load("s3://ds6050/author_2019-04-20_0.parquet")\
 
-    df.groupby('name')\
-      .count()\
-      .write.format("parquet")\.mode("overwrite")\
-                               .save(outpath)
+    try:
+        df.groupby('name')\
+          .count()\
+          .write.format("parquet")\.mode("overwrite")\
+                                   .save(outpath)
+
+    except Exception as exc:
+        sys.stderr.write(exc)
+        raise exc
