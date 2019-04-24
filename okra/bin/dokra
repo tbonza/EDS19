@@ -6,7 +6,7 @@ import logging
 import multiprocessing
 
 from okra.distributed import getwork_dbinfo, write_features_target
-from okra.distributed import run_distributed_pool
+from okra.distributed import run_distributed_pool, consolidate_features_target
 from okra.logging_utils import enable_cloud_log
 
 logger = logging.getLogger(__name__)
@@ -32,6 +32,10 @@ if args.cache:
     n_cores = multiprocessing.cpu_count()
     result = run_distributed_pool(n_cores, write_features_target, work)
     summary = Counter(result)
+
+    consolidate_features_target(cache=args.cache,
+                                repo_id='__LOGDF__',
+                                report=100)
 
     logger.info("Completed {} successes, {} failures".\
                 format(summary[True], summary[False]))

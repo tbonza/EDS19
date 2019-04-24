@@ -9,6 +9,7 @@ Reference:
     tbonza/EDS19/project/PredictRepoHealth.ipynb
 """
 from collections import defaultdict
+from datetime import datetime
 import logging
 from multiprocessing import Pool
 import os
@@ -126,6 +127,7 @@ def num_mentors(df, period:str, subperiod:str, k:int):
         ok.columns = ['ts', 'owner_name', 'project_name', 'mentor_count']
         result = ok[ok.mentor_count >= k].groupby(['ts', 'owner_name',
                                                    'project_name']).count()
+        
         result = result.reset_index()
         return result
 
@@ -173,13 +175,13 @@ def num_orgs(df, period):
 
     return result
 
-def create_features_target(df):
+def create_features_target(df, k=6):
     """ Create dataset from train/test/val and Y """
 
     ## Features
     
     X_1 = num_authors(df, 'Y')
-    X_2 = num_mentors(df, 'Y', 'M', 6)
+    X_2 = num_mentors(df, 'Y', 'M', k)
     X_3 = num_orgs(df, 'Y')
 
     X_13 = pd.merge(X_1, X_3)
@@ -189,6 +191,9 @@ def create_features_target(df):
     cols = ['ts','owner_name', 'project_name', 'mentor_count']
     join_cols = ['ts','owner_name', 'project_name']
     df_features = X_13.merge(X_2[cols], how='left', on=join_cols)
+
+    logger.debug('X_2 head: {}'.format(X_2.head()))
+    logger.debug('df_features head: {}'.format(df_features.head()))
 
     ## Target
 
@@ -211,7 +216,7 @@ def create_features_target(df):
 
     return df_features, df_target
 
-def write_features_target(dbinfo: tuple) -> bool:
+def write_features_target(dbinfo: tuple, k=6) -> bool:
     """ Write out features and target dataframes to parquet. 
     
     :param dburl: SQLite database url
@@ -226,10 +231,13 @@ def write_features_target(dbinfo: tuple) -> bool:
         dal.session = dal.Session()
 
         df = create_working_table(dal)
-        df_features, df_target = create_features_target(df)
+        df_features, df_target = create_features_target(df, k)
         
         logger.debug("target dtypes: {}".format(df_target.dtypes))
         logger.debug("features dtypes: {}".format(df_features.dtypes))
+
+        logger.debug("target shape: {}".format(df_target.shape))
+        logger.debug("features shape: {}".format(df_features.shape))
 
         feature_path = "{}features_{}.parquet".format(cache, repo_name)
         target_path = "{}target_{}.parquet".format(cache, repo_name)
@@ -268,3 +276,69 @@ def getwork_dbinfo(cache: str):
     except Exception as exc:
         logger.exception(exc)
         return []
+
+def consolidate_features_target(cache: str, repo_id: str, report=100):
+    """ Consolidates distributed computations in cache
+
+    We're going to have n feature tables, n target tables. We
+    need to consolidate them into one feature and one target
+    table. This is the 'reduce' part of a 'map/reduce' pattern. 
+    To avoid confusion with Hadoop, let's call this a 
+    'hack/reduce' pattern.
+    
+    :param cache: str, full path to cache
+    :return: X_features, X_target written to disk
+    :rtype: None
+    """
+    date_today = datetime.now().strftime("%Y%m%d")        
+    df_names = [i for i in os.listdir(cache) if repo_id in i]
+
+    feature_names = [i for i in df_names if 'features_' in i]
+    target_names = [i for i in df_names if 'target_' in i]
+
+    first = True
+    fcount = 0
+    for feature_name in feature_names:
+
+        fpath = cache + feature_name
+        if first:
+            featdf = pd.read_parquet(fpath, 'pyarrow')
+            first = False
+
+        else:
+            fdf = pd.read_parquet(fpath, 'pyarrow')
+            featdf = featdf.append(fdf)
+
+        if fcount % report == 0:
+            logger.info("Processed {} feature dataframes".format(fcount))
+        fcount += 1
+
+    feat_path = '{}df_features_{}.parquet'.format(cache, date_today)
+    featdf.to_parquet(feat_path, 'pyarrow')
+    logger.info('Wrote df_features, {}, to {}'.\
+                format(featdf.shape,feat_path))
+
+    first = True
+    tcount = 0
+    for target_name in target_names:
+
+        fpath = cache + target_name
+        if first:
+            targdf = pd.read_parquet(fpath, 'pyarrow')
+            first = False
+
+        else:
+            tdf = pd.read_parquet(fpath, 'pyarrow')
+            targdf = targdf.append(tdf)
+
+        if tcount % report == 0:
+            logger.info("Processed {} target dataframes".format(tcount))
+        tcount += 1
+
+    targ_path = '{}df_target_{}.parquet'.format(cache, date_today)
+    targdf.to_parquet(targ_path, 'pyarrow')
+    logger.info('Wrote df_target, {}, to {}'.\
+                format(targdf.shape, targ_path))
+
+    
+    
