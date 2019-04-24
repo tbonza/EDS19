@@ -205,18 +205,3 @@ def retrieve_or_clone(repo_name: str, dirpath: str) -> bool:
         return True
 
     return clone_repo(repo_name, dirpath)
-
-def persist_repo_data(dirpath, urlstring):
-    # extract data and write to a database
-    # include only new commits in database update
-
-    # pack repo and send to s3
-
-    # delete repo from local disk
-    pass
-
-def perform_truck_analysis():
-    """ Compute truck factor once all data is present in database. """
-    pass
-
-    

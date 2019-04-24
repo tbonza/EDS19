@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='okra',
     version='1.0dev31',
-    packages=["okra", "okra/protobuf", 'okra/spark'],
+    packages=["okra", "okra/protobuf"],
     license='MIT',
     long_description=open('README.md').read(),
     install_requires=[
@@ -11,11 +11,10 @@ setup(
         'pandas==0.24.2',
         'protobuf==3.6.1',
         'pyarrow==0.13.0',
-        'pyspark==2.4.1',
         'sqlalchemy==1.2.17',
         'redis==3.2.0',
     ],
-    scripts=['bin/okra', 'bin/spokra'],
+    scripts=['bin/okra', 'bin/dokra'],
     setup_requires=['pytest-runner'],
     test_requires=[
         'pytest',

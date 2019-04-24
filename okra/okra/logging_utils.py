@@ -7,8 +7,9 @@ def enable_log(log_name):
                         level=logging.INFO,
                         format='%(asctime)s %(levelname)s %(message)s')
 
-def enable_cloud_log():
+def enable_cloud_log(level='INFO'):
     """ Enable logs using default StreamHandler """
-    logging.basicConfig(level=logging.INFO,
+    levels = {'INFO': logging.INFO, 'DEBUG': logging.DEBUG}
+    logging.basicConfig(level=levels[level],
                         format='%(asctime)s %(levelname)s %(message)s')
 
