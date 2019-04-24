@@ -64,7 +64,7 @@ def create_working_table(dal: DataAccessLayer):
             'modified_file': item.modified_file,
             'lines_added': item.lines_added,
             'lines_deleted': item.lines_deleted,
-            'name': item.name.
+            'name': item.name,
             'email': item.name,
             'authored': item.authored,
         }
@@ -89,6 +89,7 @@ def num_authors(df, period: str):
     grp = [per, 'owner_name', 'project_name']
     result = df[cols].groupby(grp).count()
     result.columns = ['num_authors']
+    result = result.reset_index()
     return result
 
 def num_mentors(df, period:str, subperiod:str, k:int):
@@ -125,6 +126,7 @@ def num_mentors(df, period:str, subperiod:str, k:int):
         ok.columns = ['ts', 'owner_name', 'project_name', 'mentor_count']
         result = ok[ok.mentor_count >= k].groupby(['ts', 'owner_name',
                                                    'project_name']).count()
+        result = result.reset_index()
         return result
 
     else:
@@ -174,7 +176,7 @@ def num_orgs(df, period):
 def create_features_target(df):
     """ Create dataset from train/test/val and Y """
 
-    # Features
+    ## Features
     
     X_1 = num_authors(df, 'Y')
     X_2 = num_mentors(df, 'Y', 'M', 6)
@@ -188,16 +190,24 @@ def create_features_target(df):
     join_cols = ['ts','owner_name', 'project_name']
     df_features = X_13.merge(X_2[cols], how='left', on=join_cols)
 
-    # Target
+    ## Target
 
     per = df.ts.dt.to_period('Y')
-    cols = ['owner_name', 'project_name', 'lines_added', 'lines_subtracted']
+    cols = ['owner_name', 'project_name', 'lines_added', 'lines_deleted']
     grp = [per, 'owner_name', 'project_name']
     df_target = df[cols].groupby(grp).sum()
 
     df_target['velocity'] = df_target.lines_added - \
-        df_target.lines_subtracted
+        df_target.lines_deleted
+
+    ## Reset indices
+    
+    df_features = df_features.reset_index()
     df_target = df_target.reset_index()
+
+    ## Recast pandas specific types
+
+    df_target.ts = df_target.ts.apply(lambda x: x.year)
 
     return df_features, df_target
 
@@ -217,12 +227,15 @@ def write_features_target(dbinfo: tuple) -> bool:
 
         df = create_working_table(dal)
         df_features, df_target = create_features_target(df)
+        
+        logger.debug("target dtypes: {}".format(df_target.dtypes))
+        logger.debug("features dtypes: {}".format(df_features.dtypes))
 
         feature_path = "{}features_{}.parquet".format(cache, repo_name)
         target_path = "{}target_{}.parquet".format(cache, repo_name)
 
         df_features.to_parquet(feature_path, 'pyarrow')
-        target_path.to_parquet(target_path, 'pyarrow')
+        df_target.to_parquet(target_path, 'pyarrow')
         logger.info("Wrote features: {}".format(feature_path))
         logger.info("Wrote target: {}".format(target_path))
         return True
@@ -255,8 +268,3 @@ def getwork_dbinfo(cache: str):
     except Exception as exc:
         logger.exception(exc)
         return []
-
-
-
-    
-    

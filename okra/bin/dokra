@@ -19,7 +19,7 @@ args = parser.parse_args()
 
 # Configure logging
 
-enable_cloud_log(level='INFO')
+enable_cloud_log(level='DEBUG')
 
 if args.cache:
 
