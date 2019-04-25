@@ -16,3 +16,6 @@ minikube
 *.txt
 oenv
 *.ipynb_checkpoints
+*.aux
+*.bbl
+*.out
