@@ -23,22 +23,20 @@ from okra.error_handling import (MissingEnvironmentVariableError,
 logger = logging.getLogger(__name__)
 
 
-def parse_bigquery_csv(fpath: str):
-
-    repos = []
-    with open(fpath, "r") as infile:
-        reader = csv.DictReader(fpath)
-
-        for row in reader:
-
-            cln = row.get('url', None)
-            cln = cln.replace("https://api.github.com/repos/","")
-            repos.append(cln)
-
-    return repos
-
 def okay_benice(qpath: str, ssh=True):
+    """ Polite GitHub repo retrieval
 
+    Includes option to clone repo using SSH. This is recommended
+    if you're requesting a large number of repositories (> 1000).
+    Creates and populates SQLite database with pre-specified git
+    log info. QPath is a text file from GitTorrent, queried using
+    Google BigQuery.
+
+    :param qpath: path to queue of repository names.
+    :param ssh: bool, default is True
+    :return: writes SQLite database with parsed git log info to disk
+    :rtype: none
+    """
     cache = os.getenv("CACHE")
     buffer_size = int(os.getenv("BUFFER_SIZE"))
 
@@ -85,10 +83,3 @@ def okay_benice(qpath: str, ssh=True):
         count += 1
 
     logger.info("Processed {} total repos".format(count))
-    
-
-
-        
-
-        
-

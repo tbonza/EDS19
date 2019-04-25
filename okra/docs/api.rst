@@ -7,6 +7,12 @@ Developer Interface
 
 This part of the documentation covers all the interfaces of Okra.
 
+Parallel Computing
+------------------
+
+.. automodule:: okra.distributed
+   :members:
+
 GitHub Repository Management
 ----------------------------
 
@@ -44,6 +50,12 @@ Git Playbooks
 -------------
 
 .. automodule:: okra.playbooks
+   :members:
+
+Polite GitHub Repo Retrieval
+----------------------------
+
+.. automodule:: okra.be_nice
    :members:
 
 		
