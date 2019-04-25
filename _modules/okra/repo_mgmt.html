@@ -200,7 +200,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="gcloud_clone_or_fetch_repo"><a class="viewcode-back" href="../../api.html#okra.repo_mgmt.gcloud_clone_or_fetch_repo">[docs]</a><span class="k">def</span> <span class="nf">gcloud_clone_or_fetch_repo</span><span class="p">(</span><span class="n">repo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="gcloud_clone_or_fetch_repo"><a class="viewcode-back" href="../../api.html#okra.repo_mgmt.gcloud_clone_or_fetch_repo">[docs]</a><span class="k">def</span> <span class="nf">gcloud_clone_or_fetch_repo</span><span class="p">(</span><span class="n">repo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ssh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Clone or fetch updates from git repo</span>
 
 <span class="sd">    GCloud operations only work on one repository at a time</span>
@@ -216,12 +216,16 @@
     
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">repo_path</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">update_repo</span><span class="p">(</span><span class="n">repo_name</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">clone_repo</span><span class="p">(</span><span class="n">repo_name</span><span class="p">,</span> <span class="n">cache</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">clone_repo</span><span class="p">(</span><span class="n">repo_name</span><span class="p">,</span> <span class="n">cache</span><span class="p">,</span> <span class="n">ssh</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="clone_repo"><a class="viewcode-back" href="../../api.html#okra.repo_mgmt.clone_repo">[docs]</a><span class="k">def</span> <span class="nf">clone_repo</span><span class="p">(</span><span class="n">repo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dirpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="clone_repo"><a class="viewcode-back" href="../../api.html#okra.repo_mgmt.clone_repo">[docs]</a><span class="k">def</span> <span class="nf">clone_repo</span><span class="p">(</span><span class="n">repo_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dirpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ssh</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot; Clone GitHub repo. &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">repo_path</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/</span><span class="si">{}</span><span class="s2">.git&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">repo_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ssh</span><span class="p">:</span>
+            <span class="n">repo_path</span> <span class="o">=</span> <span class="s2">&quot;git@github.com:</span><span class="si">{}</span><span class="s2">.git&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">repo_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repo_path</span> <span class="o">=</span> <span class="s2">&quot;https://github.com/</span><span class="si">{}</span><span class="s2">.git&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">repo_name</span><span class="p">)</span>
+            
         <span class="n">rpath</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">dirpath</span><span class="p">,</span> <span class="n">repo_name</span><span class="p">)</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;git&quot;</span><span class="p">,</span> <span class="s2">&quot;clone&quot;</span><span class="p">,</span> <span class="n">repo_path</span><span class="p">,</span> <span class="n">rpath</span><span class="p">],</span>
                              <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

@@ -86,11 +86,14 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-okra.distributed">Parallel Computing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-okra.repo_mgmt">GitHub Repository Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-okra.gitlogs">Git Log Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-okra.models">Database Models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-okra.redisloader">Redis Finite Queue Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-okra.error_handling">Okra Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-okra.playbooks">Git Playbooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-okra.be_nice">Polite GitHub Repo Retrieval</a></li>
 </ul>
 </li>
 </ul>
@@ -163,6 +166,185 @@
   <div class="section" id="module-okra">
 <span id="developer-interface"></span><span id="api"></span><h1>Developer Interface<a class="headerlink" href="#module-okra" title="Permalink to this headline">¶</a></h1>
 <p>This part of the documentation covers all the interfaces of Okra.</p>
+<div class="section" id="module-okra.distributed">
+<span id="parallel-computing"></span><h2>Parallel Computing<a class="headerlink" href="#module-okra.distributed" title="Permalink to this headline">¶</a></h2>
+<p>Turns out that joins are less than ideal in Spark.</p>
+<p>Instead of using a central database, we’ll solve the problem in a
+distributed way. Each function returns an immutable type. We’ll just
+use one server with like 32 cores or whatever. Need to throw out the
+parquet files and use the SQLite databases.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p>tbonza/EDS19/project/PredictRepoHealth.ipynb</p>
+</dd>
+</dl>
+<dl class="function">
+<dt id="okra.distributed.consolidate_features_target">
+<code class="descclassname">okra.distributed.</code><code class="descname">consolidate_features_target</code><span class="sig-paren">(</span><em>cache: str</em>, <em>repo_id: str</em>, <em>report=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#consolidate_features_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.consolidate_features_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consolidates distributed computations in cache</p>
+<p>We’re going to have n feature tables, n target tables. We
+need to consolidate them into one feature and one target
+table. This is the ‘reduce’ part of a ‘map/reduce’ pattern. 
+To avoid confusion with Hadoop, let’s call this a 
+‘hack/reduce’ pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cache</strong> – str, full path to cache</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>X_features, X_target written to disk</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.create_features_target">
+<code class="descclassname">okra.distributed.</code><code class="descname">create_features_target</code><span class="sig-paren">(</span><em>df</em>, <em>k=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#create_features_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.create_features_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create dataset from train/test/val and Y</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.create_working_table">
+<code class="descclassname">okra.distributed.</code><code class="descname">create_working_table</code><span class="sig-paren">(</span><em>dal: okra.models.DataAccessLayer</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#create_working_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.create_working_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a base table to derive all other features and aggregations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dal</strong> – okra.models.DataAccessLayer, session must be instantiated</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>base table for analysis</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.getwork_dbinfo">
+<code class="descclassname">okra.distributed.</code><code class="descname">getwork_dbinfo</code><span class="sig-paren">(</span><em>cache: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#getwork_dbinfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.getwork_dbinfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines work for immutable function, write_features_target</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cache</strong> – str, full path to cache</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dbinfo, (dburl, repo_name, cache)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of tuples</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.num_authors">
+<code class="descclassname">okra.distributed.</code><code class="descname">num_authors</code><span class="sig-paren">(</span><em>df</em>, <em>period: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#num_authors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.num_authors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of authors in a given time period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.DataFrame, base table</p></li>
+<li><p><strong>period</strong> – str, ‘Y’, year</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>df aggregated by period</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.num_mentors">
+<code class="descclassname">okra.distributed.</code><code class="descname">num_mentors</code><span class="sig-paren">(</span><em>df</em>, <em>period: str</em>, <em>subperiod: str</em>, <em>k: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#num_mentors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.num_mentors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of authors in a larger time period who have also
+made commits in k number of smaller time periods.</p>
+<p>For example, number of authors in a year who have also 
+committed changes in each month of that year.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.DataFrame, base table</p></li>
+<li><p><strong>period</strong> – ‘Y’, year</p></li>
+<li><p><strong>subperiod</strong> – ‘M’, month</p></li>
+<li><p><strong>k</strong> – int, authors exist at least k subperiods</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>df aggregated by period</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.num_orgs">
+<code class="descclassname">okra.distributed.</code><code class="descname">num_orgs</code><span class="sig-paren">(</span><em>df</em>, <em>period</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#num_orgs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.num_orgs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of organizations commiting to a repo in a time period</p>
+<p>Organizations are found by extracting the domain of email 
+addresses used by authors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – pd.DataFrame, base table</p></li>
+<li><p><strong>period</strong> – str, ‘Y’ year time period</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>df aggregated by period</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.run_distributed_pool">
+<code class="descclassname">okra.distributed.</code><code class="descname">run_distributed_pool</code><span class="sig-paren">(</span><em>n_cores: int</em>, <em>func</em>, <em>work: list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/distributed.html#run_distributed_pool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.run_distributed_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run distributed pool across n_cores</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_cores</strong> – number of cores in available in server</p></li>
+<li><p><strong>func</strong> – immutable function to execute work</p></li>
+<li><p><strong>work</strong> – input for immutable function</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>func output from work</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>meta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.distributed.write_features_target">
+<code class="descclassname">okra.distributed.</code><code class="descname">write_features_target</code><span class="sig-paren">(</span><em>dbinfo: tuple</em>, <em>k=6</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/okra/distributed.html#write_features_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.distributed.write_features_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out features and target dataframes to parquet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dburl</strong> – SQLite database url</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>write out feature, target dataframes as parquet</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
 <div class="section" id="module-okra.repo_mgmt">
 <span id="github-repository-management"></span><h2>GitHub Repository Management<a class="headerlink" href="#module-okra.repo_mgmt" title="Permalink to this headline">¶</a></h2>
 <p>GitHub Repo Managment</p>
@@ -171,7 +353,7 @@ the ‘assn1’ script in bin/assn1 to handle get and update
 features.</p>
 <dl class="function">
 <dt id="okra.repo_mgmt.clone_repo">
-<code class="descclassname">okra.repo_mgmt.</code><code class="descname">clone_repo</code><span class="sig-paren">(</span><em>repo_name: str</em>, <em>dirpath: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/okra/repo_mgmt.html#clone_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.repo_mgmt.clone_repo" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">okra.repo_mgmt.</code><code class="descname">clone_repo</code><span class="sig-paren">(</span><em>repo_name: str</em>, <em>dirpath: str</em>, <em>ssh=False</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/okra/repo_mgmt.html#clone_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.repo_mgmt.clone_repo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clone GitHub repo.</p>
 </dd></dl>
 
@@ -233,7 +415,7 @@ specified directory.</p>
 
 <dl class="function">
 <dt id="okra.repo_mgmt.gcloud_clone_or_fetch_repo">
-<code class="descclassname">okra.repo_mgmt.</code><code class="descname">gcloud_clone_or_fetch_repo</code><span class="sig-paren">(</span><em>repo_name: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/okra/repo_mgmt.html#gcloud_clone_or_fetch_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.repo_mgmt.gcloud_clone_or_fetch_repo" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">okra.repo_mgmt.</code><code class="descname">gcloud_clone_or_fetch_repo</code><span class="sig-paren">(</span><em>repo_name: str</em>, <em>ssh=False</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/okra/repo_mgmt.html#gcloud_clone_or_fetch_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.repo_mgmt.gcloud_clone_or_fetch_repo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clone or fetch updates from git repo</p>
 <p>GCloud operations only work on one repository at a time
 so we don’t have to use a parent directory.</p>
@@ -541,6 +723,115 @@ if necessary until an item is available.</p>
 <li><p><strong>expression</strong> – input expression in which the error occurred</p></li>
 <li><p><strong>message</strong> – explanation of error</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-okra.playbooks">
+<span id="git-playbooks"></span><h2>Git Playbooks<a class="headerlink" href="#module-okra.playbooks" title="Permalink to this headline">¶</a></h2>
+<p>Playbooks for running full analyses</p>
+<dl class="function">
+<dt id="okra.playbooks.gcloud_analysis">
+<code class="descclassname">okra.playbooks.</code><code class="descname">gcloud_analysis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/playbooks.html#gcloud_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.playbooks.gcloud_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consolidate git repo log information for analysis.</p>
+<p>Analysis is done using Spark. We have to write a new 
+parquet file for each table to reflect data updates. 
+Parquet files are populated using each repo’s sqlite 
+database containing its log information.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.playbooks.gcloud_persistance">
+<code class="descclassname">okra.playbooks.</code><code class="descname">gcloud_persistance</code><span class="sig-paren">(</span><em>repo_name: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/playbooks.html#gcloud_persistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.playbooks.gcloud_persistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist git repos and log information in gcloud storage.</p>
+<p>Each git repository is assigned a sqlite database to store its
+log information. Both the repository and sqlite database are
+compressed before storage.</p>
+<p>// ==================================================================
+// PLEASE DO NOT ATTEMPT TO SIMPLIFY THIS CODE.
+// KEEP THE SPACE SHUTTLE FLYING.
+// HERE BE DRAGONS.
+// ==================================================================</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.playbooks.local_persistance">
+<code class="descclassname">okra.playbooks.</code><code class="descname">local_persistance</code><span class="sig-paren">(</span><em>repo_name: str</em>, <em>parent_dir: str</em>, <em>buffer_size=4096</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/playbooks.html#local_persistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.playbooks.local_persistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect relevant data for locally cloned repos.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repo_name</strong> – name of git repository, &lt;linux&gt;</p></li>
+<li><p><strong>parent_dir</strong> – parent directory path, &lt;/home/user/code/&gt;</p></li>
+<li><p><strong>buffer_size</strong> – number of records processed before db commit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>populate sqlite database for a repo</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="okra.playbooks.simple_version_truck_factor">
+<code class="descclassname">okra.playbooks.</code><code class="descname">simple_version_truck_factor</code><span class="sig-paren">(</span><em>repos: list</em>, <em>dirpath: str</em>, <em>dburl: str</em>, <em>b: int</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/playbooks.html#simple_version_truck_factor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.playbooks.simple_version_truck_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple version of the truck factor analysis.</p>
+<p>This is a basic version of the truck factor which 
+does not attempt to run the analysis at scale. It’s
+just a proof of concept version. Writes out a csv file with
+the truck factor of each repository. You can use this csv file
+to do further analysis in R.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repos</strong> – repo queue with value format ‘&lt;repo owner&gt;/&lt;repo name&gt;’</p></li>
+<li><p><strong>dirpath</strong> – path to working directory to store git repos</p></li>
+<li><p><strong>dburl</strong> – database url (ex. ‘sqlite:///:memory’)</p></li>
+<li><p><strong>b</strong> – batch size (ex. 1024)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>outputs truck factor analysis as csv file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None, writes out csv file</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-okra.be_nice">
+<span id="polite-github-repo-retrieval"></span><h2>Polite GitHub Repo Retrieval<a class="headerlink" href="#module-okra.be_nice" title="Permalink to this headline">¶</a></h2>
+<p>A nice approach to to downloading GitHub repos.</p>
+<p>Previous approaches to downloading GitHub repositories
+were set up in parallel on Kubernetes using Redis. This
+approach was considered too aggressive by both GitHub and
+Google. This approach is meant to be nice.</p>
+<dl class="function">
+<dt id="okra.be_nice.okay_benice">
+<code class="descclassname">okra.be_nice.</code><code class="descname">okay_benice</code><span class="sig-paren">(</span><em>qpath: str</em>, <em>ssh=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/be_nice.html#okay_benice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.be_nice.okay_benice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polite GitHub repo retrieval</p>
+<p>Includes option to clone repo using SSH. This is recommended
+if you’re requesting a large number of repositories (&gt; 1000).
+Creates and populates SQLite database with pre-specified git
+log info. QPath is a text file from GitTorrent, queried using
+Google BigQuery.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>qpath</strong> – path to queue of repository names.</p></li>
+<li><p><strong>ssh</strong> – bool, default is True</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>writes SQLite database with parsed git log info to disk</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>none</p>
 </dd>
 </dl>
 </dd></dl>
