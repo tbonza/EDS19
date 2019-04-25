@@ -179,25 +179,21 @@ features.</p>
 <dt id="okra.repo_mgmt.compress_repo">
 <code class="descclassname">okra.repo_mgmt.</code><code class="descname">compress_repo</code><span class="sig-paren">(</span><em>repo_name: str</em>, <em>cache: str</em>, <em>repo_comp: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/okra/repo_mgmt.html#compress_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.repo_mgmt.compress_repo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compress repo for upload.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>repo_name</strong> – git repo name with owner included; 
-tensorflow/tensorflow</li>
-<li><strong>dirpath</strong> – directory path to git repo</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repo_name</strong> – git repo name with owner included; 
+tensorflow/tensorflow</p></li>
+<li><p><strong>dirpath</strong> – directory path to git repo</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">creates a compressed file of github repo</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">True if git repo successfully compressed</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>creates a compressed file of github repo</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>True if git repo successfully compressed</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -211,32 +207,28 @@ tensorflow/tensorflow</li>
 <dt id="okra.repo_mgmt.decompress_repo">
 <code class="descclassname">okra.repo_mgmt.</code><code class="descname">decompress_repo</code><span class="sig-paren">(</span><em>repo_comp: str</em>, <em>cache</em><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/okra/repo_mgmt.html#decompress_repo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.repo_mgmt.decompress_repo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decompress repo to a directory.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>repo_name</strong> – git repo name with owner included; 
-tensorflow/tensorflow</li>
-<li><strong>dirpath</strong> – directory path to place uncompressed 
-file with repo owner</li>
-<li><strong>filepath</strong> – path to file to be decompressed</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repo_name</strong> – git repo name with owner included; 
+tensorflow/tensorflow</p></li>
+<li><p><strong>dirpath</strong> – directory path to place uncompressed 
+file with repo owner</p></li>
+<li><p><strong>filepath</strong> – path to file to be decompressed</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Uncompresses file and writes 
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Uncompresses file and writes 
 ‘git_owner_name/git_repo_name’ to the 
 specified directory.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">boolean</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#okra.error_handling.DirectoryNotCreatedError" title="okra.error_handling.DirectoryNotCreatedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">okra.error_handling.DirectoryNotCreatedError</span></code></a></p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#okra.error_handling.DirectoryNotCreatedError" title="okra.error_handling.DirectoryNotCreatedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">okra.error_handling.DirectoryNotCreatedError</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -245,24 +237,20 @@ specified directory.</p>
 <dd><p>Clone or fetch updates from git repo</p>
 <p>GCloud operations only work on one repository at a time
 so we don’t have to use a parent directory.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>repo_name</strong> – ‘&lt;repo owner&gt;/&lt;repo name&gt;’</li>
-<li><strong>repo_path</strong> – local path to the git repo</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>repo_name</strong> – ‘&lt;repo owner&gt;/&lt;repo name&gt;’</p></li>
+<li><p><strong>repo_path</strong> – local path to the git repo</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">current git repo</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None, file written to disk</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>current git repo</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None, file written to disk</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -281,10 +269,10 @@ so we don’t have to use a parent directory.</p>
 <div class="section" id="module-okra.gitlogs">
 <span id="git-log-management"></span><h2>Git Log Management<a class="headerlink" href="#module-okra.gitlogs" title="Permalink to this headline">¶</a></h2>
 <p>Handle the data requirements for Assignment 1</p>
-<dl class="docutils">
-<dt>References:</dt>
-<dd>Assignment 1: “<a class="reference external" href="http://janvitek.org/events/NEU/6050/a1.html">http://janvitek.org/events/NEU/6050/a1.html</a>”
-Git log formatting: “<a class="reference external" href="https://git-scm.com/docs/pretty-formats">https://git-scm.com/docs/pretty-formats</a>”</dd>
+<dl class="simple">
+<dt>References:</dt><dd><p>Assignment 1: “<a class="reference external" href="http://janvitek.org/events/NEU/6050/a1.html">http://janvitek.org/events/NEU/6050/a1.html</a>”
+Git log formatting: “<a class="reference external" href="https://git-scm.com/docs/pretty-formats">https://git-scm.com/docs/pretty-formats</a>”</p>
+</dd>
 </dl>
 <dl class="function">
 <dt id="okra.gitlogs.extract_data_main">
@@ -298,82 +286,67 @@ Git log formatting: “<a class="reference external" href="https://git-scm.com/d
 <dd><p>Yields a protocol buffer of git commit information.</p>
 <p>commits.csv collects basic information about 
 commits and contains the following columns:</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rpath</strong> – path to git repository</li>
-<li><strong>chash</strong> – optional param, retrieve all commits since commit hash</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rpath</strong> – path to git repository</p></li>
+<li><p><strong>chash</strong> – optional param, retrieve all commits since commit hash</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">class:</th><td class="field-body">okra.protobuf.assn1_pb2.Commit</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="field-list simple">
+<dt class="field-odd">class</dt>
+<dd class="field-odd"><p>okra.protobuf.assn1_pb2.Commit</p>
+</dd>
+</dl>
 </p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">generator, protocol buffer</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>generator, protocol buffer</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="okra.gitlogs.parse_committed_files">
 <code class="descclassname">okra.gitlogs.</code><code class="descname">parse_committed_files</code><span class="sig-paren">(</span><em>rpath: str</em>, <em>chash=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/gitlogs.html#parse_committed_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.gitlogs.parse_committed_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parse file format from git log tool.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rpath</strong> – path to git repository</li>
-<li><strong>chash</strong> – optional param, retrieve all commits since commit hash</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rpath</strong> – path to git repository</p></li>
+<li><p><strong>chash</strong> – optional param, retrieve all commits since commit hash</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">class:</th><td class="field-body">okra.protobuf.assn1_pb2.Message</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="field-list simple">
+<dt class="field-odd">class</dt>
+<dd class="field-odd"><p>okra.protobuf.assn1_pb2.Message</p>
+</dd>
+</dl>
 </p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">generator, protocol buffer</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>generator, protocol buffer</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="okra.gitlogs.parse_inventory">
 <code class="descclassname">okra.gitlogs.</code><code class="descname">parse_inventory</code><span class="sig-paren">(</span><em>rpath: str</em>, <em>repo_name: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/gitlogs.html#parse_inventory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.gitlogs.parse_inventory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return inventory information for a git repo.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rpath</strong> – repository path</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">inventory message object</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">okra.protobuf.assn1_pb2.Inventory</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rpath</strong> – repository path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>inventory message object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>okra.protobuf.assn1_pb2.Inventory</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -382,32 +355,25 @@ commits and contains the following columns:</p>
 <dd><p>Yields a protocol buffer of a git commit message.</p>
 <p>messages.csv collects commit messages and their 
 subject.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>rpath</strong> – path to git repository</li>
-<li><strong>chash</strong> – optional param, retrieve all commits since commit hash</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rpath</strong> – path to git repository</p></li>
+<li><p><strong>chash</strong> – optional param, retrieve all commits since commit hash</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">class:</th><td class="field-body">okra.protobuf.assn1_pb2.Message</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="field-list simple">
+<dt class="field-odd">class</dt>
+<dd class="field-odd"><p>okra.protobuf.assn1_pb2.Message</p>
+</dd>
+</dl>
 </p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">generator, protocol buffer</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>generator, protocol buffer</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -527,26 +493,22 @@ if necessary until an item is available.</p>
 <div class="section" id="module-okra.error_handling">
 <span id="okra-exceptions"></span><h2>Okra Exceptions<a class="headerlink" href="#module-okra.error_handling" title="Permalink to this headline">¶</a></h2>
 <p>Custom errors we can expect.</p>
-<dl class="docutils">
-<dt>References:</dt>
-<dd><a class="reference external" href="https://docs.python.org/3/tutorial/errors.html">https://docs.python.org/3/tutorial/errors.html</a></dd>
+<dl class="simple">
+<dt>References:</dt><dd><p><a class="reference external" href="https://docs.python.org/3/tutorial/errors.html">https://docs.python.org/3/tutorial/errors.html</a></p>
+</dd>
 </dl>
 <dl class="exception">
 <dt id="okra.error_handling.DirectoryNotCreatedError">
 <em class="property">exception </em><code class="descclassname">okra.error_handling.</code><code class="descname">DirectoryNotCreatedError</code><span class="sig-paren">(</span><em>expression</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/error_handling.html#DirectoryNotCreatedError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.error_handling.DirectoryNotCreatedError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception raised when directory unable to be created.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>expression</strong> – input expression in which error occurred</li>
-<li><strong>message</strong> – explanation of error</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expression</strong> – input expression in which error occurred</p></li>
+<li><p><strong>message</strong> – explanation of error</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="exception">
@@ -559,36 +521,28 @@ if necessary until an item is available.</p>
 <dt id="okra.error_handling.MissingEnvironmentVariableError">
 <em class="property">exception </em><code class="descclassname">okra.error_handling.</code><code class="descname">MissingEnvironmentVariableError</code><span class="sig-paren">(</span><em>expression</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/error_handling.html#MissingEnvironmentVariableError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.error_handling.MissingEnvironmentVariableError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception raised when mandatory enviroment variable is missing.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>expression</strong> – input expression in which error occurred</li>
-<li><strong>message</strong> – explanation of error</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expression</strong> – input expression in which error occurred</p></li>
+<li><p><strong>message</strong> – explanation of error</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="exception">
 <dt id="okra.error_handling.NetworkError">
 <em class="property">exception </em><code class="descclassname">okra.error_handling.</code><code class="descname">NetworkError</code><span class="sig-paren">(</span><em>expression</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/okra/error_handling.html#NetworkError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#okra.error_handling.NetworkError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception raised for errors related to network requests</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>expression</strong> – input expression in which the error occurred</li>
-<li><strong>message</strong> – explanation of error</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expression</strong> – input expression in which the error occurred</p></li>
+<li><p><strong>message</strong> – explanation of error</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
