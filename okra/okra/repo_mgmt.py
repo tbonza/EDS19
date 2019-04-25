@@ -48,7 +48,7 @@ def create_parent_dir(repo_name: str, dirpath: str) -> bool:
         logger.error(res.stderr)
         return False
 
-def gcloud_clone_or_fetch_repo(repo_name: str) -> bool:
+def gcloud_clone_or_fetch_repo(repo_name: str, ssh=False) -> bool:
     """ Clone or fetch updates from git repo
 
     GCloud operations only work on one repository at a time
@@ -64,12 +64,16 @@ def gcloud_clone_or_fetch_repo(repo_name: str) -> bool:
     
     if os.path.exists(repo_path):
         return update_repo(repo_name, cache)
-    return clone_repo(repo_name, cache)
+    return clone_repo(repo_name, cache, ssh)
 
-def clone_repo(repo_name: str, dirpath: str) -> bool:
+def clone_repo(repo_name: str, dirpath: str, ssh=False) -> bool:
     """ Clone GitHub repo. """
     try:
-        repo_path = "https://github.com/{}.git".format(repo_name)
+        if ssh:
+            repo_path = "git@github.com:{}.git".format(repo_name)
+        else:
+            repo_path = "https://github.com/{}.git".format(repo_name)
+            
         rpath = urljoin(dirpath, repo_name)
         res = subprocess.run(["git", "clone", repo_path, rpath],
                              capture_output=True)
