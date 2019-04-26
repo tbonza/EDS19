@@ -298,13 +298,30 @@ using Git repository data collected from these organizations.
 
 \subsection{Data Engineering}
 
-Wrote a Python package, Okra.
+A majority of the work for this analysis went into Data Engineering. To
+streamline this work, the author wrote a Python package called
+Okra \footnote{Distribution: https://pypi.org/project/okra/, Development: : https://github.com/tbonza/EDS19}. Data Engineering involved two phases of
+(1) data collection, and (2) data processing.
+
+Repository names were retrieved using SQL queries from the GHTorrent
+relational database \footnote{http://ghtorrent.org/gcloud.html} hosted on
+Google BigQuery. GitHub repository names were compiled into a small text
+from the organizations: Apache, edX, Facebook, Google, Microsoft, and
+Tensorflow. Relevant information was then extracted using the 'git log'
+utility and processed using Okra.
 
 \subsubsection{Collecting Data}
 
-used kubernetes and ``being nice''
+Initial exploratory efforts were undertaken to see if downloading all
+repositories from GitHub would be possible. This required an architecture
+which could clone and process the GitHub repositories in parallel.
+
+
+2,869 repos collected and processed; mention the ones that failed
 
 \subsubsection{Processing Data}
+
+
 
 using Apache spark, using ``hack/reduce''
 
