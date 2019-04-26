@@ -100,13 +100,67 @@ understanding the health of open source projects with the following:
 
 \section{Related Work}
 
-Related to truck factor
+Truck Factor reflects robustness of project \cite{avelino2015truck} by
+computing the minimum number of developers required to comprise 50\% of
+file ownership. The underlying intuition is that a project with a low
+number of dominant developers will be more susceptible to failing due
+to external shocks. Projects where file ownership is shared by a large
+number of developers are interpreted as more healthy with this approach.
+
+Not all projects reflects software which requires support. Researchers have
+classified many project types such as 'software development projects',
+'solutions for homework', 'projects with educational purposes', 'data sets',
+and 'personal web sites' \cite{soll2017classifyhub}. The observation that
+many projects are not software development is also a noted peril when
+analyzing GitHub \cite{kalliamvakou2016depth}. We may also find repositories
+containing code duplicates \cite{lopes2017dejavu}. These factors may
+comprise threats to validity which are important to address in this analysis.
 
 \section{Methods}
 
-ok
+The Truck Factor assesses Git repository health at time $t_i$. We would
+like to better understand health at different points in time $t_{i \pm k}$
+where $k \ge 1$. We can borrow from Physics to find such a measure. Velocity,
+$v(t)$, is a measure of distance over time. What is a proxy for distance in
+the context of Git repository health? Total lines of code changed in a
+project during time $t_i$ can tell us how quickly the code base is
+changing. We apply this definition of velocity, $v(t)$:
 
- \section{Experiment}
+\begin{equation}
+v(t) = \frac{d}{t} = \frac{\text{lines added } - \text{ lines deleted}}{t}
+\end{equation}
+
+
+
+
+
+
+
+\subsection{Descriptive Baseline}
+
+got some trends
+
+\subsection{Predictive Baseline}
+
+using a simple prediction
+
+\subsection{Collecting Data}
+
+used kubernetes and ``being nice''
+
+\subsection{Processing Data}
+
+using Apache spark, using ``hack/reduce''
+
+\section{Experiment}
+
+\subsection{Results from Predictive Baseline}
+
+\subsection{Results from Scaled up Prediction}
+
+\subsubsection{Modeling Outliers}
+
+bad 
 
  \section{Discussion}
 
