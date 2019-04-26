@@ -233,12 +233,59 @@ hypothesis:
 Hypothesis $H1_{a}$ should hold when reviewing the predictive baseline,
 as well as at scale.
 
-
 \subsubsection{Predictive Baseline}
 
-using a simple prediction
+The predictive baseline uses Repo Velocity as a target or dependent variable
+and seeks to explain which features contribute to this measure. This paper
+posits the following features play a strong role in explaining Repo Velocity:
+
+\begin{itemize}
+\item Number of authors in a given time period.
+\item Number of mentors; number of authors in a year that have made monthly
+  commits for at least 6 months.
+\item Number of organizations; organization affiliations taken from authors
+  email addresses (i.e. RedHat).
+\end{itemize}
+
+Figure \ref{fig:corr_baseline} shows that these features are almost perfectly
+correlated in the baseline sample containing only 'software development
+type', DEV, projects. The almost perfect correlation between features
+means that we must adjust the forecasting model for multicollinearity so that
+predictions are not higher at the expense of not being able to control for
+possible intervening features during future analysis.
+
+\begin{figure}[h]
+  \centering
+  \begin{tabular}{ l|l|l|l }
+    & \# Authors & \# Organizations & \# Mentors \\
+    \hline
+    \# Authors       & 1.0  & 1.0  & 0.99 \\
+    \# Organizations & 1.0  & 1.0  & 0.99 \\
+    \# Mentors       & 0.99 & 0.99 & 1.0  \\
+  \end{tabular}
+  \caption{Correlation Matrix for Features in Baseline Sample}
+  \label{fig:corr_baseline}
+\end{figure}
+
+The high collinearity of these features, seen in Figure
+\ref{fig:corr_baseline}, provides us with an expectation of a linear
+relationship best captured by a Linear Regression model. Equation
+\ref{eq:ols_baseline} defines the linear model.
+
+\begin{equation}
+  \label{eq:ols_baseline}
+  \hat{y} = \alpha + \beta_{1, \# Authors}x_1 + \beta_{2, \# Organizations}
+  x_2 + \beta_{3, \# Mentors}x_3 + \epsilon
+\end{equation}
+
+The linear model in Equation \ref{eq:ols_baseline} is based on correlations
+of trends visually observed in Figure \ref{fig:desc_baseline}. We should
+not consider Equation \ref{eq:ols_baseline} as a model which can establish
+causality.
 
 \subsection{Validating Repo Velocity at Scale}
+
+
 
 Collecting from Facebook, etc.
 
@@ -259,6 +306,29 @@ using Apache spark, using ``hack/reduce''
 \subsection{Results from Baseline Repo Velocity}
 
 \subsubsection{Results from Predictive Baseline}
+
+The training/test/validation sets are broken out by year 2015/2016/2017
+rather than pooling time and selecting observations randomly. We expect
+strong trends over time so random selection wasn't used when specifying the
+training/test/validation sets. Results from the linear model specified
+by Equation \ref{eq:ols_baseline} are reported in Figure
+\ref{fig:ols_baseline}. 
+
+\begin{figure}[h]
+  \centering
+  \begin{tabular}{ l|l|l }
+    Dataset & Features & $r^2$ Value \\
+    \hline
+    Test       & All        & 0.8291 \\
+    Validation & All        & 0.9253 \\
+    Test       & \# Authors & 0.8104 \\
+    Validation & \# Authors & 0.8726 \\
+  \end{tabular}
+  \caption{Test/Validation Baseline Set Results from Equation
+    \ref{eq:ols_baseline}}
+  \label{fig:ols_baseline}
+\end{figure}
+
 
 \subsubsection{Results from Scaled up Prediction}
 
