@@ -363,11 +363,58 @@ then persisted using cloud storage (AWS S3 buckets).
 
 \subsubsection{Processing Data}
 
+Data processing was initially designed to consolidate the 2,927 SQLite
+databases into Parquet files from 64-128mb in size, then use Apache Spark.
+It was necessary to use files with a guarantee of 64mb because Apache Spark
+was built with the intention of working on top of the Hadoop Distributed
+File system (HDFS). The default file block size for HDFS was 64mb but it
+is currently 128mb \footnote{http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml}. Given that the author used
+Amazon EMR which pulled from S3 buckets, we cannot say the default file
+block size is a hard and fast rule. However, many assumptions in Spark are
+built off this HDFS default setting of a large (64-128mb) file block size so
+consolidating SQLite databases is justified.
 
+It turns out that Spark isn't really the best for joining tables. The
+underlying difficulty is unclear given the author's current expertise in
+Apache Spark. Tuning strategies were attempted such as enabling the fairly
+new Cost Based Optimizer (CBO), and repartitioning the Resilient Distributed
+Dataset (RDD) before writing out to Parquet files. Switching to a
+relational database such as AWS RedShift \footnote{https://aws.amazon.com/redshift/} proved to be the recommended course of action by senior developers.
 
-using Apache spark, using ``hack/reduce''
+Given the scope of this class project, setting up AWS RedShift, populating
+it with data, joining tables in SQL, then writing formatting code for
+machine learning required too much work. The author already prototyped all
+joins, aggregations, and filters using Pandas. There were still  2,927 GitHub
+repositories stored as backups in independent SQLite databases. These details
+presented an opportunity for a parallel algorithm using immutable data
+structures (SQLite databases per Git repository). 
+
+The parallel algorithm implemented is something the author is calling
+``hack/reduce''. Python 3.7 includes a 'multiprocessing' module in the
+standard library. This module is able to sidestep the Global Interpreter
+Lock used in Python by creating a specified number of subprocesses rather
+than threads. This approach is analogous to opening several terminal windows
+and running a Python script in each one. The author simply ran each data
+processing sequence separately on each GitHub repository SQLite database,
+wrote out a separate joined table, then appended all of the joined tables
+at the conclusion of all the subprocesses. This approach works best with
+a CPU containing multiple cores so an AWS \textit{c5d.18xlarge} instance
+with 72 vCPU, 2 x 900 NVMe SSD was used. This approach allowed processing
+with multiple table joins, aggregations, and filters on 2,927 SQLite
+databases to be completed in about one minute.
+
+It is possible that this divide and conquer, ``hack/reduce'', approach
+becomes more popular in the future because it allows for fine-tuning a
+subproblem using minimal hardware then scaling up by replicating the
+solution to that sub-problem across multiple cores. This type of data
+engineering solution is really fun. However, the author is not currently
+aware of anyone else who has adopted this type of data processing paradigm.
 
 \section{Experiment}
+
+Experiments were designed to test the methodology by reviewing descriptive
+and predictive baselines, then scaling up to see if those baselines continue
+to support hypothesis $H1_a$.
 
 \subsection{Results from Baseline Repo Velocity}
 
