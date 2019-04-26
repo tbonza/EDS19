@@ -285,9 +285,16 @@ causality.
 
 \subsection{Validating Repo Velocity at Scale}
 
-
-
-Collecting from Facebook, etc.
+In order to validate the Repo Velocity measure at scale, we want to
+use a subset of GitHub repositories that have a higher probability of
+being classified as 'software development projects', DEV. This paper assumes
+that all projects posted on GitHub by these organizations are intended to
+be classified as actively maintained DEV projects \footnote{Later work should absolutely question this assumption.}. The repositories were collected
+from: Apache Foundation, edX Online Learning, Facebook, Google, Microsoft,
+and Tensorflow (deep learning framework from Google). We will know if
+Repo Velocity is supported at scale if the descriptive trends and predictive
+modeling results associated with the baseline set are able to be replicated
+using Git repository data collected from these organizations.
 
 \subsection{Data Engineering}
 
