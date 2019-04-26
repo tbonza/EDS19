@@ -152,11 +152,50 @@ descriptive and predictive target or dependent variable.
 
 \subsection{Establishing Baseline Repo Velocity}
 
-In our effort to establish a new measure which can be applied at time
+In our effort to establish the Repo Velocity measure, we first examine
+behavior on Git repositories known to be either (a) active and currently
+well-maintained, (b) previously active and not currently maintained. The
+repositories I chose for the baseline subset are as follows:
+
+\begin{enumerate}
+\item torvalds/linux (a) - Linux kernel, a fundamental component in many
+  cloud computing server operating systems such as Amazon Linux.
+\item docker/docker-ce (a) - Community edition of Docker including the open
+  repositories Docker Engine and Docker client, a popular enterprise
+  application container platform currently heavily utilized in projects
+  such as Kubernetes.
+\item apache/spark (a) - Unified analytics engine for Big Data. Allows for
+  an alternative to Map/Reduce and is currently widely favored by industry.
+  One of the most active projects in the Apache Software Foundation
+  \cite{TheApach51:online}.
+\item apache/lucene-solr (a) - Mirror of Apache Lucene + Solr. Apache Lucene
+  is a high-performance, full featured text search engine library written in
+  Java. Apache Solr is an enterprise search platform written using Apache
+  Lucene. Notably, Lucene is a major dependency for Elasticsearch
+  \cite{elastics3:online}
+\item apache/attic-lucy (b) - Mirror of Apache Lucy, search engine library
+  provides full-text search for dynamic programming languages. Previously
+  active project in the Apache ``attic''.
+\item apache/attic-wink (b) - Apache Wink, simple yet solid framework for
+  building RESTful Web services. Previously active project in the Apache
+  ``attic''.
+\end{enumerate}
+
+All GitHub repositories chosen for the baseline sample would be classified
+as 'software development projects', or \textit{DEV}\footnote{The baseline
+  distribution containing only DEV repositories is a fundamental part of
+  the results presented in this paper.} using the ClassifyHub designations
+\cite{soll2017classifyhub}. This paper establishes baseline Repo Velocity
+expectations using descriptive and predictive (forecasting) methodologies.
 
 \subsubsection{Descriptive Baseline}
 
-got some trends
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.15]{f3}
+  \caption{Repo Velocity Trends for Baseline Sample}
+  \label{fig:desc_baseline}
+  \end{figure}
 
 \subsubsection{Predictive Baseline}
 
