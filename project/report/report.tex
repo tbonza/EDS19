@@ -451,16 +451,116 @@ by the organizations identified by the author.
 
 \subsubsection{Results from Scaled up Prediction}
 
-\subsection{Results from Repo Velocity at Scale}
+When we scale up the number of repositories from the baseline set,
+our statistical distribution changes considerably. Figure
+\ref{fig:corr_scale} contains the correlation matrix for features in
+the scaled up sample. We can see right away that the almost perfect
+correlation found in the baseline sample are no longer present.
+
+\begin{figure}[h]
+  \centering
+  \begin{tabular}{ l|l|l|l }
+    & \# Authors & \# Organizations & \# Mentors \\
+    \hline
+    \# Authors       & 1.0   & 0.14  & 0.71 \\
+    \# Organizations & 0.14  & 1.0  &  0.04 \\
+    \# Mentors       & 0.71 & 0.04 & 1.0  \\
+  \end{tabular}
+  \caption{Correlation Matrix for Features in Scaled Up Sample}
+  \label{fig:corr_scale}
+\end{figure}
+
+When running the Equation \ref{eq:ols_baseline} linear regression model,
+we can see that results present in Figure \ref{fig:ols_scale} drop in a
+dramatic fashion. We go from seeing features having an almost perfect linear
+relationship in the baseline set to having almost no linear relationship
+in the scaled up data across test and validation sets.
+
+\begin{figure}[h]
+  \centering
+  \begin{tabular}{ l|l|l }
+    Dataset & Features & $r^2$ Value \\
+    \hline
+    Test       & All        & 0.0659 \\
+    Validation & All        & 0.1607 \\
+  \end{tabular}
+  \caption{Test/Validation Scaled Up Set Results from Equation
+    \ref{eq:ols_baseline}}
+  \label{fig:ols_scale}
+\end{figure}
+
+The change in results for the scaled up data is certainly a cause for
+concern. Figure \ref{fig:ols_residuals} presents a residual plot of the
+scaled up test set. We can see that some residuals are valued at over
+$\pm 10$ million when a well performing model would have residuals normally
+distributed around zero.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.1]{f4}
+  \caption{Residual Plot for Scaled Up Test Set}
+  \label{fig:ols_residuals}
+\end{figure}
+
+The presence of outliers is very clear here. Figure \ref{fig:l2_crossval}
+provides a plot of cross-validation steps taken to penalize outliers using
+L2, ridge, regression. There were no discernible benefits from employing a
+regularization strategy given the magnitude of outliers present. The L2
+regression results present in Figure \ref{fig:ridge_scale} are actually
+slightly worse than the Linear regression results presented in Figure
+\ref{fig:ols_scale}. These results suggest an issue with the data rather
+than the model. Prediction quality is effected by signal in the data and
+specification of the model. Given that the baseline results were very
+encouraging, results in Figure \ref{fig:ols_scale} and Figure
+\ref{fig:ridge_scale} imply that a very different data distribution is
+present.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.5]{f5}
+  \caption{Cross Validation on Regularizing Parameter for L2 Regression}
+  \label{fig:l2_crossval}
+\end{figure}
+
+The data distribution in the scaled up sample shown via Figure
+\ref{fig:desc_scale} demonstrates that 57-70\% of projects for 2/3 sampled
+organizations have a velocity which is near converging to zero. The baseline
+sample consisted mostly of 'software development projects', DEV, in active
+development with 1/3 in the 'attic' or not actively being maintained.
+Figure \ref{fig:desc_scale} suggests that most GitHub repositories owned
+by these organizations are not being actively maintained. 
 
 
-\subsubsection{Modeling Outliers}
+\begin{figure}[h]
+  \centering
+  \begin{tabular}{ l|l|l }
+    Dataset & Features & $r^2$ Value \\
+    \hline
+    Test       & All        & 0.0613 \\
+    Validation & All        & 0.1559 \\
+  \end{tabular}
+  \caption{Test/Validation Scaled Up Set Results from Equation
+    \ref{eq:ols_baseline} using $\lambda$ L2 Regularization}
+  \label{fig:ridge_scale}
+\end{figure}
 
-bad 
+Results from the scaled up predictions clearly demonstrate a data
+distribution which has sharply diverged from the baseline distribution.
+This divergence is clear because the really encouraging findings from
+the baseline distribution have not generalized to the scaled up distribution.
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.1]{f2}
+  \caption{Repositories with Minimal Velocity in 2018 by Organization}
+  \label{fig:desc_scale}
+  \end{figure}
+
 
 \section{Discussion}
 
-had mixed results, should have better classified input GIGO
+ok
 
 \subsection{Threats to Validity}
 
