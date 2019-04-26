@@ -414,9 +414,9 @@ aware of anyone else who has adopted this type of data processing paradigm.
 
 Experiments were designed to test the methodology by reviewing descriptive
 and predictive baselines, then scaling up to see if those baselines continue
-to support hypothesis $H1_a$.
-
-\subsection{Results from Baseline Repo Velocity}
+to support hypothesis $H1_a$. We had to review the descriptive baseline in
+Figure \ref{fig:desc_baseline} to establish trends that could inform
+$H1_a$. 
 
 \subsubsection{Results from Predictive Baseline}
 
@@ -442,6 +442,12 @@ by Equation \ref{eq:ols_baseline} are reported in Figure
   \label{fig:ols_baseline}
 \end{figure}
 
+Figure \ref{fig:ols_baseline} demonstrates encouraging results for the
+baseline set. The features from Equation \ref{eq:ols_baseline} have a
+near perfect linear relationship with the velocity, $v(t)$, target. We should
+recognize that all Git repositories are 'software development projects',
+DEV, and this is most likely not true for all GitHub repositories owned
+by the organizations identified by the author.
 
 \subsubsection{Results from Scaled up Prediction}
 
