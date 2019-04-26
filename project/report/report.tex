@@ -315,9 +315,51 @@ utility and processed using Okra.
 Initial exploratory efforts were undertaken to see if downloading all
 repositories from GitHub would be possible. This required an architecture
 which could clone and process the GitHub repositories in parallel.
+Kubernetes is an open source system for automating deployment, scaling, and
+management of containerized applications \footnote{https://kubernetes.io/}.
+Many developers often associate Kubernetes with the deployment of web
+applications. However, Kubernetes it can also be used to orchestrate batch
+processing jobs. Figure \ref{fig:kubernetes} illustrates distributed batch
+processing using the Python package Okra and Kubernetes.
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.35]{kube_okra}
+  \caption{GitHub Repository Collection using Okra and Kubernetes}
+  \label{fig:kubernetes}
+  \end{figure}
 
-2,869 repos collected and processed; mention the ones that failed
+In theory, using Okra and Kubernetes would facilitate downloading all
+repositories on GitHub identified by GHTorrent. In practice, Google notified
+the author of a server usage limit. GitHub Developer Support notified
+the author that they “…reserve the right to suspend your Account or throttle
+your file hosting until you can reduce your bandwidth consumption…”.
+Fortunately, the author prudently reached out to GitHub before running a
+batch process which could have been interpreted as a
+distributed-denial-of-service (DDoS) attack.
+
+Secondary efforts to collect data consisted of being nice. The author
+queried all known GitHub repository names using Google BigQuery for the
+GitTorrent table. GitHub repository names owned by the following
+organizations were selected: Apache, edX, Facebook, Google, Microsoft,
+and Tensorflow. Each GitHub repository was Cloned and processed sequentially
+using a 10 second delay before each clone. All GitHub repository clones
+were done using SSH rather than the usual HTTPS. Figure
+\ref{fig:repos_collected} contains a breakdown of which GitHub repositories
+were successfully cloned and processed.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.1]{f1}
+  \caption{Number of GitHub Repositories Collected for Each Organization}
+  \label{fig:repos_collected}
+\end{figure}
+
+A total of 2,927 repositories were requested, 2,869 repositories were
+retrieved and processed, 58 failed. Information processed using the
+'git log' utility and Okra was stored in a SQLite database; one database
+file per GitHub repository. All 2,927 SQLite databases were compressed
+then persisted using cloud storage (AWS S3 buckets). 
 
 \subsubsection{Processing Data}
 
