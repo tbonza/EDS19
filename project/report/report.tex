@@ -154,7 +154,7 @@ descriptive and predictive target or dependent variable.
 
 In our effort to establish the Repo Velocity measure, we first examine
 behavior on Git repositories known to be either (a) active and currently
-well-maintained, (b) previously active and not currently maintained. The
+in development, (b) previously active and not currently in development. The
 repositories I chose for the baseline subset are as follows:
 
 \begin{enumerate}
@@ -190,12 +190,49 @@ expectations using descriptive and predictive (forecasting) methodologies.
 
 \subsubsection{Descriptive Baseline}
 
+We establish a descriptive baseline for the Repo Velocity measure by
+examining changes the measure over time (2013-2018) across our baseline
+sample. Figure \ref{fig:desc_baseline} shows diverging behavior within the
+baseline sample for repositories which are (a) active and currently in
+development, or (b) previously active and not currently in development. The
+common trend with (b) type repositories is that Repo Velocity is converging
+to zero. Apache Lucy (b), shows a decrease in velocity then a convergence to
+zero between 2013 and 2015. Apache Wink (b) has already converged to zero
+within the 2013-2018 time window; a longer term window shows similar
+behavior to Apache Lucy.
+
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.15]{f3}
   \caption{Repo Velocity Trends for Baseline Sample}
   \label{fig:desc_baseline}
-  \end{figure}
+\end{figure}
+
+Type (a) projects show considerable variance in Repo Velocity, such as
+'torvalds/linux'. However, on average, we can see that Repo Velocity is
+not converging to zero. There is a clear and interesting trend with Apache
+Spark that is showing a downward trend in Repo Velocity between 2014 and
+the end of sample at December 2018. This downward trend may reflect a peril
+of mining GitHub \cite{kalliamvakou2016depth}, in that not all repositories
+are projects. For example, Yahoo is currently developing
+TensorFlowOnSpark \cite{yahooTen24:online} which allows Tensorflow
+programs to operate using Apache Spark clusters. The Yahoo project is
+directly competing with an offering by Google Cloud which does not appear
+to involve Spark \cite{RunningD43:online}. We can see that GitHub
+repositories not representing the scope of a project is a potential
+threat to validity we must consider here.
+
+Trends viewed in this descriptive baseline helped to inform the following
+hypothesis:
+
+\begin{itemize}
+\item[$H1_{a}$]: As the absolute value of velocity diverging from zero
+  (acceleration) increases, Git repo health will also increase.
+\end{itemize}
+
+Hypothesis $H1_{a}$ should hold when reviewing the predictive baseline,
+as well as at scale.
+
 
 \subsubsection{Predictive Baseline}
 
