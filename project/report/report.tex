@@ -33,7 +33,7 @@
 
 \graphicspath{ {imgs/} }
 
-\title{Diagnosing Git Repository Health}
+\title{Repo Velocity: Diagnosing Git Repository Health}
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -87,8 +87,10 @@ in an open source project. The underlying intuition is that open source
 projects with a lower Truck Factor are more susceptible to project disruption
 in the event of adverse circumstances.
 
-By borrowing from Physics, this paper contributes to the advancement of
-understanding the health of open source projects with the following:
+By borrowing from Physics, this paper
+\footnote{Code available on GitHub: https://github.com/tbonza/EDS19}
+contributes to the advancement of understanding the health of open source
+projects, studying a subset of GitHub repositories, with the following:
 
 \begin{itemize}
 \item Introducing a health measure that can be assessed at time
@@ -124,45 +126,78 @@ where $k \ge 1$. We can borrow from Physics to find such a measure. Velocity,
 $v(t)$, is a measure of distance over time. What is a proxy for distance in
 the context of Git repository health? Total lines of code changed in a
 project during time $t_i$ can tell us how quickly the code base is
-changing. We apply this definition of velocity, $v(t)$:
+changing. We apply this definition of velocity, $v(t)$, for our new measure
+Repo Velocity.
 
-\begin{equation}
-v(t) = \frac{d}{t} = \frac{\text{lines added } - \text{ lines deleted}}{t}
+\begin{equation} \label{eq:1}
+  \text{Repo Velocity } \approx v(t) = \frac{d}{t} =
+  \frac{\text{lines added } - \text{ lines deleted}}{t}
+  \qquad \forall i \pm k \in t | i \in \mathbb{R}, k \in \mathbb{R}_{>0}
 \end{equation}
 
+Equation \ref{eq:1} defines our target measure, Repo Velocity, and posits
+that the Physics concept of 'distance' can provide insight into how a GitHub
+repository is changing over time. We can compute velocity, $v(t_i)$ at time
+$t_i$ where $i$ is a real number. We can also compute average velocity,
+$v_{avg}(t_{i \pm k})$, at time $t_i$ to time $t_{i \pm k}$. The Repo
+Velocity measure also has the advantage of allowing aggregation and
+disaggregation. Truck Factor is a measure which can only be analyzed at an
+aggregate level. There can be a lot of interesting variation below a
+Repository level aggregation. Repo Velocity can also be used to capture
+individual contributor velocity. The ability of Repo Velocity to be applied
+over time as well as at aggregated and disaggregated levels make the measure
+a unique contribution to the understanding of Git repository health. The
+remaining methodology seeks to establish Repo Velocity as an informative
+descriptive and predictive target or dependent variable.
 
+\subsection{Establishing Baseline Repo Velocity}
 
+In our effort to establish a new measure which can be applied at time
 
-
-
-
-\subsection{Descriptive Baseline}
+\subsubsection{Descriptive Baseline}
 
 got some trends
 
-\subsection{Predictive Baseline}
+\subsubsection{Predictive Baseline}
 
 using a simple prediction
 
-\subsection{Collecting Data}
+\subsection{Validating Repo Velocity at Scale}
+
+Collecting from Facebook, etc.
+
+\subsection{Data Engineering}
+
+Wrote a Python package, Okra.
+
+\subsubsection{Collecting Data}
 
 used kubernetes and ``being nice''
 
-\subsection{Processing Data}
+\subsubsection{Processing Data}
 
 using Apache spark, using ``hack/reduce''
 
 \section{Experiment}
 
-\subsection{Results from Predictive Baseline}
+\subsection{Results from Baseline Repo Velocity}
 
-\subsection{Results from Scaled up Prediction}
+\subsubsection{Results from Predictive Baseline}
+
+\subsubsection{Results from Scaled up Prediction}
+
+\subsection{Results from Repo Velocity at Scale}
+
 
 \subsubsection{Modeling Outliers}
 
 bad 
 
- \section{Discussion}
+\section{Discussion}
+
+had mixed results, should have better classified input GIGO
+
+\subsection{Threats to Validity}
 
  yup
 
