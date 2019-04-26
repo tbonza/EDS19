@@ -560,11 +560,42 @@ the baseline distribution have not generalized to the scaled up distribution.
 
 \section{Discussion}
 
-ok
+The author found that some correlation supports hypothesis $H1_a$ but
+causal mechanisms were not established through experimentation. A substantial
+amount of Data Engineering took place to get a meaningful scaled up sample
+in comparison to the baseline sample. Major threats to the validity of this
+study are the following:
 
-\subsection{Threats to Validity}
+\begin{itemize}
+\item Correlation not causation
+  \begin{itemize}
+  \item Forecasting model prototype worked well on baseline distribution
+    but the findings didn’t generalize when using the scaled up sample.
+    \end{itemize}
+\item Theoretical understanding of healthy software
+  \begin{itemize}
+  \item Assumes that software development projects, DEV, must keep
+    moving in order to survive.
+  \item Assumes that all software by organizations in the scaled up sample
+    are software development projects.
+  \end{itemize}
+\end{itemize}
 
- yup
+Challenging the assumption that all software by organizations in the scaled
+up sample are software projects is a good first step to resolving
+discrepancies between baseline and scaled up data distributions. Applying
+the ClassifyHub \cite{soll2017classifyhub} algorithm to the scaled up
+data distribution would be a solid next step to understanding why the
+baseline model in Equation \ref{eq:ols_baseline} was unable to generalize
+from the baseline sample.
+
+If future work is able to reconcile variances in the baseline and scaled up
+distributions, then a model providing predictive support for Hypothesis
+$H1_a$ will be possible. The use of natural experiments with GitHub
+repository data can help the field move away from an emphasis on correlation
+and embrace assertions of causality. Pursuing causal mechanisms, like those
+established in Physics, appears to be the most promising path forward for
+this subfield within Data Science.
 
 %\newpage
 \bibliographystyle{unsrt}
